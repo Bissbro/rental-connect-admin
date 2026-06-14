@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bookings — Rental Connect</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+  --navy: #0A2540; --teal: #40B5AD; --gold: #B8975A;
+  --white: #FAFAF8; --gray: #f4f5f7; --border: #e5e7eb;
+  --text: #1C1C1E; --text-muted: #6b7280; --sidebar-w: 240px;
+}
+body { font-family: 'Inter', sans-serif; background: var(--gray); color: var(--text); display: flex; min-height: 100vh; }
+
+/* Sidebar */
+.sidebar { width: var(--sidebar-w); background: var(--navy); min-height: 100vh; position: fixed; top: 0; left: 0; display: flex; flex-direction: column; z-index: 100; }
+.sidebar-logo { padding: 24px 20px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+.sidebar-logo h1 { font-family: 'Playfair Display', serif; color: white; font-size: 1.1rem; }
+.sidebar-logo p { font-size: 11px; color: rgba(255,255,255,0.4); margin-top: 2px; letter-spacing: 1px; text-transform: uppercase; }
+.sidebar-nav { flex: 1; padding: 16px 0; }
+.nav-item { display: flex; align-items: center; gap: 12px; padding: 11px 20px; color: rgba(255,255,255,0.6); text-decoration: none; font-size: 13px; font-weight: 500; transition: all 0.2s; cursor: pointer; border: none; background: none; width: 100%; text-align: left; }
+.nav-item:hover { background: rgba(255,255,255,0.08); color: white; }
+.nav-item.active { background: rgba(64,181,173,0.2); color: var(--teal); }
+.nav-item i { width: 16px; text-align: center; font-size: 14px; }
+.nav-divider { height: 1px; background: rgba(255,255,255,0.08); margin: 8px 20px; }
+.sidebar-footer { padding: 16px 20px; border-top: 1px solid rgba(255,255,255,0.1); }
+.sidebar-user { font-size: 12px; color: rgba(255,255,255,0.5); margin-bottom: 10px; }
+.sidebar-user span { color: white; font-weight: 600; display: block; }
+.btn-logout { width: 100%; padding: 8px; background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.6); border: none; border-radius: 8px; font-size: 12px; cursor: pointer; transition: 0.2s; }
+.btn-logout:hover { background: rgba(255,255,255,0.15); color: white; }
+
+/* Main */
+.main { margin-left: var(--sidebar-w); flex: 1; padding: 32px; }
+.page-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px; }
+.page-header h2 { font-family: 'Playfair Display', serif; font-size: 1.6rem; color: var(--text); }
+.page-header p { font-size: 13px; color: var(--text-muted); margin-top: 4px; }
+
+/* Filters */
+.filters-bar { background: white; border-radius: 12px; padding: 16px 20px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); margin-bottom: 20px; display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+.filter-group { display: flex; align-items: center; gap: 8px; }
+.filter-group label { font-size: 12px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap; }
+.filter-select, .filter-input { padding: 8px 12px; border: 1.5px solid var(--border); border-radius: 8px; font-size: 13px; font-family: 'Inter', sans-serif; color: var(--text); outline: none; transition: border-color 0.2s; background: white; }
+.filter-select:focus, .filter-input:focus { border-color: var(--teal); }
+.filter-input { width: 200px; }
+.filters-bar .spacer { flex: 1; }
+.btn { padding: 8px 16px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; border: none; transition: 0.2s; display: inline-flex; align-items: center; gap: 6px; }
+.btn-teal { background: var(--teal); color: white; }
+.btn-teal:hover { background: #38a39c; }
+.btn-outline { background: none; border: 1.5px solid var(--border); color: var(--text-muted); }
+.btn-outline:hover { border-color: var(--teal); color: var(--teal); }
+.btn-sm { padding: 6px 12px; font-size: 12px; }
+
+/* Stats row */
+.stats-mini { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-bottom: 20px; }
+.stat-mini { background: white; border-radius: 10px; padding: 14px 16px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); text-align: center; }
+.stat-mini-val { font-size: 1.4rem; font-weight: 700; color: var(--text); }
+.stat-mini-label { font-size: 11px; color: var(--text-muted); margin-top: 2px; text-transform: uppercase; letter-spacing: 0.5px; }
+.stat-mini.pending .stat-mini-val { color: #d97706; }
+.stat-mini.confirmed .stat-mini-val { color: var(--teal); }
+.stat-mini.cancelled .stat-mini-val { color: #dc2626; }
+.stat-mini.completed .stat-mini-val { color: #059669; }
+
+/* Table card */
+.card { background: white; border-radius: 12px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); overflow: hidden; }
+.card-header { display: flex; justify-content: space-between; align-items: center; padding: 18px 20px; border-bottom: 1px solid var(--border); }
+.card-title { font-size: 14px; font-weight: 700; color: var(--text); }
+.result-count { font-size: 12px; color: var(--text-muted); }
+.table-wrap { overflow-x: auto; }
+.table { width: 100%; border-collapse: collapse; }
+.table th { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); padding: 10px 16px; text-align: left; border-bottom: 1px solid var(--border); background: #fafafa; white-space: nowrap; }
+.table td { padding: 13px 16px; font-size: 13px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+.table tr:last-child td { border-bottom: none; }
+.table tr:hover td { background: #fafff9; }
+.guest-name { font-weight: 600; color: var(--text); }
+.guest-email { font-size: 12px; color: var(--text-muted); margin-top: 1px; }
+.badge { padding: 3px 9px; border-radius: 20px; font-size: 11px; font-weight: 600; white-space: nowrap; }
+.badge-pending { background: #fef3c7; color: #92400e; }
+.badge-confirmed { background: #d1fae5; color: #065f46; }
+.badge-cancelled { background: #fee2e2; color: #991b1b; }
+.badge-completed { background: #dbeafe; color: #1e40af; }
+.badge-lead { background: #f3e8ff; color: #6b21a8; }
+.source-badge { padding: 2px 7px; border-radius: 4px; font-size: 10px; font-weight: 600; background: var(--gray); color: var(--text-muted); }
+.source-badge.airbnb { background: #fde8e8; color: #c0392b; }
+.source-badge.booking { background: #e8f0fe; color: #1a56db; }
+.source-badge.agoda { background: #fef3e8; color: #c05621; }
+.actions { display: flex; gap: 6px; }
+.action-btn { width: 30px; height: 30px; border-radius: 7px; border: 1.5px solid var(--border); background: white; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 13px; color: var(--text-muted); transition: 0.2s; }
+.action-btn:hover { border-color: var(--teal); color: var(--teal); }
+.action-btn.danger:hover { border-color: #dc2626; color: #dc2626; }
+
+/* Pagination */
+.pagination { display: flex; justify-content: space-between; align-items: center; padding: 14px 20px; border-top: 1px solid var(--border); }
+.pagination-info { font-size: 12px; color: var(--text-muted); }
+.pagination-btns { display: flex; gap: 4px; }
+.page-btn { width: 32px; height: 32px; border-radius: 7px; border: 1.5px solid var(--border); background: white; cursor: pointer; font-size: 12px; font-weight: 600; color: var(--text-muted); display: flex; align-items: center; justify-content: center; transition: 0.2s; }
+.page-btn:hover, .page-btn.active { border-color: var(--teal); color: var(--teal); }
+.page-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* Modal */
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 500; display: none; align-items: center; justify-content: center; padding: 20px; }
+.modal-overlay.open { display: flex; }
+.modal { background: white; border-radius: 16px; width: 100%; max-width: 600px; max-height: 90vh; overflow-y: auto; }
+.modal-header { padding: 20px 24px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+.modal-title { font-family: 'Playfair Display', serif; font-size: 1.2rem; }
+.modal-close { width: 32px; height: 32px; border-radius: 8px; border: none; background: var(--gray); cursor: pointer; font-size: 16px; color: var(--text-muted); display: flex; align-items: center; justify-content: center; }
+.modal-body { padding: 24px; }
+.detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.detail-item label { font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 4px; }
+.detail-item span { font-size: 14px; color: var(--text); font-weight: 500; }
+.detail-item.full { grid-column: 1 / -1; }
+.modal-footer { padding: 16px 24px; border-top: 1px solid var(--border); display: flex; gap: 8px; justify-content: flex-end; }
+
+/* New booking form */
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+.form-row.single { grid-template-columns: 1fr; }
+.form-group label { display: block; font-size: 12px; font-weight: 600; color: var(--text); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+.form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px 12px; border: 1.5px solid var(--border); border-radius: 8px; font-size: 13px; font-family: 'Inter', sans-serif; outline: none; transition: border-color 0.2s; }
+.form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: var(--teal); }
+.form-group textarea { resize: vertical; min-height: 70px; }
+
+/* Empty state */
+.empty-state { text-align: center; padding: 60px 20px; color: var(--text-muted); }
+.empty-state i { font-size: 40px; margin-bottom: 12px; opacity: 0.3; }
+.empty-state p { font-size: 14px; }
+
+/* Toast */
+.toast { position: fixed; bottom: 24px; right: 24px; background: var(--navy); color: white; padding: 12px 20px; border-radius: 10px; font-size: 13px; font-weight: 500; z-index: 999; display: none; box-shadow: 0 4px 20px rgba(0,0,0,0.2); }
+.toast.show { display: block; animation: slideUp 0.3s ease; }
+.toast.success { border-left: 3px solid var(--teal); }
+.toast.error { border-left: 3px solid #dc2626; }
+@keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+</style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <h1>Rental Connect</h1>
+    <p id="tenant-name">Loading...</p>
+  </div>
+  <nav class="sidebar-nav">
+    <a class="nav-item" href="dashboard.html"><i class="fas fa-chart-pie"></i> Dashboard</a>
+    <a class="nav-item active" href="bookings.html"><i class="fas fa-calendar-check"></i> Bookings</a>
+    <a class="nav-item" href="units.html"><i class="fas fa-building"></i> Units</a>
+    <a class="nav-item" href="#"><i class="fas fa-file-invoice"></i> Invoices</a>
+    <div class="nav-divider"></div>
+    <a class="nav-item" href="#"><i class="fas fa-calendar"></i> Calendar</a>
+    <a class="nav-item" href="settings.html"><i class="fas fa-cog"></i> Settings</a>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="sidebar-user">Signed in as<span id="sidebar-username">...</span></div>
+    <button class="btn-logout" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Sign Out</button>
+  </div>
+</aside>
+
+<main class="main">
+  <div class="page-header">
+    <div>
+      <h2>Bookings</h2>
+      <p>Manage all reservations across your units</p>
+    </div>
+    <button class="btn btn-teal" onclick="openNewBookingModal()"><i class="fas fa-plus"></i> New Booking</button>
+  </div>
+
+  <!-- Stats mini -->
+  <div class="stats-mini">
+    <div class="stat-mini"><div class="stat-mini-val" id="stat-total">—</div><div class="stat-mini-label">Total</div></div>
+    <div class="stat-mini pending"><div class="stat-mini-val" id="stat-pending">—</div><div class="stat-mini-label">Pending</div></div>
+    <div class="stat-mini confirmed"><div class="stat-mini-val" id="stat-confirmed">—</div><div class="stat-mini-label">Confirmed</div></div>
+    <div class="stat-mini completed"><div class="stat-mini-val" id="stat-completed">—</div><div class="stat-mini-label">Completed</div></div>
+    <div class="stat-mini cancelled"><div class="stat-mini-val" id="stat-cancelled">—</div><div class="stat-mini-label">Cancelled</div></div>
+  </div>
+
+  <!-- Filters -->
+  <div class="filters-bar">
+    <div class="filter-group">
+      <label>Status</label>
+      <select class="filter-select" id="filter-status" onchange="applyFilters()">
+        <option value="">All</option>
+        <option value="pending">Pending</option>
+        <option value="confirmed">Confirmed</option>
+        <option value="completed">Completed</option>
+        <option value="cancelled">Cancelled</option>
+        <option value="lead">Lead</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <label>Unit</label>
+      <select class="filter-select" id="filter-unit" onchange="applyFilters()">
+        <option value="">All Units</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <label>Source</label>
+      <select class="filter-select" id="filter-source" onchange="applyFilters()">
+        <option value="">All Sources</option>
+        <option value="Direct">Direct</option>
+        <option value="Airbnb">Airbnb</option>
+        <option value="Booking.com">Booking.com</option>
+        <option value="Agoda">Agoda</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <label>From</label>
+      <input type="date" class="filter-input" id="filter-from" onchange="applyFilters()" style="width:140px;">
+    </div>
+    <div class="filter-group">
+      <label>To</label>
+      <input type="date" class="filter-input" id="filter-to" onchange="applyFilters()" style="width:140px;">
+    </div>
+    <div class="spacer"></div>
+    <input type="text" class="filter-input" id="filter-search" placeholder="Search guest name..." oninput="applyFilters()" style="width:180px;">
+    <button class="btn btn-outline btn-sm" onclick="resetFilters()">Clear</button>
+  </div>
+
+  <!-- Table -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">Reservations</span>
+      <span class="result-count" id="result-count">Loading...</span>
+    </div>
+    <div class="table-wrap">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Ref</th>
+            <th>Guest</th>
+            <th>Unit</th>
+            <th>Check-in</th>
+            <th>Check-out</th>
+            <th>Nights</th>
+            <th>Amount</th>
+            <th>Source</th>
+            <th>Status</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="bookings-tbody">
+          <tr><td colspan="10" style="text-align:center;padding:40px;color:#999;">Loading...</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="pagination">
+      <span class="pagination-info" id="pagination-info">—</span>
+      <div class="pagination-btns" id="pagination-btns"></div>
+    </div>
+  </div>
+</main>
+
+<!-- View Booking Modal -->
+<div class="modal-overlay" id="modal-view">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">Booking Details</span>
+      <button class="modal-close" onclick="closeModal('modal-view')"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body" id="modal-view-body">Loading...</div>
+    <div class="modal-footer" id="modal-view-footer"></div>
+  </div>
+</div>
+
+<!-- New Booking Modal -->
+<div class="modal-overlay" id="modal-new">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">New Booking</span>
+      <button class="modal-close" onclick="closeModal('modal-new')"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group"><label>Guest Name *</label><input type="text" id="nb-name" placeholder="Full name"></div>
+        <div class="form-group"><label>Phone *</label><input type="text" id="nb-phone" placeholder="+960..."></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Email</label><input type="email" id="nb-email" placeholder="guest@email.com"></div>
+        <div class="form-group"><label>NID / Passport</label><input type="text" id="nb-nid" placeholder="ID number"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Unit *</label><select id="nb-unit"></select></div>
+        <div class="form-group"><label>Guests</label><input type="number" id="nb-guests" value="2" min="1" max="10"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Check-in *</label><input type="date" id="nb-checkin" onchange="calcNights()"></div>
+        <div class="form-group"><label>Check-out *</label><input type="date" id="nb-checkout" onchange="calcNights()"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Total Amount *</label><input type="number" id="nb-amount" placeholder="0.00"></div>
+        <div class="form-group"><label>Currency</label><select id="nb-currency"><option value="USD">USD</option><option value="MVR">MVR</option></select></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Source</label><select id="nb-source"><option>Direct</option><option>Airbnb</option><option>Booking.com</option><option>Agoda</option><option>Walk-in</option></select></div>
+        <div class="form-group"><label>Payment Method</label><select id="nb-payment"><option value="cash">Cash</option><option value="transfer">Transfer</option><option value="card">Card</option><option value="crypto">Crypto</option></select></div>
+      </div>
+      <div class="form-row single">
+        <div class="form-group"><label>Special Requests</label><textarea id="nb-requests" placeholder="Any notes or requests..."></textarea></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modal-new')">Cancel</button>
+      <button class="btn btn-teal" onclick="createBooking()"><i class="fas fa-check"></i> Create Booking</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const API = 'https://api.htmrentals.com';
+let token = null, tenantId = null, allBookings = [], filteredBookings = [], units = [];
+let currentPage = 1;
+const perPage = 20;
+
+// Auth
+function checkAuth() {
+  token = localStorage.getItem('rc_token');
+  tenantId = localStorage.getItem('rc_tenant_id');
+  const username = localStorage.getItem('rc_username');
+  const tenantName = localStorage.getItem('rc_tenant_name');
+  if (!token) { window.location.href = 'index.html'; return; }
+  document.getElementById('sidebar-username').textContent = username || '';
+  document.getElementById('tenant-name').textContent = tenantName || '';
+}
+
+function logout() {
+  localStorage.clear();
+  window.location.href = 'index.html';
+}
+
+// Load data
+async function loadUnits() {
+  try {
+    const r = await fetch(`${API}/api/rental-connect/units`, { headers: { Authorization: `Bearer ${token}` } });
+    const d = await r.json();
+    units = d.units || [];
+    const sel = document.getElementById('filter-unit');
+    const nbSel = document.getElementById('nb-unit');
+    units.forEach(u => {
+      sel.innerHTML += `<option value="${u.id}">${u.name}</option>`;
+      nbSel.innerHTML += `<option value="${u.id}">${u.name}</option>`;
+    });
+  } catch(e) { console.error(e); }
+}
+
+async function loadBookings() {
+  try {
+    const r = await fetch(`${API}/api/rental-connect/bookings`, { headers: { Authorization: `Bearer ${token}` } });
+    const d = await r.json();
+    allBookings = d.bookings || [];
+    updateStats();
+    applyFilters();
+  } catch(e) {
+    document.getElementById('bookings-tbody').innerHTML = `<tr><td colspan="10" class="empty-state"><i class="fas fa-exclamation-triangle"></i><p>Failed to load bookings</p></td></tr>`;
+  }
+}
+
+function updateStats() {
+  document.getElementById('stat-total').textContent = allBookings.length;
+  document.getElementById('stat-pending').textContent = allBookings.filter(b => b.booking_status === 'pending').length;
+  document.getElementById('stat-confirmed').textContent = allBookings.filter(b => b.booking_status === 'confirmed').length;
+  document.getElementById('stat-completed').textContent = allBookings.filter(b => b.booking_status === 'completed').length;
+  document.getElementById('stat-cancelled').textContent = allBookings.filter(b => b.booking_status === 'cancelled').length;
+}
+
+function applyFilters() {
+  const status = document.getElementById('filter-status').value;
+  const unit = document.getElementById('filter-unit').value;
+  const source = document.getElementById('filter-source').value;
+  const from = document.getElementById('filter-from').value;
+  const to = document.getElementById('filter-to').value;
+  const search = document.getElementById('filter-search').value.toLowerCase();
+
+  filteredBookings = allBookings.filter(b => {
+    if (status && b.booking_status !== status) return false;
+    if (unit && String(b.unit_id) !== unit) return false;
+    if (source && b.booking_source !== source) return false;
+    if (from && b.check_in_date < from) return false;
+    if (to && b.check_in_date > to) return false;
+    if (search && !b.guest_name.toLowerCase().includes(search)) return false;
+    return true;
+  });
+
+  currentPage = 1;
+  renderTable();
+}
+
+function resetFilters() {
+  document.getElementById('filter-status').value = '';
+  document.getElementById('filter-unit').value = '';
+  document.getElementById('filter-source').value = '';
+  document.getElementById('filter-from').value = '';
+  document.getElementById('filter-to').value = '';
+  document.getElementById('filter-search').value = '';
+  applyFilters();
+}
+
+function renderTable() {
+  const total = filteredBookings.length;
+  const start = (currentPage - 1) * perPage;
+  const end = Math.min(start + perPage, total);
+  const page = filteredBookings.slice(start, end);
+
+  document.getElementById('result-count').textContent = `${total} booking${total !== 1 ? 's' : ''}`;
+  document.getElementById('pagination-info').textContent = total ? `Showing ${start + 1}–${end} of ${total}` : 'No results';
+
+  if (!page.length) {
+    document.getElementById('bookings-tbody').innerHTML = `<tr><td colspan="10"><div class="empty-state"><i class="fas fa-calendar-times"></i><p>No bookings found</p></div></td></tr>`;
+    document.getElementById('pagination-btns').innerHTML = '';
+    return;
+  }
+
+  document.getElementById('bookings-tbody').innerHTML = page.map(b => {
+    const statusClass = { pending: 'badge-pending', confirmed: 'badge-confirmed', cancelled: 'badge-cancelled', completed: 'badge-completed', lead: 'badge-lead' }[b.booking_status] || 'badge-gray';
+    const srcClass = { 'Airbnb': 'airbnb', 'Booking.com': 'booking', 'Agoda': 'agoda' }[b.booking_source] || '';
+    const unitName = units.find(u => u.id === b.unit_id)?.name || `Unit ${b.unit_id}`;
+    const ref = b.booking_reference ? `<span style="font-size:11px;color:var(--text-muted)">${b.booking_reference.slice(0,10)}</span>` : `<span style="font-size:11px;color:var(--text-muted)">#${b.id}</span>`;
+    return `<tr>
+      <td>${ref}</td>
+      <td><div class="guest-name">${b.guest_name}</div><div class="guest-email">${b.guest_phone || ''}</div></td>
+      <td>${unitName}</td>
+      <td>${formatDate(b.check_in_date)}</td>
+      <td>${formatDate(b.check_out_date)}</td>
+      <td>${b.total_nights}</td>
+      <td style="font-weight:600">${b.currency} ${Number(b.total_amount).toLocaleString()}</td>
+      <td><span class="source-badge ${srcClass}">${b.booking_source || 'Direct'}</span></td>
+      <td><span class="badge ${statusClass}">${b.booking_status}</span></td>
+      <td><div class="actions">
+        <button class="action-btn" title="View" onclick="viewBooking(${b.id})"><i class="fas fa-eye"></i></button>
+        ${b.booking_status === 'pending' ? `<button class="action-btn" title="Confirm" onclick="updateStatus(${b.id},'confirmed')"><i class="fas fa-check" style="color:var(--teal)"></i></button>` : ''}
+        ${b.booking_status !== 'cancelled' && b.booking_status !== 'completed' ? `<button class="action-btn danger" title="Cancel" onclick="updateStatus(${b.id},'cancelled')"><i class="fas fa-times"></i></button>` : ''}
+      </div></td>
+    </tr>`;
+  }).join('');
+
+  // Pagination
+  const totalPages = Math.ceil(total / perPage);
+  let btns = '';
+  btns += `<button class="page-btn" ${currentPage===1?'disabled':''} onclick="goPage(${currentPage-1})"><i class="fas fa-chevron-left"></i></button>`;
+  for (let i = 1; i <= totalPages; i++) {
+    if (i === 1 || i === totalPages || (i >= currentPage - 1 && i <= currentPage + 1)) {
+      btns += `<button class="page-btn ${i===currentPage?'active':''}" onclick="goPage(${i})">${i}</button>`;
+    } else if (i === currentPage - 2 || i === currentPage + 2) {
+      btns += `<button class="page-btn" disabled>…</button>`;
+    }
+  }
+  btns += `<button class="page-btn" ${currentPage===totalPages?'disabled':''} onclick="goPage(${currentPage+1})"><i class="fas fa-chevron-right"></i></button>`;
+  document.getElementById('pagination-btns').innerHTML = btns;
+}
+
+function goPage(p) { currentPage = p; renderTable(); window.scrollTo(0,0); }
+
+async function viewBooking(id) {
+  const b = allBookings.find(x => x.id === id);
+  if (!b) return;
+  const unitName = units.find(u => u.id === b.unit_id)?.name || `Unit ${b.unit_id}`;
+  const statusClass = { pending: 'badge-pending', confirmed: 'badge-confirmed', cancelled: 'badge-cancelled', completed: 'badge-completed', lead: 'badge-lead' }[b.booking_status] || '';
+  document.getElementById('modal-view-body').innerHTML = `
+    <div class="detail-grid">
+      <div class="detail-item"><label>Guest Name</label><span>${b.guest_name}</span></div>
+      <div class="detail-item"><label>Status</label><span><span class="badge ${statusClass}">${b.booking_status}</span></span></div>
+      <div class="detail-item"><label>Phone</label><span>${b.guest_phone || '—'}</span></div>
+      <div class="detail-item"><label>Email</label><span>${b.guest_email || '—'}</span></div>
+      <div class="detail-item"><label>Unit</label><span>${unitName}</span></div>
+      <div class="detail-item"><label>Guests</label><span>${b.number_of_guests}</span></div>
+      <div class="detail-item"><label>Check-in</label><span>${formatDate(b.check_in_date)}</span></div>
+      <div class="detail-item"><label>Check-out</label><span>${formatDate(b.check_out_date)}</span></div>
+      <div class="detail-item"><label>Nights</label><span>${b.total_nights}</span></div>
+      <div class="detail-item"><label>Amount</label><span style="font-weight:700;color:var(--teal)">${b.currency} ${Number(b.total_amount).toLocaleString()}</span></div>
+      <div class="detail-item"><label>Source</label><span>${b.booking_source || 'Direct'}</span></div>
+      <div class="detail-item"><label>Payment</label><span>${b.payment_method || '—'}</span></div>
+      ${b.booking_reference ? `<div class="detail-item full"><label>Reference</label><span>${b.booking_reference}</span></div>` : ''}
+      ${b.special_requests ? `<div class="detail-item full"><label>Special Requests</label><span>${b.special_requests}</span></div>` : ''}
+      <div class="detail-item"><label>Created</label><span>${formatDate(b.created_at)}</span></div>
+    </div>`;
+  let footerBtns = `<button class="btn btn-outline" onclick="closeModal('modal-view')">Close</button>`;
+  if (b.booking_status === 'pending') footerBtns += `<button class="btn btn-teal" onclick="updateStatus(${b.id},'confirmed');closeModal('modal-view')"><i class="fas fa-check"></i> Confirm</button>`;
+  if (b.booking_status !== 'cancelled' && b.booking_status !== 'completed') footerBtns += `<button class="btn" style="background:#fee2e2;color:#991b1b" onclick="updateStatus(${b.id},'cancelled');closeModal('modal-view')"><i class="fas fa-times"></i> Cancel</button>`;
+  document.getElementById('modal-view-footer').innerHTML = footerBtns;
+  document.getElementById('modal-view').classList.add('open');
+}
+
+async function updateStatus(id, status) {
+  try {
+    const r = await fetch(`${API}/api/rental-connect/bookings/${id}/status`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ status })
+    });
+    if (!r.ok) throw new Error();
+    const b = allBookings.find(x => x.id === id);
+    if (b) b.booking_status = status;
+    updateStats();
+    applyFilters();
+    showToast(`Booking ${status}`, 'success');
+  } catch(e) { showToast('Failed to update status', 'error'); }
+}
+
+function openNewBookingModal() {
+  document.getElementById('modal-new').classList.add('open');
+}
+
+function calcNights() {
+  const ci = document.getElementById('nb-checkin').value;
+  const co = document.getElementById('nb-checkout').value;
+  if (ci && co) {
+    const nights = Math.round((new Date(co) - new Date(ci)) / 86400000);
+    if (nights > 0) document.getElementById('nb-amount').placeholder = `${nights} night${nights>1?'s':''}`;
+  }
+}
+
+async function createBooking() {
+  const name = document.getElementById('nb-name').value.trim();
+  const phone = document.getElementById('nb-phone').value.trim();
+  const unitId = document.getElementById('nb-unit').value;
+  const checkin = document.getElementById('nb-checkin').value;
+  const checkout = document.getElementById('nb-checkout').value;
+  const amount = document.getElementById('nb-amount').value;
+  if (!name || !phone || !unitId || !checkin || !checkout || !amount) { showToast('Please fill required fields', 'error'); return; }
+  const nights = Math.round((new Date(checkout) - new Date(checkin)) / 86400000);
+  if (nights <= 0) { showToast('Invalid dates', 'error'); return; }
+  try {
+    const r = await fetch(`${API}/api/rental-connect/bookings`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+      body: JSON.stringify({
+        guest_name: name, guest_phone: phone,
+        guest_email: document.getElementById('nb-email').value,
+        guest_nid: document.getElementById('nb-nid').value,
+        unit_id: parseInt(unitId),
+        number_of_guests: parseInt(document.getElementById('nb-guests').value),
+        check_in_date: checkin, check_out_date: checkout,
+        total_nights: nights, total_amount: parseFloat(amount),
+        currency: document.getElementById('nb-currency').value,
+        booking_source: document.getElementById('nb-source').value,
+        payment_method: document.getElementById('nb-payment').value,
+        special_requests: document.getElementById('nb-requests').value
+      })
+    });
+    if (!r.ok) throw new Error();
+    closeModal('modal-new');
+    showToast('Booking created', 'success');
+    loadBookings();
+  } catch(e) { showToast('Failed to create booking', 'error'); }
+}
+
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+function formatDate(d) { if (!d) return '—'; return new Date(d).toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'numeric' }); }
+function showToast(msg, type='success') {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.className = `toast show ${type}`;
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// Close modal on overlay click
+document.querySelectorAll('.modal-overlay').forEach(el => {
+  el.addEventListener('click', e => { if (e.target === el) el.classList.remove('open'); });
+});
+
+checkAuth();
+loadUnits();
+loadBookings();
+</script>
+</body>
+</html>

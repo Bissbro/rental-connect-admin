@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Settings — Rental Connect</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+  --navy: #0A2540; --teal: #40B5AD; --gold: #B8975A;
+  --white: #FAFAF8; --gray: #f4f5f7; --border: #e5e7eb;
+  --text: #1C1C1E; --text-muted: #6b7280; --sidebar-w: 240px;
+}
+body { font-family: 'Inter', sans-serif; background: var(--gray); color: var(--text); display: flex; min-height: 100vh; }
+
+/* Sidebar — identical to other pages */
+.sidebar { width: var(--sidebar-w); background: var(--navy); min-height: 100vh; position: fixed; top: 0; left: 0; display: flex; flex-direction: column; z-index: 100; }
+.sidebar-logo { padding: 24px 20px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+.sidebar-logo h1 { font-family: 'Playfair Display', serif; color: white; font-size: 1.1rem; }
+.sidebar-logo p { font-size: 11px; color: rgba(255,255,255,0.4); margin-top: 2px; letter-spacing: 1px; text-transform: uppercase; }
+.sidebar-nav { flex: 1; padding: 16px 0; }
+.nav-item { display: flex; align-items: center; gap: 12px; padding: 11px 20px; color: rgba(255,255,255,0.6); text-decoration: none; font-size: 13px; font-weight: 500; transition: all 0.2s; cursor: pointer; border: none; background: none; width: 100%; text-align: left; }
+.nav-item:hover { background: rgba(255,255,255,0.08); color: white; }
+.nav-item.active { background: rgba(64,181,173,0.2); color: var(--teal); }
+.nav-item i { width: 16px; text-align: center; font-size: 14px; }
+.nav-divider { height: 1px; background: rgba(255,255,255,0.08); margin: 8px 20px; }
+.sidebar-footer { padding: 16px 20px; border-top: 1px solid rgba(255,255,255,0.1); }
+.sidebar-user { font-size: 12px; color: rgba(255,255,255,0.5); margin-bottom: 10px; }
+.sidebar-user span { color: white; font-weight: 600; display: block; }
+.btn-logout { width: 100%; padding: 8px; background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.6); border: none; border-radius: 8px; font-size: 12px; cursor: pointer; transition: 0.2s; }
+.btn-logout:hover { background: rgba(255,255,255,0.15); color: white; }
+
+/* Main */
+.main { margin-left: var(--sidebar-w); flex: 1; padding: 32px; max-width: 900px; }
+.page-header { margin-bottom: 28px; }
+.page-header h2 { font-family: 'Playfair Display', serif; font-size: 1.6rem; color: var(--text); }
+.page-header p { font-size: 13px; color: var(--text-muted); margin-top: 4px; }
+
+/* Tabs */
+.tabs { display: flex; gap: 4px; background: white; border-radius: 12px; padding: 6px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); margin-bottom: 24px; width: fit-content; }
+.tab { padding: 8px 18px; border-radius: 8px; border: none; font-size: 13px; font-weight: 600; cursor: pointer; transition: 0.2s; background: none; color: var(--text-muted); }
+.tab.active { background: var(--navy); color: white; }
+.tab:hover:not(.active) { background: var(--gray); color: var(--text); }
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+/* Cards */
+.card { background: white; border-radius: 12px; padding: 28px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); margin-bottom: 20px; }
+.card-title { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+.card-desc { font-size: 13px; color: var(--text-muted); margin-bottom: 20px; }
+.divider { height: 1px; background: var(--border); margin: 20px 0; }
+
+/* Forms */
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+.form-row.single { grid-template-columns: 1fr; }
+.form-row.triple { grid-template-columns: 1fr 1fr 1fr; }
+.form-group label { display: block; font-size: 12px; font-weight: 600; color: var(--text); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+.form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px 12px; border: 1.5px solid var(--border); border-radius: 8px; font-size: 13px; font-family: 'Inter', sans-serif; outline: none; transition: border-color 0.2s; background: white; color: var(--text); }
+.form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: var(--teal); }
+.form-group textarea { resize: vertical; min-height: 80px; }
+.form-group input[type="color"] { height: 40px; padding: 4px; cursor: pointer; }
+.input-hint { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
+
+/* Buttons */
+.btn { padding: 10px 20px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; border: none; transition: 0.2s; display: inline-flex; align-items: center; gap: 6px; }
+.btn-teal { background: var(--teal); color: white; }
+.btn-teal:hover { background: #38a39c; }
+.btn-outline { background: none; border: 1.5px solid var(--border); color: var(--text-muted); }
+.btn-outline:hover { border-color: var(--teal); color: var(--teal); }
+.btn-danger { background: #fee2e2; color: #991b1b; }
+.btn-danger:hover { background: #fecaca; }
+.btn-row { display: flex; justify-content: flex-end; gap: 8px; margin-top: 20px; }
+
+/* Toggle switch */
+.toggle-item { display: flex; justify-content: space-between; align-items: center; padding: 14px 0; border-bottom: 1px solid var(--border); }
+.toggle-item:last-child { border-bottom: none; }
+.toggle-label { font-size: 13px; font-weight: 500; color: var(--text); }
+.toggle-desc { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+.toggle { position: relative; width: 44px; height: 24px; flex-shrink: 0; }
+.toggle input { opacity: 0; width: 0; height: 0; }
+.toggle-slider { position: absolute; inset: 0; background: var(--border); border-radius: 24px; cursor: pointer; transition: 0.3s; }
+.toggle-slider:before { content:''; position: absolute; width: 18px; height: 18px; left: 3px; top: 3px; background: white; border-radius: 50%; transition: 0.3s; }
+.toggle input:checked + .toggle-slider { background: var(--teal); }
+.toggle input:checked + .toggle-slider:before { transform: translateX(20px); }
+
+/* OTA connections */
+.ota-item { display: flex; align-items: center; gap: 16px; padding: 14px 0; border-bottom: 1px solid var(--border); }
+.ota-item:last-child { border-bottom: none; }
+.ota-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 700; flex-shrink: 0; }
+.ota-icon.airbnb { background: #fde8e8; color: #c0392b; }
+.ota-icon.booking { background: #e8f0fe; color: #1a56db; }
+.ota-icon.agoda { background: #fef3e8; color: #c05621; }
+.ota-info { flex: 1; }
+.ota-name { font-size: 13px; font-weight: 600; }
+.ota-status { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+.ota-status.connected { color: #059669; }
+.ota-input { flex: 1; }
+.ota-input input { width: 100%; padding: 8px 12px; border: 1.5px solid var(--border); border-radius: 8px; font-size: 12px; font-family: 'Inter', sans-serif; outline: none; }
+.ota-input input:focus { border-color: var(--teal); }
+.btn-sm { padding: 7px 14px; font-size: 12px; }
+
+/* Danger zone */
+.danger-card { border: 1.5px solid #fecaca; }
+.danger-card .card-title { color: #991b1b; }
+
+/* Toast */
+.toast { position: fixed; bottom: 24px; right: 24px; background: var(--navy); color: white; padding: 12px 20px; border-radius: 10px; font-size: 13px; font-weight: 500; z-index: 999; display: none; box-shadow: 0 4px 20px rgba(0,0,0,0.2); }
+.toast.show { display: block; animation: slideUp 0.3s ease; }
+.toast.success { border-left: 3px solid var(--teal); }
+.toast.error { border-left: 3px solid #dc2626; }
+@keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+</style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <h1>Rental Connect</h1>
+    <p id="tenant-name">Loading...</p>
+  </div>
+  <nav class="sidebar-nav">
+    <a class="nav-item" href="dashboard.html"><i class="fas fa-chart-pie"></i> Dashboard</a>
+    <a class="nav-item" href="bookings.html"><i class="fas fa-calendar-check"></i> Bookings</a>
+    <a class="nav-item" href="units.html"><i class="fas fa-building"></i> Units</a>
+    <a class="nav-item" href="#"><i class="fas fa-file-invoice"></i> Invoices</a>
+    <div class="nav-divider"></div>
+    <a class="nav-item" href="#"><i class="fas fa-calendar"></i> Calendar</a>
+    <a class="nav-item active" href="settings.html"><i class="fas fa-cog"></i> Settings</a>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="sidebar-user">Signed in as<span id="sidebar-username">...</span></div>
+    <button class="btn-logout" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Sign Out</button>
+  </div>
+</aside>
+
+<main class="main">
+  <div class="page-header">
+    <h2>Settings</h2>
+    <p>Manage your property and account preferences</p>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('property')">Property</button>
+    <button class="tab" onclick="switchTab('account')">Account</button>
+    <button class="tab" onclick="switchTab('notifications')">Notifications</button>
+    <button class="tab" onclick="switchTab('channels')">OTA Channels</button>
+  </div>
+
+  <!-- Property Tab -->
+  <div class="tab-panel active" id="tab-property">
+    <div class="card">
+      <div class="card-title">Property Information</div>
+      <div class="card-desc">Details shown to guests and on invoices</div>
+      <div class="form-row">
+        <div class="form-group"><label>Property Name</label><input type="text" id="prop-name" placeholder="e.g. HTM Rentals"></div>
+        <div class="form-group"><label>Contact Email</label><input type="email" id="prop-email" placeholder="contact@yourproperty.com"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Phone / WhatsApp</label><input type="text" id="prop-phone" placeholder="+960 ..."></div>
+        <div class="form-group"><label>Website</label><input type="text" id="prop-website" placeholder="https://..."></div>
+      </div>
+      <div class="form-row single">
+        <div class="form-group"><label>Address</label><textarea id="prop-address" placeholder="Street, City, Country"></textarea></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Default Currency</label>
+          <select id="prop-currency">
+            <option value="MVR">MVR — Maldivian Rufiyaa</option>
+            <option value="USD">USD — US Dollar</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Timezone</label>
+          <select id="prop-timezone">
+            <option value="Indian/Maldives">Maldives (UTC+5)</option>
+            <option value="Asia/Dubai">Dubai (UTC+4)</option>
+            <option value="Asia/Colombo">Colombo (UTC+5:30)</option>
+            <option value="UTC">UTC</option>
+          </select>
+        </div>
+      </div>
+      <div class="divider"></div>
+      <div class="card-title" style="margin-bottom:4px">Brand</div>
+      <div class="card-desc">Customize colors shown on your public site and invoices</div>
+      <div class="form-row triple">
+        <div class="form-group"><label>Primary Color</label><input type="color" id="prop-color-primary" value="#0A2540"><div class="input-hint">Navy / headers</div></div>
+        <div class="form-group"><label>Accent Color</label><input type="color" id="prop-color-accent" value="#40B5AD"><div class="input-hint">Buttons / highlights</div></div>
+        <div class="form-group"><label>Gold / Trim</label><input type="color" id="prop-color-gold" value="#B8975A"><div class="input-hint">Decorative accents</div></div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-teal" onclick="saveProperty()"><i class="fas fa-save"></i> Save Property Settings</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Account Tab -->
+  <div class="tab-panel" id="tab-account">
+    <div class="card">
+      <div class="card-title">Account Details</div>
+      <div class="card-desc">Your admin login credentials</div>
+      <div class="form-row">
+        <div class="form-group"><label>Username</label><input type="text" id="acc-username" placeholder="Username" readonly style="background:#f9fafb;color:var(--text-muted)"></div>
+        <div class="form-group"><label>Role</label><input type="text" id="acc-role" placeholder="Role" readonly style="background:#f9fafb;color:var(--text-muted)"></div>
+      </div>
+      <div class="divider"></div>
+      <div class="card-title" style="margin-bottom:4px">Change Password</div>
+      <div class="card-desc">Use a strong password of at least 8 characters</div>
+      <div class="form-row single">
+        <div class="form-group"><label>Current Password</label><input type="password" id="pw-current" placeholder="Enter current password"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>New Password</label><input type="password" id="pw-new" placeholder="New password"></div>
+        <div class="form-group"><label>Confirm Password</label><input type="password" id="pw-confirm" placeholder="Confirm new password"></div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-teal" onclick="changePassword()"><i class="fas fa-lock"></i> Update Password</button>
+      </div>
+    </div>
+
+    <div class="card danger-card">
+      <div class="card-title">Danger Zone</div>
+      <div class="card-desc">These actions cannot be undone</div>
+      <button class="btn btn-danger" onclick="confirmLogoutAll()"><i class="fas fa-sign-out-alt"></i> Sign Out All Devices</button>
+    </div>
+  </div>
+
+  <!-- Notifications Tab -->
+  <div class="tab-panel" id="tab-notifications">
+    <div class="card">
+      <div class="card-title">Notification Preferences</div>
+      <div class="card-desc">Choose when and how you receive alerts</div>
+
+      <div class="toggle-item">
+        <div><div class="toggle-label">New Booking Alert</div><div class="toggle-desc">Notify when a new booking is created</div></div>
+        <label class="toggle"><input type="checkbox" id="notif-new-booking" checked><span class="toggle-slider"></span></label>
+      </div>
+      <div class="toggle-item">
+        <div><div class="toggle-label">Booking Confirmed</div><div class="toggle-desc">Notify when admin confirms a pending booking</div></div>
+        <label class="toggle"><input type="checkbox" id="notif-confirmed" checked><span class="toggle-slider"></span></label>
+      </div>
+      <div class="toggle-item">
+        <div><div class="toggle-label">Booking Cancelled</div><div class="toggle-desc">Notify when a booking is cancelled</div></div>
+        <label class="toggle"><input type="checkbox" id="notif-cancelled" checked><span class="toggle-slider"></span></label>
+      </div>
+      <div class="toggle-item">
+        <div><div class="toggle-label">Check-in Reminder</div><div class="toggle-desc">Daily reminder of upcoming check-ins (day before)</div></div>
+        <label class="toggle"><input type="checkbox" id="notif-checkin"><span class="toggle-slider"></span></label>
+      </div>
+      <div class="toggle-item">
+        <div><div class="toggle-label">Check-out Reminder</div><div class="toggle-desc">Daily reminder of upcoming check-outs</div></div>
+        <label class="toggle"><input type="checkbox" id="notif-checkout"><span class="toggle-slider"></span></label>
+      </div>
+      <div class="toggle-item">
+        <div><div class="toggle-label">Invoice Overdue</div><div class="toggle-desc">Notify when an invoice becomes overdue</div></div>
+        <label class="toggle"><input type="checkbox" id="notif-invoice" checked><span class="toggle-slider"></span></label>
+      </div>
+
+      <div class="divider"></div>
+      <div class="card-title" style="margin-bottom:4px">Notification Channels</div>
+      <div class="card-desc">Where to send notifications</div>
+
+      <div class="toggle-item">
+        <div><div class="toggle-label">Telegram Bot</div><div class="toggle-desc">Push to your connected Telegram admin bot</div></div>
+        <label class="toggle"><input type="checkbox" id="ch-telegram" checked><span class="toggle-slider"></span></label>
+      </div>
+      <div class="toggle-item">
+        <div><div class="toggle-label">Email Notifications</div><div class="toggle-desc">Send alerts to your property email</div></div>
+        <label class="toggle"><input type="checkbox" id="ch-email"><span class="toggle-slider"></span></label>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-teal" onclick="saveNotifications()"><i class="fas fa-save"></i> Save Preferences</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- OTA Channels Tab -->
+  <div class="tab-panel" id="tab-channels">
+    <div class="card">
+      <div class="card-title">OTA Channel Links</div>
+      <div class="card-desc">Paste your iCal / calendar sync URLs from each platform. These are used to block dates automatically.</div>
+
+      <div class="ota-item">
+        <div class="ota-icon airbnb">A</div>
+        <div class="ota-info">
+          <div class="ota-name">Airbnb</div>
+          <div class="ota-status" id="ota-airbnb-status">Not connected</div>
+        </div>
+        <div class="ota-input">
+          <input type="text" id="ota-airbnb-url" placeholder="https://www.airbnb.com/calendar/ical/...">
+        </div>
+        <button class="btn btn-outline btn-sm" onclick="saveOTA('airbnb')">Save</button>
+      </div>
+
+      <div class="ota-item">
+        <div class="ota-icon booking">B</div>
+        <div class="ota-info">
+          <div class="ota-name">Booking.com</div>
+          <div class="ota-status" id="ota-booking-status">Not connected</div>
+        </div>
+        <div class="ota-input">
+          <input type="text" id="ota-booking-url" placeholder="https://ical.booking.com/...">
+        </div>
+        <button class="btn btn-outline btn-sm" onclick="saveOTA('booking')">Save</button>
+      </div>
+
+      <div class="ota-item">
+        <div class="ota-icon agoda">G</div>
+        <div class="ota-info">
+          <div class="ota-name">Agoda</div>
+          <div class="ota-status" id="ota-agoda-status">Not connected</div>
+        </div>
+        <div class="ota-input">
+          <input type="text" id="ota-agoda-url" placeholder="https://ical.agoda.com/...">
+        </div>
+        <button class="btn btn-outline btn-sm" onclick="saveOTA('agoda')">Save</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Your Export URL</div>
+      <div class="card-desc">Use this URL to push your bookings to external calendars (Google Calendar, Apple Calendar, etc.)</div>
+      <div class="form-group">
+        <label>iCal Export URL</label>
+        <div style="display:flex;gap:8px">
+          <input type="text" id="ical-export-url" readonly style="background:#f9fafb;color:var(--text-muted)">
+          <button class="btn btn-outline btn-sm" onclick="copyExportUrl()"><i class="fas fa-copy"></i></button>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const API = 'https://api.htmrentals.com';
+let token = null, tenantId = null;
+
+function checkAuth() {
+  token = localStorage.getItem('rc_token');
+  tenantId = localStorage.getItem('rc_tenant_id');
+  const username = localStorage.getItem('rc_username');
+  const tenantName = localStorage.getItem('rc_tenant_name');
+  if (!token) { window.location.href = 'index.html'; return; }
+  document.getElementById('sidebar-username').textContent = username || '';
+  document.getElementById('tenant-name').textContent = tenantName || '';
+  document.getElementById('acc-username').value = username || '';
+  document.getElementById('acc-role').value = 'Admin';
+  document.getElementById('ical-export-url').value = `${API}/api/rental-connect/ical/${tenantId}/export.ics`;
+  loadSettings();
+}
+
+function logout() { localStorage.clear(); window.location.href = 'index.html'; }
+
+function switchTab(name) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelector(`.tab[onclick="switchTab('${name}')"]`).classList.add('active');
+  document.getElementById(`tab-${name}`).classList.add('active');
+}
+
+async function loadSettings() {
+  try {
+    const r = await fetch(`${API}/api/rental-connect/settings`, { headers: { Authorization: `Bearer ${token}` } });
+    if (!r.ok) return;
+    const d = await r.json();
+    const s = d.settings || {};
+    if (s.property_name) document.getElementById('prop-name').value = s.property_name;
+    if (s.contact_email) document.getElementById('prop-email').value = s.contact_email;
+    if (s.phone) document.getElementById('prop-phone').value = s.phone;
+    if (s.website) document.getElementById('prop-website').value = s.website;
+    if (s.address) document.getElementById('prop-address').value = s.address;
+    if (s.currency) document.getElementById('prop-currency').value = s.currency;
+    if (s.timezone) document.getElementById('prop-timezone').value = s.timezone;
+    if (s.color_primary) document.getElementById('prop-color-primary').value = s.color_primary;
+    if (s.color_accent) document.getElementById('prop-color-accent').value = s.color_accent;
+    if (s.color_gold) document.getElementById('prop-color-gold').value = s.color_gold;
+    // Notifications
+    if (s.notif_new_booking !== undefined) document.getElementById('notif-new-booking').checked = !!s.notif_new_booking;
+    if (s.notif_confirmed !== undefined) document.getElementById('notif-confirmed').checked = !!s.notif_confirmed;
+    if (s.notif_cancelled !== undefined) document.getElementById('notif-cancelled').checked = !!s.notif_cancelled;
+    if (s.notif_checkin !== undefined) document.getElementById('notif-checkin').checked = !!s.notif_checkin;
+    if (s.notif_checkout !== undefined) document.getElementById('notif-checkout').checked = !!s.notif_checkout;
+    if (s.notif_invoice !== undefined) document.getElementById('notif-invoice').checked = !!s.notif_invoice;
+    if (s.ch_telegram !== undefined) document.getElementById('ch-telegram').checked = !!s.ch_telegram;
+    if (s.ch_email !== undefined) document.getElementById('ch-email').checked = !!s.ch_email;
+    // OTA
+    if (s.ota_airbnb_url) { document.getElementById('ota-airbnb-url').value = s.ota_airbnb_url; document.getElementById('ota-airbnb-status').textContent = 'Connected'; document.getElementById('ota-airbnb-status').classList.add('connected'); }
+    if (s.ota_booking_url) { document.getElementById('ota-booking-url').value = s.ota_booking_url; document.getElementById('ota-booking-status').textContent = 'Connected'; document.getElementById('ota-booking-status').classList.add('connected'); }
+    if (s.ota_agoda_url) { document.getElementById('ota-agoda-url').value = s.ota_agoda_url; document.getElementById('ota-agoda-status').textContent = 'Connected'; document.getElementById('ota-agoda-status').classList.add('connected'); }
+  } catch(e) { console.error('Settings load failed', e); }
+}
+
+async function saveProperty() {
+  const payload = {
+    property_name: document.getElementById('prop-name').value,
+    contact_email: document.getElementById('prop-email').value,
+    phone: document.getElementById('prop-phone').value,
+    website: document.getElementById('prop-website').value,
+    address: document.getElementById('prop-address').value,
+    currency: document.getElementById('prop-currency').value,
+    timezone: document.getElementById('prop-timezone').value,
+    color_primary: document.getElementById('prop-color-primary').value,
+    color_accent: document.getElementById('prop-color-accent').value,
+    color_gold: document.getElementById('prop-color-gold').value,
+  };
+  await patchSettings(payload, 'Property settings saved');
+}
+
+async function saveNotifications() {
+  const payload = {
+    notif_new_booking: document.getElementById('notif-new-booking').checked ? 1 : 0,
+    notif_confirmed: document.getElementById('notif-confirmed').checked ? 1 : 0,
+    notif_cancelled: document.getElementById('notif-cancelled').checked ? 1 : 0,
+    notif_checkin: document.getElementById('notif-checkin').checked ? 1 : 0,
+    notif_checkout: document.getElementById('notif-checkout').checked ? 1 : 0,
+    notif_invoice: document.getElementById('notif-invoice').checked ? 1 : 0,
+    ch_telegram: document.getElementById('ch-telegram').checked ? 1 : 0,
+    ch_email: document.getElementById('ch-email').checked ? 1 : 0,
+  };
+  await patchSettings(payload, 'Notification preferences saved');
+}
+
+async function saveOTA(platform) {
+  const url = document.getElementById(`ota-${platform}-url`).value.trim();
+  const key = `ota_${platform}_url`;
+  await patchSettings({ [key]: url }, `${platform} URL saved`);
+  if (url) { document.getElementById(`ota-${platform}-status`).textContent = 'Connected'; document.getElementById(`ota-${platform}-status`).classList.add('connected'); }
+}
+
+async function patchSettings(data, successMsg) {
+  try {
+    const r = await fetch(`${API}/api/rental-connect/settings`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+      body: JSON.stringify(data)
+    });
+    if (!r.ok) throw new Error();
+    showToast(successMsg, 'success');
+  } catch(e) { showToast('Save failed', 'error'); }
+}
+
+async function changePassword() {
+  const cur = document.getElementById('pw-current').value;
+  const nw = document.getElementById('pw-new').value;
+  const cf = document.getElementById('pw-confirm').value;
+  if (!cur || !nw || !cf) { showToast('All password fields required', 'error'); return; }
+  if (nw !== cf) { showToast('Passwords do not match', 'error'); return; }
+  if (nw.length < 8) { showToast('Password must be at least 8 characters', 'error'); return; }
+  try {
+    const r = await fetch(`${API}/api/rental-connect/change-password`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ current_password: cur, new_password: nw })
+    });
+    if (!r.ok) { const d = await r.json(); throw new Error(d.message || 'Failed'); }
+    document.getElementById('pw-current').value = '';
+    document.getElementById('pw-new').value = '';
+    document.getElementById('pw-confirm').value = '';
+    showToast('Password updated', 'success');
+  } catch(e) { showToast(e.message || 'Password change failed', 'error'); }
+}
+
+function confirmLogoutAll() {
+  if (confirm('Sign out from all devices? You will be logged out here too.')) {
+    localStorage.clear();
+    window.location.href = 'index.html';
+  }
+}
+
+function copyExportUrl() {
+  const url = document.getElementById('ical-export-url').value;
+  navigator.clipboard.writeText(url).then(() => showToast('URL copied', 'success'));
+}
+
+function showToast(msg, type = 'success') {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.className = `toast show ${type}`;
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+checkAuth();
+</script>
+</body>
+</html>

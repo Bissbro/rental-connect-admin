@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Invoices — Rental Connect</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+:root { --navy:#0A2540;--teal:#40B5AD;--gold:#B8975A;--white:#FAFAF8;--gray:#f4f5f7;--border:#e5e7eb;--text:#1C1C1E;--text-muted:#6b7280;--sidebar-w:240px; }
+body { font-family:'Inter',sans-serif; background:var(--gray); color:var(--text); display:flex; min-height:100vh; }
+.sidebar { width:var(--sidebar-w); background:var(--navy); min-height:100vh; position:fixed; top:0; left:0; display:flex; flex-direction:column; z-index:100; }
+.sidebar-logo { padding:24px 20px; border-bottom:1px solid rgba(255,255,255,0.1); }
+.sidebar-logo h1 { font-family:'Playfair Display',serif; color:white; font-size:1.1rem; }
+.sidebar-logo p { font-size:11px; color:rgba(255,255,255,0.4); margin-top:2px; letter-spacing:1px; text-transform:uppercase; }
+.sidebar-nav { flex:1; padding:16px 0; }
+.nav-item { display:flex; align-items:center; gap:12px; padding:11px 20px; color:rgba(255,255,255,0.6); text-decoration:none; font-size:13px; font-weight:500; transition:all 0.2s; cursor:pointer; border:none; background:none; width:100%; text-align:left; }
+.nav-item:hover { background:rgba(255,255,255,0.08); color:white; }
+.nav-item.active { background:rgba(64,181,173,0.2); color:var(--teal); }
+.nav-item i { width:16px; text-align:center; font-size:14px; }
+.nav-divider { height:1px; background:rgba(255,255,255,0.08); margin:8px 20px; }
+.sidebar-footer { padding:16px 20px; border-top:1px solid rgba(255,255,255,0.1); }
+.sidebar-user { font-size:12px; color:rgba(255,255,255,0.5); margin-bottom:10px; }
+.sidebar-user span { color:white; font-weight:600; display:block; }
+.btn-logout { width:100%; padding:8px; background:rgba(255,255,255,0.08); color:rgba(255,255,255,0.6); border:none; border-radius:8px; font-size:12px; cursor:pointer; transition:0.2s; }
+.btn-logout:hover { background:rgba(255,255,255,0.15); color:white; }
+.main { margin-left:var(--sidebar-w); flex:1; padding:32px; }
+.page-header { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:24px; }
+.page-header h2 { font-family:'Playfair Display',serif; font-size:1.6rem; color:var(--text); }
+.page-header p { font-size:13px; color:var(--text-muted); margin-top:4px; }
+.stats-mini { display:grid; grid-template-columns:repeat(5,1fr); gap:12px; margin-bottom:20px; }
+.stat-mini { background:white; border-radius:10px; padding:14px 16px; box-shadow:0 1px 4px rgba(0,0,0,0.06); text-align:center; }
+.stat-mini-val { font-size:1.4rem; font-weight:700; color:var(--text); }
+.stat-mini-label { font-size:11px; color:var(--text-muted); margin-top:2px; text-transform:uppercase; letter-spacing:0.5px; }
+.stat-mini.draft .stat-mini-val { color:var(--text-muted); }
+.stat-mini.sent .stat-mini-val { color:#2563eb; }
+.stat-mini.paid .stat-mini-val { color:#059669; }
+.stat-mini.overdue .stat-mini-val { color:#dc2626; }
+.filters-bar { background:white; border-radius:12px; padding:16px 20px; box-shadow:0 1px 4px rgba(0,0,0,0.06); margin-bottom:20px; display:flex; gap:12px; align-items:center; flex-wrap:wrap; }
+.filter-group { display:flex; align-items:center; gap:8px; }
+.filter-group label { font-size:12px; font-weight:600; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px; white-space:nowrap; }
+.filter-select,.filter-input { padding:8px 12px; border:1.5px solid var(--border); border-radius:8px; font-size:13px; font-family:'Inter',sans-serif; color:var(--text); outline:none; transition:border-color 0.2s; background:white; }
+.filter-select:focus,.filter-input:focus { border-color:var(--teal); }
+.spacer { flex:1; }
+.btn { padding:8px 16px; border-radius:8px; font-size:13px; font-weight:600; cursor:pointer; border:none; transition:0.2s; display:inline-flex; align-items:center; gap:6px; }
+.btn-teal { background:var(--teal); color:white; }
+.btn-teal:hover { background:#38a39c; }
+.btn-outline { background:none; border:1.5px solid var(--border); color:var(--text-muted); }
+.btn-outline:hover { border-color:var(--teal); color:var(--teal); }
+.btn-sm { padding:6px 12px; font-size:12px; }
+.card { background:white; border-radius:12px; box-shadow:0 1px 4px rgba(0,0,0,0.06); overflow:hidden; }
+.card-header { display:flex; justify-content:space-between; align-items:center; padding:18px 20px; border-bottom:1px solid var(--border); }
+.card-title { font-size:14px; font-weight:700; color:var(--text); }
+.result-count { font-size:12px; color:var(--text-muted); }
+.table-wrap { overflow-x:auto; }
+.table { width:100%; border-collapse:collapse; }
+.table th { font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:0.5px; color:var(--text-muted); padding:10px 16px; text-align:left; border-bottom:1px solid var(--border); background:#fafafa; white-space:nowrap; }
+.table td { padding:13px 16px; font-size:13px; border-bottom:1px solid var(--border); vertical-align:middle; }
+.table tr:last-child td { border-bottom:none; }
+.table tr:hover td { background:#fafff9; }
+.badge { padding:3px 9px; border-radius:20px; font-size:11px; font-weight:600; white-space:nowrap; }
+.badge-draft { background:#f3f4f6; color:#374151; }
+.badge-sent { background:#dbeafe; color:#1e40af; }
+.badge-paid { background:#d1fae5; color:#065f46; }
+.badge-partially_paid { background:#fef3c7; color:#92400e; }
+.badge-overdue { background:#fee2e2; color:#991b1b; }
+.badge-cancelled { background:#f3f4f6; color:#6b7280; }
+.actions { display:flex; gap:6px; }
+.action-btn { width:30px; height:30px; border-radius:7px; border:1.5px solid var(--border); background:white; cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:13px; color:var(--text-muted); transition:0.2s; }
+.action-btn:hover { border-color:var(--teal); color:var(--teal); }
+.pagination { display:flex; justify-content:space-between; align-items:center; padding:14px 20px; border-top:1px solid var(--border); }
+.pagination-info { font-size:12px; color:var(--text-muted); }
+.pagination-btns { display:flex; gap:4px; }
+.page-btn { width:32px; height:32px; border-radius:7px; border:1.5px solid var(--border); background:white; cursor:pointer; font-size:12px; font-weight:600; color:var(--text-muted); display:flex; align-items:center; justify-content:center; transition:0.2s; }
+.page-btn:hover,.page-btn.active { border-color:var(--teal); color:var(--teal); }
+.page-btn:disabled { opacity:0.4; cursor:not-allowed; }
+.empty-state { text-align:center; padding:60px 20px; color:var(--text-muted); }
+.empty-state i { font-size:40px; margin-bottom:12px; opacity:0.3; display:block; }
+.modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:500; display:none; align-items:center; justify-content:center; padding:20px; }
+.modal-overlay.open { display:flex; }
+.modal { background:white; border-radius:16px; width:100%; max-width:560px; max-height:90vh; overflow-y:auto; }
+.modal-header { padding:20px 24px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; }
+.modal-title { font-family:'Playfair Display',serif; font-size:1.2rem; }
+.modal-close { width:32px; height:32px; border-radius:8px; border:none; background:var(--gray); cursor:pointer; font-size:16px; color:var(--text-muted); display:flex; align-items:center; justify-content:center; }
+.modal-body { padding:24px; }
+.modal-footer { padding:16px 24px; border-top:1px solid var(--border); display:flex; gap:8px; justify-content:flex-end; }
+.detail-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+.detail-item label { font-size:11px; font-weight:600; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px; display:block; margin-bottom:4px; }
+.detail-item span { font-size:14px; color:var(--text); font-weight:500; }
+.detail-item.full { grid-column:1/-1; }
+.items-table { width:100%; border-collapse:collapse; margin-top:16px; }
+.items-table th { font-size:11px; font-weight:600; text-transform:uppercase; color:var(--text-muted); padding:8px; text-align:left; border-bottom:1px solid var(--border); }
+.items-table td { padding:10px 8px; font-size:13px; border-bottom:1px solid var(--border); }
+.items-table tr:last-child td { border-bottom:none; }
+.toast { position:fixed; bottom:24px; right:24px; background:var(--navy); color:white; padding:12px 20px; border-radius:10px; font-size:13px; font-weight:500; z-index:999; display:none; box-shadow:0 4px 20px rgba(0,0,0,0.2); }
+.toast.show { display:block; animation:slideUp 0.3s ease; }
+.toast.success { border-left:3px solid var(--teal); }
+.toast.error { border-left:3px solid #dc2626; }
+@keyframes slideUp { from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)} }
+</style>
+</head>
+<body>
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <h1>Rental Connect</h1>
+    <p id="tenant-name">Loading...</p>
+  </div>
+  <nav class="sidebar-nav">
+    <a class="nav-item" href="dashboard.html"><i class="fas fa-chart-pie"></i> Dashboard</a>
+    <a class="nav-item" href="bookings.html"><i class="fas fa-calendar-check"></i> Bookings</a>
+    <a class="nav-item" href="units.html"><i class="fas fa-building"></i> Units</a>
+    <a class="nav-item active" href="invoices.html"><i class="fas fa-file-invoice"></i> Invoices</a>
+    <div class="nav-divider"></div>
+    <a class="nav-item" href="calendar.html"><i class="fas fa-calendar"></i> Calendar</a>
+    <a class="nav-item" href="settings.html"><i class="fas fa-cog"></i> Settings</a>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="sidebar-user">Signed in as<span id="sidebar-username">...</span></div>
+    <button class="btn-logout" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Sign Out</button>
+  </div>
+</aside>
+
+<main class="main">
+  <div class="page-header">
+    <div>
+      <h2>Invoices</h2>
+      <p>Track payments and billing across your units</p>
+    </div>
+  </div>
+
+  <div class="stats-mini">
+    <div class="stat-mini"><div class="stat-mini-val" id="stat-total">—</div><div class="stat-mini-label">Total</div></div>
+    <div class="stat-mini draft"><div class="stat-mini-val" id="stat-draft">—</div><div class="stat-mini-label">Draft</div></div>
+    <div class="stat-mini sent"><div class="stat-mini-val" id="stat-sent">—</div><div class="stat-mini-label">Sent</div></div>
+    <div class="stat-mini paid"><div class="stat-mini-val" id="stat-paid">—</div><div class="stat-mini-label">Paid</div></div>
+    <div class="stat-mini overdue"><div class="stat-mini-val" id="stat-overdue">—</div><div class="stat-mini-label">Overdue</div></div>
+  </div>
+
+  <div class="filters-bar">
+    <div class="filter-group">
+      <label>Status</label>
+      <select class="filter-select" id="filter-status" onchange="applyFilters()">
+        <option value="">All</option>
+        <option value="draft">Draft</option>
+        <option value="sent">Sent</option>
+        <option value="paid">Paid</option>
+        <option value="partially_paid">Partial</option>
+        <option value="overdue">Overdue</option>
+        <option value="cancelled">Cancelled</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <label>Type</label>
+      <select class="filter-select" id="filter-type" onchange="applyFilters()">
+        <option value="">All</option>
+        <option value="booking">Booking</option>
+        <option value="minibar">Minibar</option>
+        <option value="standalone">Standalone</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <label>Currency</label>
+      <select class="filter-select" id="filter-currency" onchange="applyFilters()">
+        <option value="">All</option>
+        <option value="MVR">MVR</option>
+        <option value="USD">USD</option>
+      </select>
+    </div>
+    <div class="spacer"></div>
+    <input type="text" class="filter-input" id="filter-search" placeholder="Search guest or invoice..." oninput="applyFilters()" style="width:200px;">
+    <button class="btn btn-outline btn-sm" onclick="resetFilters()">Clear</button>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">All Invoices</span>
+      <span class="result-count" id="result-count">Loading...</span>
+    </div>
+    <div class="table-wrap">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Invoice #</th>
+            <th>Guest</th>
+            <th>Type</th>
+            <th>Issue Date</th>
+            <th>Due Date</th>
+            <th>Amount</th>
+            <th>Paid</th>
+            <th>Status</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="invoices-tbody">
+          <tr><td colspan="9" style="text-align:center;padding:40px;color:#999;">Loading...</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="pagination">
+      <span class="pagination-info" id="pagination-info">—</span>
+      <div class="pagination-btns" id="pagination-btns"></div>
+    </div>
+  </div>
+</main>
+
+<!-- View Invoice Modal -->
+<div class="modal-overlay" id="modal-view">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title" id="modal-inv-number">Invoice</span>
+      <button class="modal-close" onclick="closeModal()"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body" id="modal-body">Loading...</div>
+    <div class="modal-footer" id="modal-footer"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const API = 'https://api.htmrentals.com';
+let token, tenantId, allInvoices = [], filtered = [], currentPage = 1;
+const perPage = 20;
+
+function checkAuth() {
+  token = localStorage.getItem('rc_token');
+  tenantId = localStorage.getItem('rc_tenant_id');
+  if (!token) { window.location.href = 'index.html'; return; }
+  document.getElementById('sidebar-username').textContent = localStorage.getItem('rc_username') || '';
+  document.getElementById('tenant-name').textContent = localStorage.getItem('rc_tenant_name') || '';
+}
+
+function logout() { localStorage.clear(); window.location.href = 'index.html'; }
+
+async function loadInvoices() {
+  try {
+    const r = await fetch(`${API}/api/rental-connect/invoices`, { headers: { Authorization: `Bearer ${token}` } });
+    const d = await r.json();
+    allInvoices = d.invoices || [];
+    updateStats();
+    applyFilters();
+  } catch(e) {
+    document.getElementById('invoices-tbody').innerHTML = `<tr><td colspan="9"><div class="empty-state"><i class="fas fa-exclamation-triangle"></i><p>Failed to load invoices</p></div></td></tr>`;
+  }
+}
+
+function updateStats() {
+  document.getElementById('stat-total').textContent = allInvoices.length;
+  document.getElementById('stat-draft').textContent = allInvoices.filter(i => i.status === 'draft').length;
+  document.getElementById('stat-sent').textContent = allInvoices.filter(i => i.status === 'sent').length;
+  document.getElementById('stat-paid').textContent = allInvoices.filter(i => i.status === 'paid').length;
+  document.getElementById('stat-overdue').textContent = allInvoices.filter(i => i.status === 'overdue').length;
+}
+
+function applyFilters() {
+  const status = document.getElementById('filter-status').value;
+  const type = document.getElementById('filter-type').value;
+  const currency = document.getElementById('filter-currency').value;
+  const search = document.getElementById('filter-search').value.toLowerCase();
+  filtered = allInvoices.filter(i => {
+    if (status && i.status !== status) return false;
+    if (type && i.invoice_type !== type) return false;
+    if (currency && i.currency !== currency) return false;
+    if (search && !i.invoice_number?.toLowerCase().includes(search) && !i.guest_name?.toLowerCase().includes(search)) return false;
+    return true;
+  });
+  currentPage = 1;
+  renderTable();
+}
+
+function resetFilters() {
+  ['filter-status','filter-type','filter-currency'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('filter-search').value = '';
+  applyFilters();
+}
+
+function renderTable() {
+  const total = filtered.length;
+  const start = (currentPage - 1) * perPage;
+  const end = Math.min(start + perPage, total);
+  const page = filtered.slice(start, end);
+  document.getElementById('result-count').textContent = `${total} invoice${total !== 1 ? 's' : ''}`;
+  document.getElementById('pagination-info').textContent = total ? `Showing ${start+1}–${end} of ${total}` : 'No results';
+
+  if (!page.length) {
+    document.getElementById('invoices-tbody').innerHTML = `<tr><td colspan="9"><div class="empty-state"><i class="fas fa-file-invoice"></i><p>No invoices found</p></div></td></tr>`;
+    document.getElementById('pagination-btns').innerHTML = '';
+    return;
+  }
+
+  document.getElementById('invoices-tbody').innerHTML = page.map(inv => {
+    const sc = { draft:'badge-draft', sent:'badge-sent', paid:'badge-paid', partially_paid:'badge-partially_paid', overdue:'badge-overdue', cancelled:'badge-cancelled' }[inv.status] || 'badge-draft';
+    const typeLabel = { booking:'Booking', minibar:'Minibar', standalone:'Standalone' }[inv.invoice_type] || inv.invoice_type;
+    const paid = Number(inv.amount_paid || 0);
+    const total = Number(inv.total_amount || 0);
+    return `<tr>
+      <td style="font-weight:600;font-size:12px">${inv.invoice_number}</td>
+      <td>${inv.guest_name || '—'}</td>
+      <td><span style="font-size:11px;background:var(--gray);padding:2px 7px;border-radius:4px;font-weight:600">${typeLabel}</span></td>
+      <td>${fmtDate(inv.issue_date)}</td>
+      <td>${fmtDate(inv.due_date)}</td>
+      <td style="font-weight:600">${inv.currency} ${total.toLocaleString()}</td>
+      <td style="color:${paid>=total?'#059669':'var(--text-muted)'}">${inv.currency} ${paid.toLocaleString()}</td>
+      <td><span class="badge ${sc}">${inv.status}</span></td>
+      <td><div class="actions">
+        <button class="action-btn" title="View" onclick="viewInvoice(${inv.id})"><i class="fas fa-eye"></i></button>
+        ${inv.status !== 'paid' && inv.status !== 'cancelled' ? `<button class="action-btn" title="Mark Paid" onclick="markPaid(${inv.id})"><i class="fas fa-check" style="color:var(--teal)"></i></button>` : ''}
+      </div></td>
+    </tr>`;
+  }).join('');
+
+  const totalPages = Math.ceil(total / perPage);
+  let btns = `<button class="page-btn" ${currentPage===1?'disabled':''} onclick="goPage(${currentPage-1})"><i class="fas fa-chevron-left"></i></button>`;
+  for (let i = 1; i <= totalPages; i++) {
+    if (i===1||i===totalPages||(i>=currentPage-1&&i<=currentPage+1)) btns += `<button class="page-btn ${i===currentPage?'active':''}" onclick="goPage(${i})">${i}</button>`;
+    else if (i===currentPage-2||i===currentPage+2) btns += `<button class="page-btn" disabled>…</button>`;
+  }
+  btns += `<button class="page-btn" ${currentPage===totalPages?'disabled':''} onclick="goPage(${currentPage+1})"><i class="fas fa-chevron-right"></i></button>`;
+  document.getElementById('pagination-btns').innerHTML = btns;
+}
+
+function goPage(p) { currentPage = p; renderTable(); window.scrollTo(0,0); }
+
+async function viewInvoice(id) {
+  const inv = allInvoices.find(i => i.id === id);
+  if (!inv) return;
+  document.getElementById('modal-inv-number').textContent = inv.invoice_number;
+  const sc = { draft:'badge-draft', sent:'badge-sent', paid:'badge-paid', partially_paid:'badge-partially_paid', overdue:'badge-overdue', cancelled:'badge-cancelled' }[inv.status] || '';
+  let itemsHtml = '';
+  try {
+    const r = await fetch(`${API}/api/rental-connect/invoices/${id}/items`, { headers: { Authorization: `Bearer ${token}` } });
+    const d = await r.json();
+    if (d.items?.length) {
+      itemsHtml = `<div class="detail-item full" style="margin-top:8px">
+        <label>Line Items</label>
+        <table class="items-table">
+          <thead><tr><th>Description</th><th>Qty</th><th>Unit Price</th><th>Amount</th></tr></thead>
+          <tbody>${d.items.map(it => `<tr><td>${it.description}</td><td>${it.quantity}</td><td>${inv.currency} ${Number(it.unit_price).toLocaleString()}</td><td>${inv.currency} ${Number(it.amount).toLocaleString()}</td></tr>`).join('')}</tbody>
+        </table>
+      </div>`;
+    }
+  } catch(e) {}
+
+  document.getElementById('modal-body').innerHTML = `
+    <div class="detail-grid">
+      <div class="detail-item"><label>Invoice #</label><span>${inv.invoice_number}</span></div>
+      <div class="detail-item"><label>Status</label><span><span class="badge ${sc}">${inv.status}</span></span></div>
+      <div class="detail-item"><label>Guest</label><span>${inv.guest_name || '—'}</span></div>
+      <div class="detail-item"><label>Phone</label><span>${inv.guest_phone || '—'}</span></div>
+      <div class="detail-item"><label>Issue Date</label><span>${fmtDate(inv.issue_date)}</span></div>
+      <div class="detail-item"><label>Due Date</label><span>${fmtDate(inv.due_date)}</span></div>
+      <div class="detail-item"><label>Subtotal</label><span>${inv.currency} ${Number(inv.subtotal).toLocaleString()}</span></div>
+      <div class="detail-item"><label>Discount</label><span>${inv.currency} ${Number(inv.discount_amount||0).toLocaleString()}</span></div>
+      <div class="detail-item"><label>Total</label><span style="font-weight:700;color:var(--teal)">${inv.currency} ${Number(inv.total_amount).toLocaleString()}</span></div>
+      <div class="detail-item"><label>Paid</label><span style="color:#059669">${inv.currency} ${Number(inv.amount_paid||0).toLocaleString()}</span></div>
+      ${inv.notes ? `<div class="detail-item full"><label>Notes</label><span>${inv.notes}</span></div>` : ''}
+      ${itemsHtml}
+    </div>`;
+
+  let footer = `<button class="btn btn-outline" onclick="closeModal()">Close</button>`;
+  if (inv.status !== 'paid' && inv.status !== 'cancelled') footer += `<button class="btn btn-teal" onclick="markPaid(${inv.id})"><i class="fas fa-check"></i> Mark Paid</button>`;
+  document.getElementById('modal-footer').innerHTML = footer;
+  document.getElementById('modal-view').classList.add('open');
+}
+
+async function markPaid(id) {
+  try {
+    const r = await fetch(`${API}/api/rental-connect/invoices/${id}/status`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ status: 'paid' })
+    });
+    if (!r.ok) throw new Error();
+    const inv = allInvoices.find(i => i.id === id);
+    if (inv) { inv.status = 'paid'; inv.amount_paid = inv.total_amount; }
+    updateStats(); applyFilters(); closeModal();
+    showToast('Invoice marked as paid', 'success');
+  } catch(e) { showToast('Failed to update invoice', 'error'); }
+}
+
+function closeModal() { document.getElementById('modal-view').classList.remove('open'); }
+function fmtDate(d) { if (!d) return '—'; return new Date(d).toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'numeric' }); }
+function showToast(msg, type='success') {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.className = `toast show ${type}`;
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+document.getElementById('modal-view').addEventListener('click', e => { if (e.target === e.currentTarget) closeModal(); });
+
+checkAuth();
+loadInvoices();
+</script>
+</body>
+</html>

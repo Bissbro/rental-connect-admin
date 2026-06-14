@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calendar — Rental Connect</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+:root { --navy:#0A2540;--teal:#40B5AD;--gold:#B8975A;--white:#FAFAF8;--gray:#f4f5f7;--border:#e5e7eb;--text:#1C1C1E;--text-muted:#6b7280;--sidebar-w:240px; }
+body { font-family:'Inter',sans-serif; background:var(--gray); color:var(--text); display:flex; min-height:100vh; }
+.sidebar { width:var(--sidebar-w); background:var(--navy); min-height:100vh; position:fixed; top:0; left:0; display:flex; flex-direction:column; z-index:100; }
+.sidebar-logo { padding:24px 20px; border-bottom:1px solid rgba(255,255,255,0.1); }
+.sidebar-logo h1 { font-family:'Playfair Display',serif; color:white; font-size:1.1rem; }
+.sidebar-logo p { font-size:11px; color:rgba(255,255,255,0.4); margin-top:2px; letter-spacing:1px; text-transform:uppercase; }
+.sidebar-nav { flex:1; padding:16px 0; }
+.nav-item { display:flex; align-items:center; gap:12px; padding:11px 20px; color:rgba(255,255,255,0.6); text-decoration:none; font-size:13px; font-weight:500; transition:all 0.2s; cursor:pointer; border:none; background:none; width:100%; text-align:left; }
+.nav-item:hover { background:rgba(255,255,255,0.08); color:white; }
+.nav-item.active { background:rgba(64,181,173,0.2); color:var(--teal); }
+.nav-item i { width:16px; text-align:center; font-size:14px; }
+.nav-divider { height:1px; background:rgba(255,255,255,0.08); margin:8px 20px; }
+.sidebar-footer { padding:16px 20px; border-top:1px solid rgba(255,255,255,0.1); }
+.sidebar-user { font-size:12px; color:rgba(255,255,255,0.5); margin-bottom:10px; }
+.sidebar-user span { color:white; font-weight:600; display:block; }
+.btn-logout { width:100%; padding:8px; background:rgba(255,255,255,0.08); color:rgba(255,255,255,0.6); border:none; border-radius:8px; font-size:12px; cursor:pointer; transition:0.2s; }
+.btn-logout:hover { background:rgba(255,255,255,0.15); color:white; }
+.main { margin-left:var(--sidebar-w); flex:1; padding:32px; }
+.page-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:24px; }
+.page-header h2 { font-family:'Playfair Display',serif; font-size:1.6rem; color:var(--text); }
+.page-header p { font-size:13px; color:var(--text-muted); margin-top:4px; }
+.btn { padding:8px 16px; border-radius:8px; font-size:13px; font-weight:600; cursor:pointer; border:none; transition:0.2s; display:inline-flex; align-items:center; gap:6px; }
+.btn-teal { background:var(--teal); color:white; }
+.btn-teal:hover { background:#38a39c; }
+.btn-outline { background:none; border:1.5px solid var(--border); color:var(--text-muted); }
+.btn-outline:hover { border-color:var(--teal); color:var(--teal); }
+.btn-sm { padding:6px 12px; font-size:12px; }
+
+/* Unit tabs */
+.unit-tabs { display:flex; gap:8px; margin-bottom:20px; flex-wrap:wrap; }
+.unit-tab { padding:8px 16px; border-radius:8px; border:1.5px solid var(--border); background:white; font-size:13px; font-weight:600; cursor:pointer; transition:0.2s; color:var(--text-muted); }
+.unit-tab.active { background:var(--navy); color:white; border-color:var(--navy); }
+.unit-tab:hover:not(.active) { border-color:var(--teal); color:var(--teal); }
+
+/* Calendar */
+.cal-card { background:white; border-radius:12px; box-shadow:0 1px 4px rgba(0,0,0,0.06); overflow:hidden; }
+.cal-nav { display:flex; justify-content:space-between; align-items:center; padding:16px 20px; border-bottom:1px solid var(--border); }
+.cal-nav-btn { width:36px; height:36px; border-radius:8px; border:1.5px solid var(--border); background:white; cursor:pointer; display:flex; align-items:center; justify-content:center; color:var(--text-muted); transition:0.2s; font-size:14px; }
+.cal-nav-btn:hover { border-color:var(--teal); color:var(--teal); }
+.cal-month { font-family:'Playfair Display',serif; font-size:1.2rem; font-weight:700; color:var(--navy); }
+.cal-grid { display:grid; grid-template-columns:repeat(7,1fr); }
+.cal-dow { text-align:center; padding:10px; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; color:var(--text-muted); border-bottom:1px solid var(--border); }
+.cal-day { min-height:90px; padding:8px; border-right:1px solid var(--border); border-bottom:1px solid var(--border); position:relative; cursor:default; transition:background 0.15s; }
+.cal-day:nth-child(7n) { border-right:none; }
+.cal-day.other-month { background:#fafafa; }
+.cal-day.today { background:#f0fdf4; }
+.cal-day.today .cal-day-num { background:var(--teal); color:white; border-radius:50%; width:24px; height:24px; display:flex; align-items:center; justify-content:center; }
+.cal-day-num { font-size:13px; font-weight:600; color:var(--text); margin-bottom:4px; width:24px; height:24px; display:flex; align-items:center; justify-content:center; }
+.cal-day.other-month .cal-day-num { color:var(--text-muted); opacity:0.5; }
+.cal-event { font-size:11px; font-weight:600; padding:2px 6px; border-radius:4px; margin-bottom:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; cursor:pointer; transition:opacity 0.15s; }
+.cal-event:hover { opacity:0.8; }
+.cal-event.confirmed { background:#d1fae5; color:#065f46; }
+.cal-event.pending { background:#fef3c7; color:#92400e; }
+.cal-event.blocked { background:#f3f4f6; color:#6b7280; }
+.cal-event.checkin { background:#dbeafe; color:#1e40af; }
+.cal-event.checkout { background:#fce7f3; color:#9d174d; }
+
+/* Legend */
+.legend { display:flex; gap:16px; padding:12px 20px; border-top:1px solid var(--border); flex-wrap:wrap; }
+.legend-item { display:flex; align-items:center; gap:6px; font-size:12px; color:var(--text-muted); }
+.legend-dot { width:12px; height:12px; border-radius:3px; }
+
+/* Side panel */
+.cal-layout { display:grid; grid-template-columns:1fr 300px; gap:20px; }
+.side-panel { display:flex; flex-direction:column; gap:16px; }
+.side-card { background:white; border-radius:12px; padding:18px; box-shadow:0 1px 4px rgba(0,0,0,0.06); }
+.side-card-title { font-size:13px; font-weight:700; color:var(--text); margin-bottom:12px; }
+.event-list-item { padding:10px 0; border-bottom:1px solid var(--border); }
+.event-list-item:last-child { border-bottom:none; }
+.event-list-name { font-size:13px; font-weight:600; color:var(--text); }
+.event-list-dates { font-size:12px; color:var(--text-muted); margin-top:2px; }
+.event-list-badge { display:inline-block; padding:2px 7px; border-radius:4px; font-size:10px; font-weight:700; margin-top:4px; }
+.no-events { font-size:13px; color:var(--text-muted); text-align:center; padding:20px 0; }
+
+/* Tooltip */
+.tooltip { position:fixed; background:var(--navy); color:white; padding:8px 12px; border-radius:8px; font-size:12px; z-index:999; pointer-events:none; display:none; max-width:200px; box-shadow:0 4px 16px rgba(0,0,0,0.2); }
+</style>
+</head>
+<body>
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <h1>Rental Connect</h1>
+    <p id="tenant-name">Loading...</p>
+  </div>
+  <nav class="sidebar-nav">
+    <a class="nav-item" href="dashboard.html"><i class="fas fa-chart-pie"></i> Dashboard</a>
+    <a class="nav-item" href="bookings.html"><i class="fas fa-calendar-check"></i> Bookings</a>
+    <a class="nav-item" href="units.html"><i class="fas fa-building"></i> Units</a>
+    <a class="nav-item" href="invoices.html"><i class="fas fa-file-invoice"></i> Invoices</a>
+    <div class="nav-divider"></div>
+    <a class="nav-item active" href="calendar.html"><i class="fas fa-calendar"></i> Calendar</a>
+    <a class="nav-item" href="settings.html"><i class="fas fa-cog"></i> Settings</a>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="sidebar-user">Signed in as<span id="sidebar-username">...</span></div>
+    <button class="btn-logout" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Sign Out</button>
+  </div>
+</aside>
+
+<main class="main">
+  <div class="page-header">
+    <div>
+      <h2>Calendar</h2>
+      <p>Availability and booking overview</p>
+    </div>
+    <a href="bookings.html" class="btn btn-teal"><i class="fas fa-plus"></i> New Booking</a>
+  </div>
+
+  <div class="unit-tabs" id="unit-tabs">
+    <button class="unit-tab active" data-unit="all" onclick="selectUnit('all', this)">All Units</button>
+  </div>
+
+  <div class="cal-layout">
+    <div class="cal-card">
+      <div class="cal-nav">
+        <button class="cal-nav-btn" onclick="changeMonth(-1)"><i class="fas fa-chevron-left"></i></button>
+        <span class="cal-month" id="cal-month">—</span>
+        <button class="cal-nav-btn" onclick="changeMonth(1)"><i class="fas fa-chevron-right"></i></button>
+      </div>
+      <div class="cal-grid" id="cal-grid">
+        <div class="cal-dow">Sun</div><div class="cal-dow">Mon</div><div class="cal-dow">Tue</div>
+        <div class="cal-dow">Wed</div><div class="cal-dow">Thu</div><div class="cal-dow">Fri</div><div class="cal-dow">Sat</div>
+      </div>
+      <div class="legend">
+        <div class="legend-item"><div class="legend-dot" style="background:#d1fae5"></div> Confirmed</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#fef3c7"></div> Pending</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#dbeafe"></div> Check-in</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#fce7f3"></div> Check-out</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#f3f4f6"></div> Blocked</div>
+      </div>
+    </div>
+
+    <div class="side-panel">
+      <div class="side-card">
+        <div class="side-card-title">This Month</div>
+        <div id="month-stats" style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <div style="text-align:center;padding:10px;background:var(--gray);border-radius:8px">
+            <div style="font-size:1.4rem;font-weight:700;color:var(--navy)" id="ms-bookings">—</div>
+            <div style="font-size:11px;color:var(--text-muted);margin-top:2px">Bookings</div>
+          </div>
+          <div style="text-align:center;padding:10px;background:var(--gray);border-radius:8px">
+            <div style="font-size:1.4rem;font-weight:700;color:var(--teal)" id="ms-nights">—</div>
+            <div style="font-size:11px;color:var(--text-muted);margin-top:2px">Nights</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="side-card">
+        <div class="side-card-title">Upcoming Check-ins</div>
+        <div id="upcoming-checkins"><div class="no-events">Loading...</div></div>
+      </div>
+
+      <div class="side-card">
+        <div class="side-card-title">Upcoming Check-outs</div>
+        <div id="upcoming-checkouts"><div class="no-events">Loading...</div></div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<div class="tooltip" id="tooltip"></div>
+
+<script>
+const API = 'https://api.htmrentals.com';
+let token, tenantId, units = [], bookings = [], blockedDates = [];
+let currentYear = new Date().getFullYear();
+let currentMonth = new Date().getMonth();
+let selectedUnit = 'all';
+
+function checkAuth() {
+  token = localStorage.getItem('rc_token');
+  tenantId = localStorage.getItem('rc_tenant_id');
+  if (!token) { window.location.href = 'index.html'; return; }
+  document.getElementById('sidebar-username').textContent = localStorage.getItem('rc_username') || '';
+  document.getElementById('tenant-name').textContent = localStorage.getItem('rc_tenant_name') || '';
+}
+
+function logout() { localStorage.clear(); window.location.href = 'index.html'; }
+
+async function loadData() {
+  try {
+    const [uRes, bRes] = await Promise.all([
+      fetch(`${API}/api/rental-connect/units`, { headers: { Authorization: `Bearer ${token}` } }),
+      fetch(`${API}/api/rental-connect/bookings`, { headers: { Authorization: `Bearer ${token}` } })
+    ]);
+    const uData = await uRes.json();
+    const bData = await bRes.json();
+    units = (uData.units || []).filter(u => !u.parent_unit_id);
+    bookings = (bData.bookings || []).filter(b => b.booking_status !== 'cancelled');
+
+    // Build unit tabs
+    const tabsEl = document.getElementById('unit-tabs');
+    units.forEach(u => {
+      const btn = document.createElement('button');
+      btn.className = 'unit-tab';
+      btn.dataset.unit = u.id;
+      btn.textContent = u.name || u.unit_name;
+      btn.onclick = () => selectUnit(u.id, btn);
+      tabsEl.appendChild(btn);
+    });
+
+    renderCalendar();
+    renderSidePanel();
+  } catch(e) { console.error(e); }
+}
+
+function selectUnit(unitId, btn) {
+  selectedUnit = unitId;
+  document.querySelectorAll('.unit-tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  renderCalendar();
+  renderSidePanel();
+}
+
+function changeMonth(dir) {
+  currentMonth += dir;
+  if (currentMonth > 11) { currentMonth = 0; currentYear++; }
+  if (currentMonth < 0) { currentMonth = 11; currentYear--; }
+  renderCalendar();
+  renderSidePanel();
+}
+
+function getFilteredBookings() {
+  if (selectedUnit === 'all') return bookings;
+  return bookings.filter(b => b.unit_id == selectedUnit || String(b.unit_id) === String(selectedUnit));
+}
+
+function renderCalendar() {
+  const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  document.getElementById('cal-month').textContent = `${monthNames[currentMonth]} ${currentYear}`;
+
+  const firstDay = new Date(currentYear, currentMonth, 1).getDay();
+  const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+  const daysInPrev = new Date(currentYear, currentMonth, 0).getDate();
+  const today = new Date();
+
+  const filtered = getFilteredBookings();
+  const grid = document.getElementById('cal-grid');
+
+  // Remove previous day cells (keep DOW headers — first 7 children)
+  while (grid.children.length > 7) grid.removeChild(grid.lastChild);
+
+  // Prev month padding
+  for (let i = firstDay - 1; i >= 0; i--) {
+    const d = document.createElement('div');
+    d.className = 'cal-day other-month';
+    d.innerHTML = `<div class="cal-day-num">${daysInPrev - i}</div>`;
+    grid.appendChild(d);
+  }
+
+  // Current month days
+  for (let day = 1; day <= daysInMonth; day++) {
+    const dateStr = `${currentYear}-${String(currentMonth+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+    const isToday = today.getFullYear()===currentYear && today.getMonth()===currentMonth && today.getDate()===day;
+
+    const d = document.createElement('div');
+    d.className = `cal-day${isToday?' today':''}`;
+
+    let html = `<div class="cal-day-num">${day}</div>`;
+
+    // Find bookings for this day
+    const dayEvents = filtered.filter(b => {
+      const ci = b.check_in_date?.slice(0,10);
+      const co = b.check_out_date?.slice(0,10);
+      return dateStr >= ci && dateStr < co;
+    });
+
+    dayEvents.slice(0, 3).forEach(b => {
+      const ci = b.check_in_date?.slice(0,10);
+      const co = b.check_out_date?.slice(0,10);
+      let cls = b.booking_status === 'confirmed' ? 'confirmed' : 'pending';
+      let label = b.guest_name?.split(' ')[0] || 'Guest';
+      if (dateStr === ci) { cls = 'checkin'; label = `↓ ${label}`; }
+      else if (dateStr === new Date(new Date(co).getTime()).toISOString().slice(0,10)) cls = 'checkout';
+      const unitName = units.find(u => u.id === b.unit_id)?.unit_name || '';
+      html += `<div class="cal-event ${cls}" 
+        onmouseenter="showTooltip(event,'${b.guest_name} · ${b.check_in_date?.slice(0,10)} → ${b.check_out_date?.slice(0,10)}\\n${unitName}')"
+        onmouseleave="hideTooltip()"
+        onclick="window.location='bookings.html'">${label}</div>`;
+    });
+
+    if (dayEvents.length > 3) html += `<div style="font-size:10px;color:var(--text-muted);padding:2px 4px">+${dayEvents.length-3} more</div>`;
+
+    d.innerHTML = html;
+    grid.appendChild(d);
+  }
+
+  // Next month padding
+  const totalCells = firstDay + daysInMonth;
+  const remaining = totalCells % 7 === 0 ? 0 : 7 - (totalCells % 7);
+  for (let i = 1; i <= remaining; i++) {
+    const d = document.createElement('div');
+    d.className = 'cal-day other-month';
+    d.innerHTML = `<div class="cal-day-num">${i}</div>`;
+    grid.appendChild(d);
+  }
+
+  // Month stats
+  const monthBookings = filtered.filter(b => {
+    const ci = b.check_in_date?.slice(0,7);
+    return ci === `${currentYear}-${String(currentMonth+1).padStart(2,'0')}`;
+  });
+  document.getElementById('ms-bookings').textContent = monthBookings.length;
+  document.getElementById('ms-nights').textContent = monthBookings.reduce((s,b) => s + (b.total_nights||0), 0);
+}
+
+function renderSidePanel() {
+  const today = new Date().toISOString().slice(0,10);
+  const filtered = getFilteredBookings();
+
+  const checkins = filtered
+    .filter(b => b.check_in_date?.slice(0,10) >= today)
+    .sort((a,b) => a.check_in_date.localeCompare(b.check_in_date))
+    .slice(0, 5);
+
+  const checkouts = filtered
+    .filter(b => b.check_out_date?.slice(0,10) >= today)
+    .sort((a,b) => a.check_out_date.localeCompare(b.check_out_date))
+    .slice(0, 5);
+
+  const ciEl = document.getElementById('upcoming-checkins');
+  const coEl = document.getElementById('upcoming-checkouts');
+
+  ciEl.innerHTML = checkins.length ? checkins.map(b => `
+    <div class="event-list-item">
+      <div class="event-list-name">${b.guest_name}</div>
+      <div class="event-list-dates">${fmtDate(b.check_in_date)} · ${b.total_nights} night${b.total_nights!==1?'s':''}</div>
+      <span class="event-list-badge badge-${b.booking_status}" style="background:${b.booking_status==='confirmed'?'#d1fae5':'#fef3c7'};color:${b.booking_status==='confirmed'?'#065f46':'#92400e'}">${b.booking_status}</span>
+    </div>`).join('') : '<div class="no-events">No upcoming check-ins</div>';
+
+  coEl.innerHTML = checkouts.length ? checkouts.map(b => `
+    <div class="event-list-item">
+      <div class="event-list-name">${b.guest_name}</div>
+      <div class="event-list-dates">Checking out ${fmtDate(b.check_out_date)}</div>
+    </div>`).join('') : '<div class="no-events">No upcoming check-outs</div>';
+}
+
+function showTooltip(e, text) {
+  const t = document.getElementById('tooltip');
+  t.innerHTML = text.replace(/\n/g,'<br>');
+  t.style.display = 'block';
+  t.style.left = (e.clientX + 12) + 'px';
+  t.style.top = (e.clientY - 10) + 'px';
+}
+function hideTooltip() { document.getElementById('tooltip').style.display = 'none'; }
+
+function fmtDate(d) {
+  if (!d) return '—';
+  return new Date(d).toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'numeric' });
+}
+
+checkAuth();
+loadData();
+</script>
+</body>
+</html>

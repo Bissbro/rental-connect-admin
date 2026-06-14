@@ -6,7 +6,7 @@
 - tenant_id fixes (all 16 inserts)
 
 ## Rental Connect In Progress
-- Invoice auto-creation on confirm (testing now)
+- Invoice auto-creation on confirm ✓
 - Calendar page
 - Units full form
 

@@ -358,7 +358,7 @@ async function viewInvoice(id) {
       ${itemsHtml}
     </div>`;
 
-  let footer = `<button class="btn btn-outline" onclick="closeModal()">Close</button>`;
+  let footer = `<button class="btn btn-outline" onclick="closeModal()">Close</button> <a class="btn btn-outline" href="https://api.htmrentals.com/api/rental-connect/invoices/${inv.id}/pdf/download?token=${token}" target="_blank"><i class="fas fa-file-pdf"></i> PDF</a>`;
   if (inv.status !== 'paid' && inv.status !== 'cancelled') footer += `<button class="btn btn-teal" onclick="markPaid(${inv.id})"><i class="fas fa-check"></i> Mark Paid</button>`;
   document.getElementById('modal-footer').innerHTML = footer;
   document.getElementById('modal-view').classList.add('open');

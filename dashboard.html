@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard — Rental Connect</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+    --navy: #0A2540;
+    --teal: #40B5AD;
+    --gold: #B8975A;
+    --white: #FAFAF8;
+    --gray: #f4f5f7;
+    --border: #e5e7eb;
+    --text: #1C1C1E;
+    --text-muted: #6b7280;
+    --sidebar-w: 240px;
+}
+body { font-family: 'Inter', sans-serif; background: var(--gray); color: var(--text); display: flex; min-height: 100vh; }
+
+/* Sidebar */
+.sidebar { width: var(--sidebar-w); background: var(--navy); min-height: 100vh; position: fixed; top: 0; left: 0; display: flex; flex-direction: column; z-index: 100; }
+.sidebar-logo { padding: 24px 20px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+.sidebar-logo h1 { font-family: 'Playfair Display', serif; color: white; font-size: 1.1rem; }
+.sidebar-logo p { font-size: 11px; color: rgba(255,255,255,0.4); margin-top: 2px; letter-spacing: 1px; text-transform: uppercase; }
+.sidebar-nav { flex: 1; padding: 16px 0; }
+.nav-item { display: flex; align-items: center; gap: 12px; padding: 11px 20px; color: rgba(255,255,255,0.6); text-decoration: none; font-size: 13px; font-weight: 500; transition: all 0.2s; cursor: pointer; border: none; background: none; width: 100%; text-align: left; }
+.nav-item:hover { background: rgba(255,255,255,0.08); color: white; }
+.nav-item.active { background: rgba(64,181,173,0.2); color: var(--teal); }
+.nav-item i { width: 16px; text-align: center; font-size: 14px; }
+.nav-divider { height: 1px; background: rgba(255,255,255,0.08); margin: 8px 20px; }
+.sidebar-footer { padding: 16px 20px; border-top: 1px solid rgba(255,255,255,0.1); }
+.sidebar-user { font-size: 12px; color: rgba(255,255,255,0.5); margin-bottom: 10px; }
+.sidebar-user span { color: white; font-weight: 600; display: block; }
+.btn-logout { width: 100%; padding: 8px; background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.6); border: none; border-radius: 8px; font-size: 12px; cursor: pointer; transition: 0.2s; }
+.btn-logout:hover { background: rgba(255,255,255,0.15); color: white; }
+
+/* Main */
+.main { margin-left: var(--sidebar-w); flex: 1; padding: 32px; }
+.page-header { margin-bottom: 28px; }
+.page-header h2 { font-family: 'Playfair Display', serif; font-size: 1.6rem; color: var(--text); }
+.page-header p { font-size: 13px; color: var(--text-muted); margin-top: 4px; }
+
+/* Stats */
+.stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 28px; }
+.stat-card { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+.stat-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); margin-bottom: 8px; }
+.stat-value { font-size: 1.6rem; font-weight: 700; color: var(--text); }
+.stat-sub { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+.stat-icon { float: right; width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px; }
+.stat-icon.teal { background: rgba(64,181,173,0.1); color: var(--teal); }
+.stat-icon.gold { background: rgba(184,151,90,0.1); color: var(--gold); }
+.stat-icon.navy { background: rgba(10,37,64,0.1); color: var(--navy); }
+.stat-icon.green { background: rgba(16,185,129,0.1); color: #10b981; }
+
+/* Cards */
+.card { background: white; border-radius: 12px; padding: 24px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); margin-bottom: 20px; }
+.card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+.card-title { font-size: 14px; font-weight: 700; color: var(--text); }
+.btn-sm { padding: 7px 14px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; border: none; }
+.btn-teal { background: var(--teal); color: white; }
+.btn-outline { background: none; border: 1.5px solid var(--border); color: var(--text-muted); }
+
+/* Table */
+.table { width: 100%; border-collapse: collapse; }
+.table th { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); padding: 8px 12px; text-align: left; border-bottom: 1px solid var(--border); }
+.table td { padding: 12px; font-size: 13px; border-bottom: 1px solid var(--border); }
+.table tr:last-child td { border-bottom: none; }
+.badge { padding: 3px 8px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+.badge-green { background: #d1fae5; color: #065f46; }
+.badge-yellow { background: #fef3c7; color: #92400e; }
+.badge-red { background: #fee2e2; color: #991b1b; }
+.badge-gray { background: #f3f4f6; color: #374151; }
+
+/* Pages */
+.page { display: none; }
+.page.active { display: block; }
+</style>
+</head>
+<body>
+
+<aside class="sidebar">
+    <div class="sidebar-logo">
+        <h1>Rental Connect</h1>
+        <p id="tenant-name">Loading...</p>
+    </div>
+    <nav class="sidebar-nav">
+        <button class="nav-item active" onclick="showPage('dashboard')"><i class="fas fa-chart-pie"></i> Dashboard</button>
+        <button class="nav-item" onclick="showPage('bookings')"><i class="fas fa-calendar-check"></i> Bookings</button>
+        <button class="nav-item" onclick="showPage('units')"><i class="fas fa-building"></i> Units</button>
+        <button class="nav-item" onclick="showPage('invoices')"><i class="fas fa-file-invoice"></i> Invoices</button>
+        <div class="nav-divider"></div>
+        <button class="nav-item" onclick="showPage('calendar')"><i class="fas fa-calendar"></i> Calendar</button>
+        <button class="nav-item" onclick="showPage('settings')"><i class="fas fa-cog"></i> Settings</button>
+    </nav>
+    <div class="sidebar-footer">
+        <div class="sidebar-user">Signed in as<span id="sidebar-username">...</span></div>
+        <button class="btn-logout" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Sign Out</button>
+    </div>
+</aside>
+
+<main class="main">
+    <!-- Dashboard -->
+    <div class="page active" id="page-dashboard">
+        <div class="page-header">
+            <h2>Dashboard</h2>
+            <p id="today-date"></p>
+        </div>
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon teal"><i class="fas fa-calendar-check"></i></div>
+                <div class="stat-label">Bookings Today</div>
+                <div class="stat-value" id="stat-today">—</div>
+                <div class="stat-sub">Check-ins & Check-outs</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon gold"><i class="fas fa-coins"></i></div>
+                <div class="stat-label">Revenue This Month</div>
+                <div class="stat-value" id="stat-revenue">—</div>
+                <div class="stat-sub">MVR</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon navy"><i class="fas fa-building"></i></div>
+                <div class="stat-label">Total Units</div>
+                <div class="stat-value" id="stat-units">—</div>
+                <div class="stat-sub">Active units</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon green"><i class="fas fa-file-invoice"></i></div>
+                <div class="stat-label">Pending Invoices</div>
+                <div class="stat-value" id="stat-invoices">—</div>
+                <div class="stat-sub">Awaiting payment</div>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header">
+                <span class="card-title">Recent Bookings</span>
+                <button class="btn-sm btn-teal" onclick="showPage('bookings')">View All</button>
+            </div>
+            <table class="table">
+                <thead><tr><th>Guest</th><th>Unit</th><th>Check-in</th><th>Check-out</th><th>Amount</th><th>Status</th></tr></thead>
+                <tbody id="recent-bookings"><tr><td colspan="6" style="text-align:center;padding:24px;color:#999;">Loading...</td></tr></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Bookings -->
+    <div class="page" id="page-bookings">
+        <div class="page-header">
+            <h2>Bookings</h2>
+            <p>Manage all your property bookings</p>
+        </div>
+        <div class="card">
+            <div class="card-header">
+                <span class="card-title">All Bookings</span>
+                <button class="btn-sm btn-teal" onclick="alert('Add booking coming soon')"><i class="fas fa-plus"></i> Add Booking</button>
+            </div>
+            <table class="table">
+                <thead><tr><th>Guest</th><th>Unit</th><th>Check-in</th><th>Check-out</th><th>Nights</th><th>Amount</th><th>Status</th></tr></thead>
+                <tbody id="all-bookings"><tr><td colspan="7" style="text-align:center;padding:24px;color:#999;">Loading...</td></tr></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Units -->
+    <div class="page" id="page-units">
+        <div class="page-header">
+            <h2>Units</h2>
+            <p>Manage your property units</p>
+        </div>
+        <div id="units-list" style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;">
+            <div style="text-align:center;padding:40px;color:#999;grid-column:1/-1;">Loading...</div>
+        </div>
+    </div>
+
+    <!-- Invoices -->
+    <div class="page" id="page-invoices">
+        <div class="page-header">
+            <h2>Invoices</h2>
+            <p>Track payments and invoices</p>
+        </div>
+        <div class="card">
+            <div class="card-header">
+                <span class="card-title">All Invoices</span>
+            </div>
+            <table class="table">
+                <thead><tr><th>Invoice</th><th>Guest</th><th>Amount</th><th>Status</th><th>Date</th></tr></thead>
+                <tbody id="all-invoices"><tr><td colspan="5" style="text-align:center;padding:24px;color:#999;">Loading...</td></tr></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Calendar -->
+    <div class="page" id="page-calendar">
+        <div class="page-header">
+            <h2>Calendar</h2>
+            <p>View availability and bookings</p>
+        </div>
+        <div class="card" style="text-align:center;padding:60px;color:#999;">
+            <i class="fas fa-calendar" style="font-size:48px;margin-bottom:16px;display:block;opacity:0.3;"></i>
+            Calendar coming soon
+        </div>
+    </div>
+
+    <!-- Settings -->
+    <div class="page" id="page-settings">
+        <div class="page-header">
+            <h2>Settings</h2>
+            <p>Configure your property</p>
+        </div>
+        <div class="card" style="text-align:center;padding:60px;color:#999;">
+            <i class="fas fa-cog" style="font-size:48px;margin-bottom:16px;display:block;opacity:0.3;"></i>
+            Settings coming soon
+        </div>
+    </div>
+</main>
+
+<script>
+const API = 'https://api.htmrentals.com/api';
+const token = localStorage.getItem('rc_token');
+const username = localStorage.getItem('rc_username');
+const tenant_id = localStorage.getItem('rc_tenant_id');
+
+if (!token) window.location.href = 'index.html';
+
+const hdrs = () => ({ 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token });
+
+function logout() {
+    localStorage.removeItem('rc_token');
+    localStorage.removeItem('rc_username');
+    localStorage.removeItem('rc_tenant_id');
+    window.location.href = 'index.html';
+}
+
+function showPage(name) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    document.getElementById('page-' + name).classList.add('active');
+    event.currentTarget.classList.add('active');
+    if (name === 'bookings') loadBookings();
+    if (name === 'units') loadUnits();
+    if (name === 'invoices') loadInvoices();
+}
+
+function fmt(n) { return parseFloat(n||0).toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2}); }
+function fmtDate(d) { return d ? new Date(d).toLocaleDateString('en-GB', {day:'numeric',month:'short',year:'numeric'}) : '—'; }
+function statusBadge(s) {
+    const map = { confirmed:'badge-green', pending:'badge-yellow', cancelled:'badge-red', lead:'badge-gray' };
+    return `<span class="badge ${map[s]||'badge-gray'}">${s}</span>`;
+}
+
+async function loadDashboard() {
+    document.getElementById('sidebar-username').textContent = username;
+    document.getElementById('today-date').textContent = new Date().toLocaleDateString('en-GB', {weekday:'long', year:'numeric', month:'long', day:'numeric'});
+
+    try {
+        const [bRes, uRes, iRes] = await Promise.all([
+            fetch(API + '/admin/bookings', { headers: hdrs() }),
+            fetch(API + '/admin/units', { headers: hdrs() }),
+            fetch(API + '/admin/invoices', { headers: hdrs() })
+        ]);
+        const [bData, uData, iData] = await Promise.all([bRes.json(), uRes.json(), iRes.json()]);
+
+        const bookings = bData.bookings || [];
+        const units = uData.units || [];
+        const invoices = iData.invoices || [];
+
+        const today = new Date().toISOString().slice(0,10);
+        const todayActivity = bookings.filter(b => b.check_in_date?.slice(0,10) === today || b.check_out_date?.slice(0,10) === today).length;
+        const monthRevenue = bookings.filter(b => b.booking_status === 'confirmed' && b.check_in_date?.slice(0,7) === today.slice(0,7)).reduce((s,b) => s + parseFloat(b.total_amount||0), 0);
+        const pendingInv = invoices.filter(i => i.status === 'sent').length;
+
+        document.getElementById('stat-today').textContent = todayActivity;
+        document.getElementById('stat-revenue').textContent = 'MVR ' + fmt(monthRevenue);
+        document.getElementById('stat-units').textContent = units.filter(u => u.is_active).length;
+        document.getElementById('stat-invoices').textContent = pendingInv;
+        document.getElementById('rc-tenant-name') && (document.getElementById('rc-tenant-name').textContent = '');
+
+        const recent = bookings.slice(0, 5);
+        document.getElementById('recent-bookings').innerHTML = recent.length ? recent.map(b => `
+            <tr>
+                <td>${b.guest_name}</td>
+                <td>${b.unit_name||'—'}</td>
+                <td>${fmtDate(b.check_in_date)}</td>
+                <td>${fmtDate(b.check_out_date)}</td>
+                <td>MVR ${fmt(b.total_amount)}</td>
+                <td>${statusBadge(b.booking_status)}</td>
+            </tr>`).join('') : '<tr><td colspan="6" style="text-align:center;padding:24px;color:#999;">No bookings yet</td></tr>';
+
+    } catch(e) {
+        console.error(e);
+    }
+}
+
+async function loadBookings() {
+    try {
+        const res = await fetch(API + '/admin/bookings', { headers: hdrs() });
+        const data = await res.json();
+        const bookings = data.bookings || [];
+        document.getElementById('all-bookings').innerHTML = bookings.length ? bookings.map(b => `
+            <tr>
+                <td>${b.guest_name}</td>
+                <td>${b.unit_name||'—'}</td>
+                <td>${fmtDate(b.check_in_date)}</td>
+                <td>${fmtDate(b.check_out_date)}</td>
+                <td>${b.total_nights||'—'}</td>
+                <td>MVR ${fmt(b.total_amount)}</td>
+                <td>${statusBadge(b.booking_status)}</td>
+            </tr>`).join('') : '<tr><td colspan="7" style="text-align:center;padding:24px;color:#999;">No bookings yet</td></tr>';
+    } catch(e) { console.error(e); }
+}
+
+async function loadUnits() {
+    try {
+        const res = await fetch(API + '/admin/units', { headers: hdrs() });
+        const data = await res.json();
+        const units = data.units || [];
+        document.getElementById('units-list').innerHTML = units.length ? units.map(u => `
+            <div style="background:white;border-radius:12px;padding:20px;box-shadow:0 1px 4px rgba(0,0,0,0.06);">
+                <div style="font-weight:700;font-size:1rem;color:#0A2540;margin-bottom:4px;">${u.unit_number}</div>
+                <div style="font-size:13px;color:#6b7280;margin-bottom:12px;">${u.unit_name||''}</div>
+                <div style="font-size:12px;color:#6b7280;">MVR ${fmt(u.rate_mvr)}/night</div>
+                <div style="margin-top:8px;"><span class="badge ${u.is_active?'badge-green':'badge-red'}">${u.is_active?'Active':'Inactive'}</span></div>
+            </div>`).join('') : '<div style="text-align:center;padding:40px;color:#999;grid-column:1/-1;">No units yet</div>';
+    } catch(e) { console.error(e); }
+}
+
+async function loadInvoices() {
+    try {
+        const res = await fetch(API + '/admin/invoices', { headers: hdrs() });
+        const data = await res.json();
+        const invoices = data.invoices || [];
+        const statusMap = { paid:'badge-green', sent:'badge-yellow', partially_paid:'badge-yellow', cancelled:'badge-red', draft:'badge-gray' };
+        document.getElementById('all-invoices').innerHTML = invoices.length ? invoices.map(i => `
+            <tr>
+                <td>${i.invoice_number}</td>
+                <td>${i.guest_name||'—'}</td>
+                <td>MVR ${fmt(i.total_amount)}</td>
+                <td><span class="badge ${statusMap[i.status]||'badge-gray'}">${i.status}</span></td>
+                <td>${fmtDate(i.issue_date)}</td>
+            </tr>`).join('') : '<tr><td colspan="5" style="text-align:center;padding:24px;color:#999;">No invoices yet</td></tr>';
+    } catch(e) { console.error(e); }
+}
+
+// Init
+document.getElementById('tenant-name').textContent = 'Property Dashboard';
+loadDashboard();
+</script>
+</body>
+</html>

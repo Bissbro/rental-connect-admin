@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Units — Rental Connect</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+:root { --navy:#0A2540;--teal:#40B5AD;--gold:#B8975A;--gray:#f4f5f7;--border:#e5e7eb;--text:#1C1C1E;--text-muted:#6b7280;--sidebar-w:240px; }
+body { font-family:'Inter',sans-serif; background:var(--gray); color:var(--text); display:flex; min-height:100vh; }
+.sidebar { width:var(--sidebar-w); background:var(--navy); min-height:100vh; position:fixed; top:0; left:0; display:flex; flex-direction:column; z-index:100; }
+.sidebar-logo { padding:24px 20px; border-bottom:1px solid rgba(255,255,255,0.1); }
+.sidebar-logo h1 { font-family:'Playfair Display',serif; color:white; font-size:1.1rem; }
+.sidebar-logo p { font-size:11px; color:rgba(255,255,255,0.4); margin-top:2px; letter-spacing:1px; text-transform:uppercase; }
+.sidebar-nav { flex:1; padding:16px 0; }
+.nav-item { display:flex; align-items:center; gap:12px; padding:11px 20px; color:rgba(255,255,255,0.6); text-decoration:none; font-size:13px; font-weight:500; transition:all 0.2s; cursor:pointer; border:none; background:none; width:100%; text-align:left; }
+.nav-item:hover { background:rgba(255,255,255,0.08); color:white; }
+.nav-item.active { background:rgba(64,181,173,0.2); color:var(--teal); }
+.nav-item i { width:16px; text-align:center; font-size:14px; }
+.nav-divider { height:1px; background:rgba(255,255,255,0.08); margin:8px 20px; }
+.sidebar-footer { padding:16px 20px; border-top:1px solid rgba(255,255,255,0.1); }
+.sidebar-user { font-size:12px; color:rgba(255,255,255,0.5); margin-bottom:10px; }
+.sidebar-user span { color:white; font-weight:600; display:block; }
+.btn-logout { width:100%; padding:8px; background:rgba(255,255,255,0.08); color:rgba(255,255,255,0.6); border:none; border-radius:8px; font-size:12px; cursor:pointer; }
+.main { margin-left:var(--sidebar-w); flex:1; padding:32px; }
+.page-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:28px; }
+.page-header h2 { font-family:'Playfair Display',serif; font-size:1.6rem; }
+.btn { padding:10px 20px; border-radius:10px; font-size:13px; font-weight:600; cursor:pointer; border:none; }
+.btn-teal { background:var(--teal); color:white; }
+.card { background:white; border-radius:12px; padding:24px; box-shadow:0 1px 4px rgba(0,0,0,0.06); margin-bottom:20px; }
+.units-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:16px; }
+.unit-card { background:white; border-radius:12px; overflow:hidden; box-shadow:0 1px 4px rgba(0,0,0,0.06); }
+.unit-img { height:160px; background:var(--gray); position:relative; }
+.unit-img img { width:100%; height:100%; object-fit:cover; }
+.unit-img-placeholder { width:100%; height:100%; display:flex; align-items:center; justify-content:center; color:var(--text-muted); font-size:32px; }
+.unit-body { padding:16px; }
+.unit-number { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:1px; color:var(--teal); margin-bottom:4px; }
+.unit-name { font-size:1rem; font-weight:700; color:var(--text); margin-bottom:8px; }
+.unit-meta { font-size:12px; color:var(--text-muted); margin-bottom:12px; }
+.unit-rate { font-size:14px; font-weight:700; color:var(--navy); }
+.unit-actions { display:flex; gap:8px; margin-top:12px; }
+.btn-sm { padding:6px 14px; border-radius:8px; font-size:12px; font-weight:600; cursor:pointer; border:none; }
+.btn-outline { background:none; border:1.5px solid var(--border); color:var(--text-muted); }
+.btn-danger { background:#fee2e2; color:#dc2626; }
+.badge { padding:3px 8px; border-radius:20px; font-size:11px; font-weight:600; }
+.badge-green { background:#d1fae5; color:#065f46; }
+.badge-red { background:#fee2e2; color:#991b1b; }
+
+/* Modal */
+.modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:1000; overflow-y:auto; padding:24px; }
+.modal-overlay.open { display:flex; align-items:flex-start; justify-content:center; }
+.modal { background:white; border-radius:16px; width:100%; max-width:560px; padding:28px; margin:auto; }
+.modal-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:24px; }
+.modal-title { font-family:'Playfair Display',serif; font-size:1.2rem; font-weight:700; }
+.modal-close { background:none; border:none; font-size:20px; cursor:pointer; color:var(--text-muted); }
+.form-row { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px; }
+.form-group { margin-bottom:16px; }
+.form-group label { display:block; font-size:12px; font-weight:600; color:var(--text); margin-bottom:6px; text-transform:uppercase; letter-spacing:0.5px; }
+.form-group input, .form-group select, .form-group textarea { width:100%; padding:10px 14px; border:1.5px solid var(--border); border-radius:10px; font-size:14px; font-family:'Inter',sans-serif; outline:none; transition:border-color 0.2s; }
+.form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color:var(--teal); }
+.modal-footer { display:flex; gap:12px; justify-content:flex-end; margin-top:24px; }
+.toast { position:fixed; bottom:24px; right:24px; background:var(--navy); color:white; padding:12px 20px; border-radius:10px; font-size:13px; z-index:2000; opacity:0; transition:opacity 0.3s; }
+.toast.show { opacity:1; }
+</style>
+</head>
+<body>
+<aside class="sidebar">
+    <div class="sidebar-logo">
+        <h1>Rental Connect</h1>
+        <p id="tenant-name">Dashboard</p>
+    </div>
+    <nav class="sidebar-nav">
+        <button class="nav-item" onclick="location.href='dashboard.html'"><i class="fas fa-chart-pie"></i> Dashboard</button>
+        <button class="nav-item" onclick="location.href='bookings.html'"><i class="fas fa-calendar-check"></i> Bookings</button>
+        <button class="nav-item active"><i class="fas fa-building"></i> Units</button>
+        <button class="nav-item" onclick="location.href='invoices.html'"><i class="fas fa-file-invoice"></i> Invoices</button>
+        <div class="nav-divider"></div>
+        <button class="nav-item" onclick="location.href='settings.html'"><i class="fas fa-cog"></i> Settings</button>
+    </nav>
+    <div class="sidebar-footer">
+        <div class="sidebar-user">Signed in as<span id="sidebar-username">...</span></div>
+        <button class="btn-logout" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Sign Out</button>
+    </div>
+</aside>
+
+<main class="main">
+    <div class="page-header">
+        <div>
+            <h2>Units</h2>
+            <p style="font-size:13px;color:var(--text-muted);margin-top:4px;">Manage your property units</p>
+        </div>
+        <button class="btn btn-teal" onclick="openModal()"><i class="fas fa-plus"></i> Add Unit</button>
+    </div>
+    <div class="units-grid" id="units-grid">
+        <div style="grid-column:1/-1;text-align:center;padding:60px;color:#999;">Loading units...</div>
+    </div>
+</main>
+
+<!-- Add/Edit Modal -->
+<div class="modal-overlay" id="modal">
+    <div class="modal">
+        <div class="modal-header">
+            <span class="modal-title" id="modal-title">Add Unit</span>
+            <button class="modal-close" onclick="closeModal()">×</button>
+        </div>
+        <input type="hidden" id="unit-id">
+        <div class="form-row">
+            <div class="form-group">
+                <label>Unit Number *</label>
+                <input type="text" id="f-number" placeholder="e.g. Room 01">
+            </div>
+            <div class="form-group">
+                <label>Unit Name *</label>
+                <input type="text" id="f-name" placeholder="e.g. Ocean View Room">
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group">
+                <label>Max Guests</label>
+                <input type="number" id="f-guests" value="2" min="1">
+            </div>
+            <div class="form-group">
+                <label>Bedrooms</label>
+                <input type="number" id="f-bedrooms" value="1" min="0">
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group">
+                <label>Rate (MVR/night)</label>
+                <input type="number" id="f-rate-mvr" placeholder="0.00" step="0.01">
+            </div>
+            <div class="form-group">
+                <label>Rate (USD/night)</label>
+                <input type="number" id="f-rate-usd" placeholder="0.00" step="0.01">
+            </div>
+        </div>
+        <div class="form-group">
+            <label>Description</label>
+            <textarea id="f-desc" rows="3" placeholder="Describe this unit..."></textarea>
+        </div>
+        <div class="form-row">
+            <div class="form-group">
+                <label>Bathrooms</label>
+                <input type="number" id="f-bathrooms" value="1" min="0">
+            </div>
+            <div class="form-group">
+                <label>Beds</label>
+                <input type="number" id="f-beds" value="1" min="1">
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-outline" onclick="closeModal()">Cancel</button>
+            <button class="btn btn-teal" onclick="saveUnit()">Save Unit</button>
+        </div>
+    </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const API = 'https://api.htmrentals.com/api';
+const token = localStorage.getItem('rc_token');
+const username = localStorage.getItem('rc_username');
+if (!token) window.location.href = 'index.html';
+const hdrs = () => ({ 'Content-Type':'application/json', 'Authorization':'Bearer '+token });
+
+document.getElementById('sidebar-username').textContent = username;
+
+function logout() { localStorage.clear(); location.href='index.html'; }
+
+function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg; t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+function openModal(unit = null) {
+    document.getElementById('unit-id').value = unit?.id || '';
+    document.getElementById('modal-title').textContent = unit ? 'Edit Unit' : 'Add Unit';
+    document.getElementById('f-number').value = unit?.unit_number || '';
+    document.getElementById('f-name').value = unit?.unit_name || '';
+    document.getElementById('f-guests').value = unit?.max_guests || 2;
+    document.getElementById('f-bedrooms').value = unit?.bedrooms || 1;
+    document.getElementById('f-bathrooms').value = unit?.bathrooms || 1;
+    document.getElementById('f-beds').value = unit?.beds || 1;
+    document.getElementById('f-rate-mvr').value = unit?.rate_mvr || '';
+    document.getElementById('f-rate-usd').value = unit?.rate_usd || '';
+    document.getElementById('f-desc').value = unit?.description || '';
+    document.getElementById('modal').classList.add('open');
+}
+
+function closeModal() { document.getElementById('modal').classList.remove('open'); }
+
+async function saveUnit() {
+    const id = document.getElementById('unit-id').value;
+    const body = {
+        unit_number: document.getElementById('f-number').value.trim(),
+        unit_name: document.getElementById('f-name').value.trim(),
+        max_guests: parseInt(document.getElementById('f-guests').value) || 2,
+        bedrooms: parseInt(document.getElementById('f-bedrooms').value) || 1,
+        bathrooms: parseInt(document.getElementById('f-bathrooms').value) || 1,
+        beds: parseInt(document.getElementById('f-beds').value) || 1,
+        rate_mvr: parseFloat(document.getElementById('f-rate-mvr').value) || 0,
+        rate_usd: parseFloat(document.getElementById('f-rate-usd').value) || 0,
+        description: document.getElementById('f-desc').value,
+    };
+    if (!body.unit_name) { showToast('Unit name is required'); return; }
+    const url = id ? `${API}/admin/units/${id}` : `${API}/admin/units`;
+    const method = id ? 'PUT' : 'POST';
+    const res = await fetch(url, { method, headers: hdrs(), body: JSON.stringify(body) });
+    const data = await res.json();
+    if (data.success !== false) {
+        showToast(id ? 'Unit updated!' : 'Unit created!');
+        closeModal();
+        loadUnits();
+    } else {
+        showToast('Error: ' + (data.error || 'Failed'));
+    }
+}
+
+async function deleteUnit(id) {
+    if (!confirm('Delete this unit?')) return;
+    await fetch(`${API}/admin/units/${id}`, { method:'DELETE', headers:hdrs() });
+    showToast('Unit deleted');
+    loadUnits();
+}
+
+async function loadUnits() {
+    const res = await fetch(`${API}/admin/units`, { headers: hdrs() });
+    const data = await res.json();
+    const units = data.units || [];
+    const grid = document.getElementById('units-grid');
+    if (!units.length) {
+        grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:60px;color:#999;"><i class="fas fa-building" style="font-size:48px;display:block;margin-bottom:16px;opacity:0.3;"></i>No units yet. Add your first unit.</div>`;
+        return;
+    }
+    grid.innerHTML = units.map(u => `
+        <div class="unit-card">
+            <div class="unit-img">
+                ${u.featured_image ? `<img src="${u.featured_image}" alt="${u.unit_name}">` : `<div class="unit-img-placeholder"><i class="fas fa-bed"></i></div>`}
+            </div>
+            <div class="unit-body">
+                <div class="unit-number">${u.unit_number || ''}</div>
+                <div class="unit-name">${u.unit_name}</div>
+                <div class="unit-meta">${u.bedrooms||1} bed · ${u.bathrooms||1} bath · ${u.max_guests||2} guests</div>
+                <div class="unit-rate">${u.rate_mvr ? 'MVR '+parseFloat(u.rate_mvr).toLocaleString()+'/night' : 'Rate not set'}</div>
+                <div style="margin-top:8px;"><span class="badge ${u.is_active?'badge-green':'badge-red'}">${u.is_active?'Active':'Inactive'}</span></div>
+                <div class="unit-actions">
+                    <button class="btn-sm btn-outline" onclick='openModal(${JSON.stringify(u)})'>Edit</button>
+                    <button class="btn-sm btn-danger" onclick="deleteUnit(${u.id})">Delete</button>
+                </div>
+            </div>
+        </div>`).join('');
+}
+
+loadUnits();
+</script>
+</body>
+</html>

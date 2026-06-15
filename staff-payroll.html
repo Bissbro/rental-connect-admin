@@ -187,7 +187,7 @@ tr:hover td{background:#fafff9}
       <div class="form-row"><div class="form-group"><label>Full Name *</label><input type="text" id="s-name" placeholder="Full name"></div><div class="form-group"><label>Employee No.</label><input type="text" id="s-empid" placeholder="e.g. 0902"></div></div>
       <div class="form-row"><div class="form-group"><label>Department</label><input type="text" id="s-dept" placeholder="e.g. Housekeeping"></div><div class="form-group"><label>Position</label><input type="text" id="s-role" placeholder="e.g. Mini Bar Attendant"></div></div>
       <div class="form-row"><div class="form-group"><label>Hire Date</label><input type="date" id="s-join"></div><div class="form-group"><label>Base Salary</label><input type="number" id="s-base" placeholder="0.00"></div></div>
-      <div class="form-row"><div class="form-group"><label>Bank Account (MVR)</label><input type="text" id="s-bank" placeholder="MVR account number"></div><div class="form-group"><label>Bank Account (USD)</label><input type="text" id="s-bank-usd" placeholder="USD account number"></div></div>
+      <div class="form-row"><div class="form-group"><label>Bank Account (MVR)</label><input type="text" id="s-bank" placeholder="MVR account number"></div><div class="form-group"><label>Bank Account (USD)</label><input type="text" id="s_bank_usd" placeholder="USD account number"></div></div>
       <div class="form-group"><label>Phone</label><input type="text" id="s-phone" placeholder="+960..."></div>
     </div>
     <div class="modal-footer"><button class="btn btn-outline" onclick="closeModal('modal-staff')">Cancel</button><button class="btn btn-teal" onclick="saveStaff()"><i class="fas fa-save"></i> Save</button></div>
@@ -407,7 +407,7 @@ function updateTotals(){
 function openAddStaff(){
   document.getElementById('staff-modal-title').textContent='Add Staff';
   document.getElementById('staff-id').value='';
-  ['s-name','s-empid','s-dept','s-role','s-base','s-join','s-bank','s-bank-usd','s-phone'].forEach(id=>document.getElementById(id).value='');
+  ['s-name','s-empid','s-dept','s-role','s-base','s-join','s-bank','s_bank_usd','s-phone'].forEach(id=>document.getElementById(id).value='');
   
   document.getElementById('modal-staff').classList.add('open');
 }
@@ -424,7 +424,7 @@ function editStaff(){
   
   document.getElementById('s-join').value=selectedStaff.join_date?selectedStaff.join_date.slice(0,10):'';
   document.getElementById('s-bank').value=selectedStaff.bank_account||'';
-  document.getElementById('s-bank-usd').value=selectedStaff.bank_account_usd||'';
+  document.getElementById('s_bank_usd').value=selectedStaff.bank_account_usd||'';
   document.getElementById('s-phone').value=selectedStaff.phone||'';
   document.getElementById('modal-staff').classList.add('open');
 }
@@ -433,7 +433,7 @@ async function saveStaff(){
   const id=document.getElementById('staff-id').value;
   const name=document.getElementById('s-name').value.trim();
   if(!name){showToast('Name required','error');return;}
-  const data={name,employee_id:document.getElementById('s-empid').value,role:document.getElementById('s-role').value,department:document.getElementById('s-dept').value,base_salary_mvr:parseFloat(document.getElementById('s-base').value)||0,join_date:document.getElementById('s-join').value||null,bank_account:document.getElementById('s-bank').value,bank_account_usd:document.getElementById('s-bank-usd').value,phone:document.getElementById('s-phone').value};
+  const data={name,employee_id:document.getElementById('s-empid').value,role:document.getElementById('s-role').value,department:document.getElementById('s-dept').value,base_salary_mvr:parseFloat(document.getElementById('s-base').value)||0,join_date:document.getElementById('s-join').value||null,bank_account:document.getElementById('s-bank').value,bank_account_usd:document.getElementById('s_bank_usd').value,phone:document.getElementById('s-phone').value};
   try{
     const url=id?`${API}/api/rental-connect/staff/${id}`:`${API}/api/rental-connect/staff`;
     const r=await fetch(url,{method:id?'PUT':'POST',headers:hdrs(),body:JSON.stringify(data)});

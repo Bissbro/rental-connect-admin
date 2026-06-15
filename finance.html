@@ -7,14 +7,14 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Inter', sans-serif; background: #F8F9FA; padding: 20px; }
+        body { font-family: 'Inter', sans-serif; background: var(--gray); padding: 20px; }
         :root {
             --navy: #0A2540;
-            --ocean: #006994;
-            --turquoise: #40B5AD;
+            --ocean: #40B5AD;
+            --teal: #40B5AD;
             --gray-light: #F8F9FA;
             --gray-border: #E5E5E5;
             --gray-text: #6C757D;
@@ -29,11 +29,11 @@
         .header {
             display: flex; justify-content: space-between; align-items: center;
             padding: 16px 0; margin-bottom: 24px;
-            border-bottom: 1px solid var(--gray-border);
+            border-bottom: 1px solid var(--border);
             flex-wrap: wrap; gap: 16px;
         }
         .header h1 { font-family: 'Playfair Display', serif; font-size: 1.5rem; color: var(--navy); }
-        .back-link { color: var(--ocean); text-decoration: none; font-size: 1rem; }
+        .back-link { color: var(--teal); text-decoration: none; font-size: 1rem; }
         .card {
             background: white; border-radius: var(--radius-lg);
             padding: 24px; margin-bottom: 24px;
@@ -48,11 +48,11 @@
             padding: 10px 20px; border: none; border-radius: 40px;
             font-weight: 600; cursor: pointer; font-size: 14px; transition: all 0.2s;
         }
-        .btn-primary { background: var(--turquoise); color: white; }
-        .btn-primary:hover { background: var(--ocean); }
-        .btn-secondary { background: var(--gray-light); color: var(--navy); border: 1px solid var(--gray-border); }
-        .btn-danger { background: var(--danger); color: white; }
-        .btn-success { background: var(--success); color: white; }
+        .btn-primary { background: var(--teal); color: white; }
+        .btn-primary:hover { background: var(--teal); }
+        .btn-secondary { background: var(--gray); color: var(--navy); border: 1px solid var(--border); }
+        .btn-danger { background: #dc2626; color: white; }
+        .btn-success { background: #10b981; color: white; }
         .btn-sm { padding: 6px 12px; font-size: 12px; }
 
         /* Controls bar */
@@ -61,12 +61,12 @@
             margin-bottom: 24px; flex-wrap: wrap;
         }
         .controls select, .controls input[type="month"] {
-            padding: 10px 16px; border: 1px solid var(--gray-border);
+            padding: 10px 16px; border: 1px solid var(--border);
             border-radius: 40px; font-size: 14px; color: var(--navy);
             background: white; outline: none; cursor: pointer;
         }
         .controls select:focus, .controls input[type="month"]:focus {
-            border-color: var(--turquoise);
+            border-color: var(--teal);
         }
 
         /* Summary cards */
@@ -78,49 +78,49 @@
         .summary-card {
             background: white; border-radius: var(--radius-md);
             padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-            border-left: 4px solid var(--turquoise);
+            border-left: 4px solid var(--teal);
         }
-        .summary-card.revenue { border-left-color: var(--success); }
-        .summary-card.expense { border-left-color: var(--danger); }
-        .summary-card.profit { border-left-color: var(--turquoise); }
-        .summary-card.invested { border-left-color: var(--ocean); }
+        .summary-card.revenue { border-left-color: #10b981; }
+        .summary-card.expense { border-left-color: #dc2626; }
+        .summary-card.profit { border-left-color: var(--teal); }
+        .summary-card.invested { border-left-color: var(--teal); }
         .summary-card .label {
             font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px;
-            color: var(--gray-text); margin-bottom: 8px; font-weight: 600;
+            color: var(--text-muted); margin-bottom: 8px; font-weight: 600;
         }
         .summary-card .value {
             font-size: 1.4rem; font-weight: 700; color: var(--navy);
         }
         .summary-card .sub {
-            font-size: 11px; color: var(--gray-text); margin-top: 4px;
+            font-size: 11px; color: var(--text-muted); margin-top: 4px;
         }
-        .positive { color: var(--success) !important; }
-        .negative { color: var(--danger) !important; }
+        .positive { color: #10b981 !important; }
+        .negative { color: #dc2626 !important; }
 
         /* Tabs */
         .tabs {
             display: flex; gap: 4px; margin-bottom: 24px;
-            border-bottom: 2px solid var(--gray-border);
+            border-bottom: 2px solid var(--border);
             flex-wrap: wrap;
         }
         .tab {
             padding: 10px 20px; cursor: pointer; font-size: 14px;
-            font-weight: 500; color: var(--gray-text); border: none;
+            font-weight: 500; color: var(--text-muted); border: none;
             background: none; border-bottom: 2px solid transparent;
             margin-bottom: -2px; transition: all 0.2s;
         }
-        .tab.active { color: var(--turquoise); border-bottom-color: var(--turquoise); font-weight: 600; }
+        .tab.active { color: var(--teal); border-bottom-color: var(--teal); font-weight: 600; }
         .tab-content { display: none; }
         .tab-content.active { display: block; }
 
         /* Tables */
         .table-wrap { overflow-x: auto; }
         table { width: 100%; border-collapse: collapse; min-width: 600px; }
-        th, td { padding: 12px; text-align: left; border-bottom: 1px solid var(--gray-border); }
-        th { font-weight: 600; color: var(--gray-text); font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid var(--border); }
+        th { font-weight: 600; color: var(--text-muted); font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
         td { font-size: 14px; }
         tr:last-child td { border-bottom: none; }
-        .empty { text-align: center; padding: 40px; color: var(--gray-text); font-size: 14px; }
+        .empty { text-align: center; padding: 40px; color: var(--text-muted); font-size: 14px; }
 
         /* Status badges */
         .badge {
@@ -148,12 +148,12 @@
         .form-group { margin-bottom: 16px; }
         .form-group label { display: block; font-size: 13px; font-weight: 600; color: var(--navy); margin-bottom: 6px; }
         .form-group input, .form-group select, .form-group textarea {
-            width: 100%; padding: 10px 14px; border: 1px solid var(--gray-border);
+            width: 100%; padding: 10px 14px; border: 1px solid var(--border);
             border-radius: var(--radius-sm); font-size: 14px; outline: none;
             font-family: 'Inter', sans-serif;
         }
         .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
-            border-color: var(--turquoise);
+            border-color: var(--teal);
         }
         .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
         .modal-actions { display: flex; gap: 12px; justify-content: flex-end; margin-top: 20px; }
@@ -165,7 +165,7 @@
         }
         .info-item .info-label {
             font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px;
-            color: var(--gray-text); font-weight: 600; margin-bottom: 4px;
+            color: var(--text-muted); font-weight: 600; margin-bottom: 4px;
         }
         .info-item .info-value { font-size: 14px; font-weight: 600; color: var(--navy); }
 
@@ -175,20 +175,20 @@
         }
         .unit-pill {
             padding: 8px 16px; border-radius: 40px; font-size: 13px;
-            font-weight: 500; cursor: pointer; border: 2px solid var(--gray-border);
-            background: white; color: var(--gray-text); transition: all 0.2s;
+            font-weight: 500; cursor: pointer; border: 2px solid var(--border);
+            background: white; color: var(--text-muted); transition: all 0.2s;
         }
         .unit-pill.active {
-            background: var(--turquoise); color: white; border-color: var(--turquoise);
+            background: var(--teal); color: white; border-color: var(--teal);
         }
 
         /* Currency breakdown */
         .currency-row {
             display: flex; justify-content: space-between; align-items: center;
-            padding: 10px 0; border-bottom: 1px solid var(--gray-border);
+            padding: 10px 0; border-bottom: 1px solid var(--border);
         }
         .currency-row:last-child { border-bottom: none; }
-        .currency-label { font-size: 13px; color: var(--gray-text); }
+        .currency-label { font-size: 13px; color: var(--text-muted); }
         .currency-value { font-size: 14px; font-weight: 600; color: var(--navy); }
 
         /* Expense items */
@@ -199,24 +199,24 @@
         .expense-item-row input { flex: 1; }
         .expense-item-row input:last-of-type { max-width: 120px; }
         .add-item-btn {
-            background: none; border: 1px dashed var(--turquoise);
-            color: var(--turquoise); padding: 6px 12px; border-radius: var(--radius-sm);
+            background: none; border: 1px dashed var(--teal);
+            color: var(--teal); padding: 6px 12px; border-radius: var(--radius-sm);
             cursor: pointer; font-size: 13px; width: 100%; margin-top: 4px;
         }
 
         /* Nav */
         .nav-links { display: flex; gap: 16px; flex-wrap: wrap; }
         .nav-links a {
-            color: var(--ocean); text-decoration: none; font-size: 13px;
+            color: var(--teal); text-decoration: none; font-size: 13px;
             font-weight: 500; padding: 6px 0;
         }
-        .nav-links a:hover { color: var(--turquoise); }
+        .nav-links a:hover { color: var(--teal); }
 
-        .loading { text-align: center; padding: 40px; color: var(--gray-text); }
+        .loading { text-align: center; padding: 40px; color: var(--text-muted); }
 
         /* Deposit status bar */
         .deposit-bar {
-            background: var(--gray-light); border-radius: var(--radius-md);
+            background: var(--gray); border-radius: var(--radius-md);
             padding: 16px; display: flex; justify-content: space-between;
             align-items: center; flex-wrap: wrap; gap: 12px;
         }
@@ -248,9 +248,67 @@ body { display:flex; }
 .main { margin-left:var(--sidebar-w) !important; flex:1; }
 .header { display:none !important; }
 
-/* ── RC Desktop Base Styles ── */
+:root {
+  --navy: #0A2540;
+  --teal: #40B5AD;
+  --gold: #B8975A;
+  --white: #FAFAF8;
+  --gray: #f4f5f7;
+  --border: #e5e7eb;
+  --text: #1C1C1E;
+  --text-muted: #6b7280;
+  --sidebar-w: 240px;
+  --radius: 10px;
+  --shadow: 0 1px 4px rgba(0,0,0,0.06);
+}
 * { margin:0; padding:0; box-sizing:border-box; }
-:root { --navy:#0A2540; --teal:#40B5AD; --gold:#B8975A; --white:#FAFAF8; --gray:#f4f5f7; --border:#e5e7eb; --text:#1C1C1E; --text-muted:#6b7280; --sidebar-w:240px; }
+body { font-family:'Inter',sans-serif; background:var(--gray); color:var(--text); display:flex; min-height:100vh; }
+h1,h2,h3 { font-family:'Playfair Display',serif; }
+.main, .container { margin-left:var(--sidebar-w) !important; flex:1; padding:32px !important; max-width:100% !important; overflow-x:hidden; }
+.page-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:24px; }
+.page-header h1, .page-header h2, .page-title { font-family:'Playfair Display',serif; font-size:1.6rem; color:var(--text); font-weight:700; }
+.page-subtitle { font-size:13px; color:var(--text-muted); margin-top:4px; }
+.card { background:white; border-radius:12px; box-shadow:var(--shadow); margin-bottom:20px; overflow:hidden; }
+.card-header { display:flex; justify-content:space-between; align-items:center; padding:18px 20px; border-bottom:1px solid var(--border); }
+.card-title { font-size:14px; font-weight:700; color:var(--text); }
+.card-body { padding:20px; }
+table { width:100%; border-collapse:collapse; }
+table th { font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:0.5px; color:var(--text-muted); padding:10px 16px; text-align:left; border-bottom:1px solid var(--border); background:#fafafa; white-space:nowrap; }
+table td { padding:13px 16px; font-size:13px; border-bottom:1px solid var(--border); vertical-align:middle; }
+table tr:last-child td { border-bottom:none; }
+table tr:hover td { background:#fafff9; }
+.btn { padding:9px 18px; border-radius:8px; font-size:13px; font-weight:600; cursor:pointer; border:none; transition:0.2s; display:inline-flex; align-items:center; gap:6px; text-decoration:none; }
+.btn-primary, .btn-teal { background:var(--teal); color:white; }
+.btn-primary:hover, .btn-teal:hover { background:#38a39c; }
+.btn-secondary, .btn-outline { background:none; border:1.5px solid var(--border); color:var(--text-muted); }
+.btn-secondary:hover, .btn-outline:hover { border-color:var(--teal); color:var(--teal); }
+.btn-danger { background:#fee2e2; color:#991b1b; border:none; }
+.btn-navy { background:var(--navy); color:white; }
+.btn-sm { padding:6px 12px; font-size:12px; }
+.badge { padding:3px 9px; border-radius:20px; font-size:11px; font-weight:600; }
+.badge-success, .badge-confirmed { background:#d1fae5; color:#065f46; }
+.badge-warning, .badge-pending { background:#fef3c7; color:#92400e; }
+.badge-danger, .badge-cancelled { background:#fee2e2; color:#991b1b; }
+.badge-info { background:#dbeafe; color:#1e40af; }
+.badge-gray { background:#f3f4f6; color:#374151; }
+input, select, textarea { padding:9px 12px; border:1.5px solid var(--border); border-radius:8px; font-size:13px; font-family:'Inter',sans-serif; outline:none; transition:border-color 0.2s; background:white; color:var(--text); width:100%; }
+input:focus, select:focus, textarea:focus { border-color:var(--teal); }
+label { display:block; font-size:12px; font-weight:600; color:var(--text); margin-bottom:5px; text-transform:uppercase; letter-spacing:0.5px; }
+.form-group { margin-bottom:16px; }
+.form-row { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+.stats-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(180px,1fr)); gap:16px; margin-bottom:24px; }
+.stat-card { background:white; border-radius:12px; padding:18px; box-shadow:var(--shadow); }
+.stat-val, .stat-value { font-size:1.6rem; font-weight:700; color:var(--text); }
+.stat-lbl, .stat-label { font-size:11px; color:var(--text-muted); margin-top:4px; text-transform:uppercase; letter-spacing:0.5px; }
+.filters-bar, .filters-card { background:white; border-radius:12px; padding:16px 20px; box-shadow:var(--shadow); margin-bottom:20px; display:flex; gap:12px; align-items:center; flex-wrap:wrap; }
+.toast { position:fixed; bottom:24px; right:24px; background:var(--navy); color:white; padding:12px 20px; border-radius:10px; font-size:13px; font-weight:500; z-index:9999; box-shadow:0 4px 20px rgba(0,0,0,0.2); display:none; }
+.toast.show { display:block; }
+.empty-state { text-align:center; padding:60px 20px; color:var(--text-muted); }
+.empty-state i { font-size:40px; margin-bottom:12px; opacity:0.3; display:block; }
+.header { display:none !important; }
+.back-link { display:none !important; }
+@media print { .rc-sidebar, .sidebar { display:none; } .main { margin-left:0 !important; } }
+/* ── Page Styles ── */
 body { font-family:'Inter',sans-serif; background:var(--gray); color:var(--text); display:flex; min-height:100vh; }
 .main, .container { margin-left:var(--sidebar-w) !important; flex:1; padding:32px !important; max-width:100% !important; }
 .card, .table-card, .filters-card, .stat-card { background:white; border-radius:12px; box-shadow:0 1px 4px rgba(0,0,0,0.06); margin-bottom:20px; }
@@ -331,7 +389,7 @@ input:focus, select:focus, textarea:focus { border-color:var(--teal); }
         <select id="month-select">
             
         </select>
-        <span style="font-size:13px; color:var(--gray-text);">Filter by unit:</span>
+        <span style="font-size:13px; color:var(--text-muted);">Filter by unit:</span>
     </div>
 
     <!-- Unit Pills -->
@@ -345,9 +403,9 @@ input:focus, select:focus, textarea:focus { border-color:var(--teal); }
             <div class="label">Total Revenue</div>
             <div class="value" id="sum-revenue">MVR —</div>
             <div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap;">
-                <span style="font-size:11px;background:rgba(6,105,148,0.1);color:var(--ocean);padding:2px 8px;border-radius:20px;" id="sum-rev-mvr">MVR —</span>
-                <span style="font-size:11px;background:rgba(40,167,69,0.1);color:var(--success);padding:2px 8px;border-radius:20px;" id="sum-usd">$ —</span>
-                <span style="font-size:11px;background:rgba(255,193,7,0.1);color:var(--warning);padding:2px 8px;border-radius:20px;" id="sum-usdt">USDT —</span>
+                <span style="font-size:11px;background:rgba(6,105,148,0.1);color:var(--teal);padding:2px 8px;border-radius:20px;" id="sum-rev-mvr">MVR —</span>
+                <span style="font-size:11px;background:rgba(40,167,69,0.1);color:#10b981;padding:2px 8px;border-radius:20px;" id="sum-usd">$ —</span>
+                <span style="font-size:11px;background:rgba(255,193,7,0.1);color:#f59e0b;padding:2px 8px;border-radius:20px;" id="sum-usdt">USDT —</span>
             </div>
             <div class="sub" id="sum-revenue-sub" style="margin-top:6px;font-size:10px;"></div>
         </div>
@@ -360,11 +418,11 @@ input:focus, select:focus, textarea:focus { border-color:var(--teal); }
             <div class="label">Cash Flow</div>
             <div class="value" id="sum-cashflow-mvr">MVR —</div>
             <div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap;">
-                <span style="font-size:11px;background:rgba(6,105,148,0.1);color:var(--ocean);padding:2px 8px;border-radius:20px;" id="sum-cf-mvr-direct">MVR —</span>
-                <span style="font-size:11px;background:rgba(40,167,69,0.1);color:var(--success);padding:2px 8px;border-radius:20px;" id="sum-cashflow-usd">$ —</span>
-                <span style="font-size:11px;background:rgba(255,193,7,0.1);color:var(--warning);padding:2px 8px;border-radius:20px;" id="sum-cashflow-usdt">USDT —</span>
+                <span style="font-size:11px;background:rgba(6,105,148,0.1);color:var(--teal);padding:2px 8px;border-radius:20px;" id="sum-cf-mvr-direct">MVR —</span>
+                <span style="font-size:11px;background:rgba(40,167,69,0.1);color:#10b981;padding:2px 8px;border-radius:20px;" id="sum-cashflow-usd">$ —</span>
+                <span style="font-size:11px;background:rgba(255,193,7,0.1);color:#f59e0b;padding:2px 8px;border-radius:20px;" id="sum-cashflow-usdt">USDT —</span>
             </div>
-            <div class="sub" style="margin-top:6px;font-size:10px;color:var(--gray-text);">What you physically hold</div>
+            <div class="sub" style="margin-top:6px;font-size:10px;color:var(--text-muted);">What you physically hold</div>
         </div>
         <div class="summary-card profit">
             <div class="label">Per Unit Cash Flow</div>
@@ -393,22 +451,22 @@ input:focus, select:focus, textarea:focus { border-color:var(--teal); }
             </div>
             <!-- Currency breakdown hidden - shown in top summary -->
             <div style="display:none;">
-                <div style="background:white; border-radius:var(--radius-md); padding:16px; border-left:4px solid var(--ocean); box-shadow:0 2px 8px rgba(0,0,0,0.06);">
-                    <div style="font-size:10px; text-transform:uppercase; letter-spacing:1px; color:var(--gray-text); margin-bottom:8px;">MVR Received</div>
-                    <div style="font-size:1.2rem; font-weight:700; color:var(--ocean);" id="rev-mvr-direct">MVR 0</div>
+                <div style="background:white; border-radius:var(--radius-md); padding:16px; border-left:4px solid var(--teal); box-shadow:0 2px 8px rgba(0,0,0,0.06);">
+                    <div style="font-size:10px; text-transform:uppercase; letter-spacing:1px; color:var(--text-muted); margin-bottom:8px;">MVR Received</div>
+                    <div style="font-size:1.2rem; font-weight:700; color:var(--teal);" id="rev-mvr-direct">MVR 0</div>
                 </div>
-                <div style="background:white; border-radius:var(--radius-md); padding:16px; border-left:4px solid var(--success); box-shadow:0 2px 8px rgba(0,0,0,0.06);">
-                    <div style="font-size:10px; text-transform:uppercase; letter-spacing:1px; color:var(--gray-text); margin-bottom:8px;">USD Received</div>
-                    <div style="font-size:1.2rem; font-weight:700; color:var(--success);" id="rev-usd">$ 0</div>
+                <div style="background:white; border-radius:var(--radius-md); padding:16px; border-left:4px solid #10b981; box-shadow:0 2px 8px rgba(0,0,0,0.06);">
+                    <div style="font-size:10px; text-transform:uppercase; letter-spacing:1px; color:var(--text-muted); margin-bottom:8px;">USD Received</div>
+                    <div style="font-size:1.2rem; font-weight:700; color:#10b981;" id="rev-usd">$ 0</div>
                 </div>
-                <div style="background:white; border-radius:var(--radius-md); padding:16px; border-left:4px solid var(--warning); box-shadow:0 2px 8px rgba(0,0,0,0.06);">
-                    <div style="font-size:10px; text-transform:uppercase; letter-spacing:1px; color:var(--gray-text); margin-bottom:8px;">USDT Received</div>
-                    <div style="font-size:1.2rem; font-weight:700; color:var(--warning);" id="rev-usdt">USDT 0</div>
+                <div style="background:white; border-radius:var(--radius-md); padding:16px; border-left:4px solid #f59e0b; box-shadow:0 2px 8px rgba(0,0,0,0.06);">
+                    <div style="font-size:10px; text-transform:uppercase; letter-spacing:1px; color:var(--text-muted); margin-bottom:8px;">USDT Received</div>
+                    <div style="font-size:1.2rem; font-weight:700; color:#f59e0b;" id="rev-usdt">USDT 0</div>
                 </div>
-                <div style="background:white; border-radius:var(--radius-md); padding:16px; border-left:4px solid var(--turquoise); box-shadow:0 2px 8px rgba(0,0,0,0.06);">
-                    <div style="font-size:10px; text-transform:uppercase; letter-spacing:1px; color:var(--gray-text); margin-bottom:8px;">Approx. Net Profit</div>
-                    <div style="font-size:1.2rem; font-weight:700; color:var(--turquoise);" id="rev-total-mvr">MVR 0</div>
-                    <div style="font-size:10px; color:var(--gray-text); margin-top:4px;">Based on admin exchange rate</div>
+                <div style="background:white; border-radius:var(--radius-md); padding:16px; border-left:4px solid var(--teal); box-shadow:0 2px 8px rgba(0,0,0,0.06);">
+                    <div style="font-size:10px; text-transform:uppercase; letter-spacing:1px; color:var(--text-muted); margin-bottom:8px;">Approx. Net Profit</div>
+                    <div style="font-size:1.2rem; font-weight:700; color:var(--teal);" id="rev-total-mvr">MVR 0</div>
+                    <div style="font-size:10px; color:var(--text-muted); margin-top:4px;">Based on admin exchange rate</div>
                 </div>
             </div>
             <div class="table-wrap">
@@ -450,7 +508,7 @@ input:focus, select:focus, textarea:focus { border-color:var(--teal); }
                 <h2>Renovation Costs</h2>
                 <button class="btn btn-primary btn-sm" onclick="openRenovationModal()">+ Add Cost</button>
             </div>
-            <div id="renovation-total" style="background:var(--gray-light); border-radius:var(--radius-md); padding:14px; margin-bottom:16px; font-size:14px; color:var(--navy);">
+            <div id="renovation-total" style="background:var(--gray); border-radius:var(--radius-md); padding:14px; margin-bottom:16px; font-size:14px; color:var(--navy);">
                 Total: <strong id="renovation-total-val">MVR 0</strong>
             </div>
             <div class="table-wrap">
@@ -544,31 +602,31 @@ input:focus, select:focus, textarea:focus { border-color:var(--teal); }
             <div class="card-header">
                 <h2>Currency Exchange</h2>
             </div>
-            <div style="background:var(--gray-light); border-radius:var(--radius-md); padding:16px; margin-bottom:20px;">
+            <div style="background:var(--gray); border-radius:var(--radius-md); padding:16px; margin-bottom:20px;">
                 <div style="font-size:12px; font-weight:600; color:var(--navy); margin-bottom:12px; text-transform:uppercase; letter-spacing:0.5px;">Record Exchange Transaction</div>
                 <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(140px,1fr)); gap:12px; align-items:end;">
                     <div>
-                        <label style="font-size:11px;color:var(--gray-text);display:block;margin-bottom:4px;">Date</label>
-                        <input type="date" id="exc-date" style="width:100%;padding:8px;border:1px solid var(--gray-border);border-radius:8px;font-size:13px;">
+                        <label style="font-size:11px;color:var(--text-muted);display:block;margin-bottom:4px;">Date</label>
+                        <input type="date" id="exc-date" style="width:100%;padding:8px;border:1px solid var(--border);border-radius:8px;font-size:13px;">
                     </div>
                     <div>
-                        <label style="font-size:11px;color:var(--gray-text);display:block;margin-bottom:4px;">From Currency</label>
-                        <select id="exc-currency" style="width:100%;padding:8px;border:1px solid var(--gray-border);border-radius:8px;font-size:13px;">
+                        <label style="font-size:11px;color:var(--text-muted);display:block;margin-bottom:4px;">From Currency</label>
+                        <select id="exc-currency" style="width:100%;padding:8px;border:1px solid var(--border);border-radius:8px;font-size:13px;">
                             <option value="USD">USD</option>
                             <option value="USDT">USDT</option>
                         </select>
                     </div>
                     <div>
-                        <label style="font-size:11px;color:var(--gray-text);display:block;margin-bottom:4px;">Amount</label>
-                        <input type="number" id="exc-amount" step="0.01" placeholder="0.00" style="width:100%;padding:8px;border:1px solid var(--gray-border);border-radius:8px;font-size:13px;">
+                        <label style="font-size:11px;color:var(--text-muted);display:block;margin-bottom:4px;">Amount</label>
+                        <input type="number" id="exc-amount" step="0.01" placeholder="0.00" style="width:100%;padding:8px;border:1px solid var(--border);border-radius:8px;font-size:13px;">
                     </div>
                     <div>
-                        <label style="font-size:11px;color:var(--gray-text);display:block;margin-bottom:4px;">Exchange Rate</label>
-                        <input type="number" id="exc-rate" step="0.0001" placeholder="e.g. 19.5" style="width:100%;padding:8px;border:1px solid var(--gray-border);border-radius:8px;font-size:13px;">
+                        <label style="font-size:11px;color:var(--text-muted);display:block;margin-bottom:4px;">Exchange Rate</label>
+                        <input type="number" id="exc-rate" step="0.0001" placeholder="e.g. 19.5" style="width:100%;padding:8px;border:1px solid var(--border);border-radius:8px;font-size:13px;">
                     </div>
                     <div>
-                        <label style="font-size:11px;color:var(--gray-text);display:block;margin-bottom:4px;">Notes</label>
-                        <input type="text" id="exc-notes" placeholder="Optional" style="width:100%;padding:8px;border:1px solid var(--gray-border);border-radius:8px;font-size:13px;">
+                        <label style="font-size:11px;color:var(--text-muted);display:block;margin-bottom:4px;">Notes</label>
+                        <input type="text" id="exc-notes" placeholder="Optional" style="width:100%;padding:8px;border:1px solid var(--border);border-radius:8px;font-size:13px;">
                     </div>
                     <div>
                         <button class="btn btn-primary" onclick="saveExchange()" style="width:100%;padding:9px;">+ Add Exchange</button>
@@ -632,7 +690,7 @@ input:focus, select:focus, textarea:focus { border-color:var(--teal); }
         <div class="form-group" id="exchange-rate-group" style="display:none;">
             <label>Exchange Rate (1 USD/USDT = ? MVR)</label>
             <input type="number" id="rev-exchange-rate" step="0.0001" placeholder="e.g. 15.42" oninput="calcMVR()">
-            <div style="font-size:12px; color:var(--gray-text); margin-top:4px;">MVR equivalent: <strong id="rev-mvr-preview">—</strong></div>
+            <div style="font-size:12px; color:var(--text-muted); margin-top:4px;">MVR equivalent: <strong id="rev-mvr-preview">—</strong></div>
         </div>
         <div class="form-row">
             <div class="form-group">
@@ -962,13 +1020,13 @@ input:focus, select:focus, textarea:focus { border-color:var(--teal); }
             perUnitEl.innerHTML = s.unit_profits.map(u => {
                 const unitNet = parseFloat(u.net_mvr) || 0;
                 const label = u.unit_number || u.unit_name.split('|')[1]?.trim() || u.unit_name.slice(0,10);
-                return `<div style="display:flex;justify-content:space-between;align-items:center;padding:4px 0;border-bottom:1px solid var(--gray-border);">
+                return `<div style="display:flex;justify-content:space-between;align-items:center;padding:4px 0;border-bottom:1px solid var(--border);">
                     <span style="font-weight:600;color:var(--navy);font-size:11px;">${label}</span>
-                    <span style="font-weight:700;font-size:12px;color:${unitNet>=0?'var(--success)':'var(--danger)'}">MVR ${fmt(unitNet)}</span>
+                    <span style="font-weight:700;font-size:12px;color:${unitNet>=0?'#10b981':'#dc2626'}">MVR ${fmt(unitNet)}</span>
                 </div>`;
             }).join('');
         } else {
-            perUnitEl.innerHTML = '<span style="color:var(--gray-text);font-size:11px;">No data</span>';
+            perUnitEl.innerHTML = '<span style="color:var(--text-muted);font-size:11px;">No data</span>';
         }
 
         // Unit summary tab
@@ -1009,10 +1067,10 @@ input:focus, select:focus, textarea:focus { border-color:var(--teal); }
         tbody.innerHTML = data.transactions.map(r => `
             <tr>
                 <td style="white-space:nowrap;"><span style="font-weight:600;color:var(--navy);">${formatDate(r.transaction_date)}</span></td>
-                <td><span style="background:var(--gray-light);color:var(--navy);padding:3px 8px;border-radius:20px;font-size:11px;font-weight:600;">${r.unit_number || r.unit_name.split('|')[1]?.trim() || r.unit_name.slice(0,15)}</span></td>
+                <td><span style="background:var(--gray);color:var(--navy);padding:3px 8px;border-radius:20px;font-size:11px;font-weight:600;">${r.unit_number || r.unit_name.split('|')[1]?.trim() || r.unit_name.slice(0,15)}</span></td>
                 <td>${r.description || '—'}</td>
                 <td><span class="badge badge-info">${r.currency}</span></td>
-                <td><strong style="color:${r.currency === 'MVR' ? 'var(--ocean)' : r.currency === 'USD' ? 'var(--success)' : 'var(--warning)'}">${r.currency === 'MVR' ? 'MVR' : r.currency === 'USD' ? '$' : 'USDT'} ${fmt(r.amount)}</strong></td>
+                <td><strong style="color:${r.currency === 'MVR' ? 'var(--teal)' : r.currency === 'USD' ? '#10b981' : '#f59e0b'}">${r.currency === 'MVR' ? 'MVR' : r.currency === 'USD' ? '$' : 'USDT'} ${fmt(r.amount)}</strong></td>
                 <td>${statusBadge(r.status)}</td>
                 <td><button class="btn btn-sm btn-secondary" onclick="editRevenue(${JSON.stringify(r).replace(/"/g, '&quot;')})">Edit</button></td>
             </tr>
@@ -1179,7 +1237,7 @@ input:focus, select:focus, textarea:focus { border-color:var(--teal); }
         row.innerHTML = `
             <input type="text" placeholder="Description" value="${desc}" class="item-desc">
             <input type="number" placeholder="MVR" step="0.01" value="${amt}" class="item-amt">
-            <button onclick="this.parentElement.remove()" style="background:none; border:none; color:var(--danger); cursor:pointer; font-size:18px;">×</button>
+            <button onclick="this.parentElement.remove()" style="background:none; border:none; color:#dc2626; cursor:pointer; font-size:18px;">×</button>
         `;
         list.appendChild(row);
     }
@@ -1362,7 +1420,7 @@ input:focus, select:focus, textarea:focus { border-color:var(--teal); }
         tbody.innerHTML = data.costs.map(r => `
             <tr>
                 <td>${formatDate(r.date_incurred)}</td>
-                <td><span style="background:var(--gray-light);color:var(--navy);padding:3px 8px;border-radius:20px;font-size:11px;font-weight:600;">${r.unit_number || r.unit_name.split('|')[1]?.trim() || r.unit_name.slice(0,15)}</span></td>
+                <td><span style="background:var(--gray);color:var(--navy);padding:3px 8px;border-radius:20px;font-size:11px;font-weight:600;">${r.unit_number || r.unit_name.split('|')[1]?.trim() || r.unit_name.slice(0,15)}</span></td>
                 <td>${r.description}</td>
                 <td><strong>MVR ${fmt(r.amount_mvr)}</strong></td>
                 <td style="font-size:12px;">${r.receipt_note || '—'}</td>
@@ -1417,11 +1475,11 @@ input:focus, select:focus, textarea:focus { border-color:var(--teal); }
             <div class="deposit-bar" style="margin-bottom:12px;">
                 <div>
                     <div style="font-size:13px; font-weight:600; color:var(--navy);">${d.unit_name}</div>
-                    <div style="font-size:12px; color:var(--gray-text);">Owner: ${d.owner_name} · Paid: ${formatDate(d.date_paid)}</div>
+                    <div style="font-size:12px; color:var(--text-muted);">Owner: ${d.owner_name} · Paid: ${formatDate(d.date_paid)}</div>
                 </div>
                 <div class="deposit-amount">MVR ${fmt(d.amount_paid_mvr)}</div>
                 <div>${statusBadge(d.status)}</div>
-                <div style="font-size:12px; color:var(--gray-text);">
+                <div style="font-size:12px; color:var(--text-muted);">
                     ${d.deduction_amount_mvr > 0 ? `Deducted: MVR ${fmt(d.deduction_amount_mvr)}` : ''}
                     ${d.return_amount_mvr ? ` · Returned: MVR ${fmt(d.return_amount_mvr)}` : ''}
                 </div>
@@ -1476,11 +1534,11 @@ input:focus, select:focus, textarea:focus { border-color:var(--teal); }
             mvrTotal += parseFloat(e.to_amount_mvr);
             return `<tr>
                 <td style="white-space:nowrap;"><span style="font-weight:600;color:var(--navy);">${formatDate(e.exchange_date)}</span></td>
-                <td><span style="background:${e.from_currency==='USD'?'rgba(40,167,69,0.1)':'rgba(255,193,7,0.1)'};color:${e.from_currency==='USD'?'var(--success)':'var(--warning)'};padding:3px 8px;border-radius:20px;font-size:11px;font-weight:600;">${e.from_currency}</span></td>
-                <td><strong style="color:${e.from_currency==='USD'?'var(--success)':'var(--warning)'};">${e.from_currency==='USD'?'$':'USDT'} ${fmt(e.from_amount)}</strong></td>
-                <td><strong style="color:var(--ocean);">MVR ${fmt(e.to_amount_mvr)}</strong></td>
-                <td style="font-size:12px;color:var(--gray-text);">${fmt(e.exchange_rate)}</td>
-                <td style="font-size:12px;color:var(--gray-text);">${e.notes||'—'}</td>
+                <td><span style="background:${e.from_currency==='USD'?'rgba(40,167,69,0.1)':'rgba(255,193,7,0.1)'};color:${e.from_currency==='USD'?'#10b981':'#f59e0b'};padding:3px 8px;border-radius:20px;font-size:11px;font-weight:600;">${e.from_currency}</span></td>
+                <td><strong style="color:${e.from_currency==='USD'?'#10b981':'#f59e0b'};">${e.from_currency==='USD'?'$':'USDT'} ${fmt(e.from_amount)}</strong></td>
+                <td><strong style="color:var(--teal);">MVR ${fmt(e.to_amount_mvr)}</strong></td>
+                <td style="font-size:12px;color:var(--text-muted);">${fmt(e.exchange_rate)}</td>
+                <td style="font-size:12px;color:var(--text-muted);">${e.notes||'—'}</td>
                 <td><button class="btn btn-sm btn-danger" onclick="deleteExchange(${e.id})">Delete</button></td>
             </tr>`;
         }).join('');

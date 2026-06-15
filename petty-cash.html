@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HTM Rentals | Petty Cash</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Inter', sans-serif; background: #F0F4F8; color: #0A2540; min-height: 100vh; }
@@ -90,9 +90,67 @@ body { display:flex; }
 .main { margin-left:var(--sidebar-w) !important; flex:1; }
 .header { display:none !important; }
 
-/* ── RC Desktop Base Styles ── */
+:root {
+  --navy: #0A2540;
+  --teal: #40B5AD;
+  --gold: #B8975A;
+  --white: #FAFAF8;
+  --gray: #f4f5f7;
+  --border: #e5e7eb;
+  --text: #1C1C1E;
+  --text-muted: #6b7280;
+  --sidebar-w: 240px;
+  --radius: 10px;
+  --shadow: 0 1px 4px rgba(0,0,0,0.06);
+}
 * { margin:0; padding:0; box-sizing:border-box; }
-:root { --navy:#0A2540; --teal:#40B5AD; --gold:#B8975A; --white:#FAFAF8; --gray:#f4f5f7; --border:#e5e7eb; --text:#1C1C1E; --text-muted:#6b7280; --sidebar-w:240px; }
+body { font-family:'Inter',sans-serif; background:var(--gray); color:var(--text); display:flex; min-height:100vh; }
+h1,h2,h3 { font-family:'Playfair Display',serif; }
+.main, .container { margin-left:var(--sidebar-w) !important; flex:1; padding:32px !important; max-width:100% !important; overflow-x:hidden; }
+.page-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:24px; }
+.page-header h1, .page-header h2, .page-title { font-family:'Playfair Display',serif; font-size:1.6rem; color:var(--text); font-weight:700; }
+.page-subtitle { font-size:13px; color:var(--text-muted); margin-top:4px; }
+.card { background:white; border-radius:12px; box-shadow:var(--shadow); margin-bottom:20px; overflow:hidden; }
+.card-header { display:flex; justify-content:space-between; align-items:center; padding:18px 20px; border-bottom:1px solid var(--border); }
+.card-title { font-size:14px; font-weight:700; color:var(--text); }
+.card-body { padding:20px; }
+table { width:100%; border-collapse:collapse; }
+table th { font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:0.5px; color:var(--text-muted); padding:10px 16px; text-align:left; border-bottom:1px solid var(--border); background:#fafafa; white-space:nowrap; }
+table td { padding:13px 16px; font-size:13px; border-bottom:1px solid var(--border); vertical-align:middle; }
+table tr:last-child td { border-bottom:none; }
+table tr:hover td { background:#fafff9; }
+.btn { padding:9px 18px; border-radius:8px; font-size:13px; font-weight:600; cursor:pointer; border:none; transition:0.2s; display:inline-flex; align-items:center; gap:6px; text-decoration:none; }
+.btn-primary, .btn-teal { background:var(--teal); color:white; }
+.btn-primary:hover, .btn-teal:hover { background:#38a39c; }
+.btn-secondary, .btn-outline { background:none; border:1.5px solid var(--border); color:var(--text-muted); }
+.btn-secondary:hover, .btn-outline:hover { border-color:var(--teal); color:var(--teal); }
+.btn-danger { background:#fee2e2; color:#991b1b; border:none; }
+.btn-navy { background:var(--navy); color:white; }
+.btn-sm { padding:6px 12px; font-size:12px; }
+.badge { padding:3px 9px; border-radius:20px; font-size:11px; font-weight:600; }
+.badge-success, .badge-confirmed { background:#d1fae5; color:#065f46; }
+.badge-warning, .badge-pending { background:#fef3c7; color:#92400e; }
+.badge-danger, .badge-cancelled { background:#fee2e2; color:#991b1b; }
+.badge-info { background:#dbeafe; color:#1e40af; }
+.badge-gray { background:#f3f4f6; color:#374151; }
+input, select, textarea { padding:9px 12px; border:1.5px solid var(--border); border-radius:8px; font-size:13px; font-family:'Inter',sans-serif; outline:none; transition:border-color 0.2s; background:white; color:var(--text); width:100%; }
+input:focus, select:focus, textarea:focus { border-color:var(--teal); }
+label { display:block; font-size:12px; font-weight:600; color:var(--text); margin-bottom:5px; text-transform:uppercase; letter-spacing:0.5px; }
+.form-group { margin-bottom:16px; }
+.form-row { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+.stats-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(180px,1fr)); gap:16px; margin-bottom:24px; }
+.stat-card { background:white; border-radius:12px; padding:18px; box-shadow:var(--shadow); }
+.stat-val, .stat-value { font-size:1.6rem; font-weight:700; color:var(--text); }
+.stat-lbl, .stat-label { font-size:11px; color:var(--text-muted); margin-top:4px; text-transform:uppercase; letter-spacing:0.5px; }
+.filters-bar, .filters-card { background:white; border-radius:12px; padding:16px 20px; box-shadow:var(--shadow); margin-bottom:20px; display:flex; gap:12px; align-items:center; flex-wrap:wrap; }
+.toast { position:fixed; bottom:24px; right:24px; background:var(--navy); color:white; padding:12px 20px; border-radius:10px; font-size:13px; font-weight:500; z-index:9999; box-shadow:0 4px 20px rgba(0,0,0,0.2); display:none; }
+.toast.show { display:block; }
+.empty-state { text-align:center; padding:60px 20px; color:var(--text-muted); }
+.empty-state i { font-size:40px; margin-bottom:12px; opacity:0.3; display:block; }
+.header { display:none !important; }
+.back-link { display:none !important; }
+@media print { .rc-sidebar, .sidebar { display:none; } .main { margin-left:0 !important; } }
+/* ── Page Styles ── */
 body { font-family:'Inter',sans-serif; background:var(--gray); color:var(--text); display:flex; min-height:100vh; }
 .main, .container { margin-left:var(--sidebar-w) !important; flex:1; padding:32px !important; max-width:100% !important; }
 .card, .table-card, .filters-card, .stat-card { background:white; border-radius:12px; box-shadow:0 1px 4px rgba(0,0,0,0.06); margin-bottom:20px; }

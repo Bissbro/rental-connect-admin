@@ -226,9 +226,67 @@
             .form-row { grid-template-columns: 1fr; }
             .summary-grid { grid-template-columns: 1fr 1fr; }
         }
-    </style>
+    
+/* RC Sidebar */
+:root { --sidebar-w: 240px; }
+.rc-sidebar { width:var(--sidebar-w); background:#0A2540; min-height:100vh; position:fixed; top:0; left:0; display:flex; flex-direction:column; z-index:100; overflow-y:auto; }
+.rc-sidebar-logo { padding:24px 20px; border-bottom:1px solid rgba(255,255,255,0.1); }
+.rc-sidebar-logo h1 { font-family:'Playfair Display',serif; color:white; font-size:1.1rem; }
+.rc-sidebar-logo p { font-size:11px; color:rgba(255,255,255,0.4); margin-top:2px; letter-spacing:1px; text-transform:uppercase; }
+.rc-sidebar nav { flex:1; padding:8px 0; }
+.nav-item { display:flex; align-items:center; gap:12px; padding:10px 20px; color:rgba(255,255,255,0.6); text-decoration:none; font-size:13px; font-weight:500; transition:all 0.2s; }
+.nav-item:hover { background:rgba(255,255,255,0.08); color:white; }
+.nav-item.active { background:rgba(64,181,173,0.2); color:#40B5AD; }
+.nav-item i { width:16px; text-align:center; font-size:13px; }
+.nav-section { font-size:10px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; color:rgba(255,255,255,0.25); padding:12px 20px 4px; margin-top:4px; }
+.rc-sidebar-footer { padding:16px 20px; border-top:1px solid rgba(255,255,255,0.1); }
+.rc-sidebar-user { font-size:12px; color:rgba(255,255,255,0.5); margin-bottom:10px; }
+.rc-sidebar-user span { color:white; font-weight:600; display:block; }
+.rc-logout-btn { width:100%; padding:8px; background:rgba(255,255,255,0.08); color:rgba(255,255,255,0.6); border:none; border-radius:8px; font-size:12px; cursor:pointer; }
+.rc-logout-btn:hover { background:rgba(255,255,255,0.15); color:white; }
+body { display:flex; }
+.main { margin-left:var(--sidebar-w) !important; flex:1; }
+.header { display:none !important; }
+</style>
 </head>
 <body>
+<aside class="rc-sidebar">
+  <div class="rc-sidebar-logo">
+    <h1>Rental Connect</h1>
+    <p id="tenant-name">Loading...</p>
+  </div>
+  <nav>
+    <a class="nav-item" href="dashboard.html"><i class="fas fa-chart-pie"></i> Dashboard</a>
+    <div class="nav-section">BOOKINGS</div>
+    <a class="nav-item" href="bookings.html"><i class="fas fa-calendar-check"></i> Bookings</a>
+    <a class="nav-item" href="leads.html"><i class="fas fa-user-clock"></i> Leads</a>
+    <a class="nav-item" href="block-dates.html"><i class="fas fa-calendar-times"></i> Block Dates</a>
+    <a class="nav-item" href="calendar.html"><i class="fas fa-calendar"></i> Calendar</a>
+    <div class="nav-section">PROPERTIES</div>
+    <a class="nav-item" href="units.html"><i class="fas fa-building"></i> Units</a>
+    <a class="nav-item" href="minibar.html"><i class="fas fa-wine-bottle"></i> Minibar</a>
+    <div class="nav-section">WEBSITE</div>
+    <a class="nav-item" href="hero-slides.html"><i class="fas fa-images"></i> Hero Slides</a>
+    <a class="nav-item" href="promo-banners.html"><i class="fas fa-bullhorn"></i> Promo Banners</a>
+    <a class="nav-item" href="promotion.html"><i class="fas fa-percent"></i> Promotions</a>
+    <a class="nav-item" href="reviews.html"><i class="fas fa-star"></i> Reviews</a>
+    <a class="nav-item" id="view-site-link" href="#" target="_blank"><i class="fas fa-external-link-alt"></i> View Site</a>
+    <div class="nav-section">EXPERIENCES</div>
+    <a class="nav-item" href="experiences.html"><i class="fas fa-compass"></i> Experiences</a>
+    <div class="nav-section">FINANCE</div>
+    <a class="nav-item" href="invoice.html"><i class="fas fa-file-invoice"></i> Invoices</a>
+    <a class="nav-item" href="finance.html"><i class="fas fa-chart-line"></i> Finance</a>
+    <a class="nav-item" href="reports.html"><i class="fas fa-chart-bar"></i> Reports</a>
+    <a class="nav-item" href="petty-cash.html"><i class="fas fa-coins"></i> Petty Cash</a>
+    <a class="nav-item" href="staff-payroll.html"><i class="fas fa-users"></i> Payroll</a>
+    <div class="nav-section">SETTINGS</div>
+    <a class="nav-item" href="settings.html"><i class="fas fa-cog"></i> Settings</a>
+  </nav>
+  <div class="rc-sidebar-footer">
+    <div class="rc-sidebar-user">Signed in as<span id="sidebar-username">...</span></div>
+    <button class="rc-logout-btn" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Sign Out</button>
+  </div>
+</aside>
 <div class="container">
 
     <div class="header">
@@ -1683,5 +1741,26 @@ function logout() { localStorage.clear(); window.location.href = 'index.html'; }
     </div>
 </div>
 
+<script>
+// RC Sidebar init
+(function() {
+  const token = localStorage.getItem('rc_token');
+  if (!token) { window.location.href = 'index.html'; return; }
+  const u = localStorage.getItem('rc_username');
+  const n = localStorage.getItem('rc_tenant_name');
+  if (document.getElementById('sidebar-username')) document.getElementById('sidebar-username').textContent = u || '';
+  if (document.getElementById('tenant-name')) document.getElementById('tenant-name').textContent = n || '';
+  const ws = localStorage.getItem('rc_website');
+  const vsl = document.getElementById('view-site-link');
+  if (ws && vsl) vsl.href = ws.startsWith('http') ? ws : 'https://' + ws;
+  // Highlight active page
+  const cur = window.location.pathname.split('/').pop();
+  document.querySelectorAll('.nav-item').forEach(a => {
+    if (a.getAttribute('href') === cur) a.classList.add('active');
+  });
+})();
+if (typeof logout === 'undefined') {
+  function logout() { localStorage.clear(); window.location.href = 'index.html'; }
+}</script>
 </body>
 </html>

@@ -331,7 +331,7 @@ async function loadPayslips(){
       <td>${r.currency||'—'}</td>
       <td><span class="badge badge-${r.status}">${r.status}</span></td>
       <td style="display:flex;gap:6px">
-        <a class="btn btn-outline btn-sm" href="https://api.htmrentals.com/api/rental-connect/staff/payslip/${r.id}/pdf" target="_blank"><i class="fas fa-file-pdf"></i></a>
+        <a class="btn btn-outline btn-sm" href="https://api.htmrentals.com/api/rental-connect/staff/payslip/${r.id}/pdf?token=${token}" target="_blank"><i class="fas fa-file-pdf"></i></a>
         <button class="btn btn-sm btn-danger" onclick="deletePayslip(${r.id})"><i class="fas fa-trash"></i></button>
       </td>
     </tr>`).join('');

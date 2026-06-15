@@ -329,7 +329,9 @@ async function loadPayslips(){
       <td style="color:#dc2626">${fmt(r.total_deductions_mvr)} MVR / ${fmt(r.total_deductions_usd)} USD</td>
       <td style="font-weight:700;color:var(--navy)">${fmt(r.net_pay_mvr)} MVR<br><small>${fmt(r.net_pay_usd)} USD</small></td>
       <td>${r.currency||'—'}</td>
-      <td><span class="badge badge-${r.status}">${r.status}</span></td>
+      <td>
+  <span class="badge badge-${r.status}" style="cursor:pointer" onclick="toggleStatus(${r.id},'${r.status}')" title="Click to toggle">${r.status}</span>
+</td>
       <td style="display:flex;gap:6px">
         <a class="btn btn-outline btn-sm" href="https://api.htmrentals.com/api/rental-connect/staff/payslip/${r.id}/pdf?token=${token}" target="_blank"><i class="fas fa-file-pdf"></i></a>
         <button class="btn btn-sm btn-danger" onclick="deletePayslip(${r.id})"><i class="fas fa-trash"></i></button>
@@ -681,6 +683,17 @@ async function deletePayslip(id){
   catch(e){showToast('Failed','error');}
 }
 
+async function toggleStatus(id, current){
+  const newStatus = current === 'paid' ? 'pending' : 'paid';
+  try{
+    const r = await fetch(`${API}/api/rental-connect/salary/${id}/status`, {
+      method:'PATCH', headers:hdrs(), body:JSON.stringify({status:newStatus})
+    });
+    if(!r.ok) throw new Error();
+    showToast(`Marked as ${newStatus}`,'success');
+    loadPayslips();
+  }catch(e){showToast('Failed','error');}
+}
 function closeModal(id){document.getElementById(id).classList.remove('open');}
 function showToast(msg,type='success'){const t=document.getElementById('toast');t.textContent=msg;t.className=`toast show ${type}`;setTimeout(()=>t.classList.remove('show'),3000);}
 document.querySelectorAll('.modal-overlay').forEach(el=>el.addEventListener('click',e=>{if(e.target===el)el.classList.remove('open');}));

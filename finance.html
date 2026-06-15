@@ -548,10 +548,10 @@ input:focus, select:focus, textarea:focus { border-color:var(--teal); }
                 <h2>Rent Tracker</h2>
                 <button class="btn btn-primary btn-sm" onclick="openModal('rent-modal')">+ Record Payment</button>
             </div>
-            <div id="rent-setup-cards"></div>
+            <div id="rent-setup-cards" class="rent-setup-section"></div>
             <div class="table-wrap" style="margin-top:16px;">
                 <table>
-                    <thead><tr><th>Unit</th><th>Month</th><th>Full Rent</th><th>Deduction</th><th>Actual Paid</th><th>Date</th><th>Notes</th><th></th></tr></thead>
+                    <thead><tr id="rent-table-header"><th class="rent-unit-col">Unit</th><th>Month</th><th>Full Rent</th><th>Deduction</th><th>Actual Paid</th><th>Date</th><th>Notes</th><th></th></tr></thead>
                     <tbody id="rent-payments-body"><tr><td colspan="8" class="loading">Loading...</td></tr></tbody>
                 </table>
             </div>
@@ -890,6 +890,7 @@ input:focus, select:focus, textarea:focus { border-color:var(--teal); }
     async function init() {
         populateMonthSelect();
         await loadUnits();
+        await loadPropertyType();
         await new Promise(r => setTimeout(r, 100));
         loadAll();
         document.getElementById('month-select').addEventListener('change', loadAll);
@@ -950,15 +951,28 @@ input:focus, select:focus, textarea:focus { border-color:var(--teal); }
         });
     }
 
-    function populateUnitSelects() {
-        const selects = ['rev-unit-id', 'con-unit-id', 'ren-unit-id', 'rent-unit-id', 'me-unit-id'];
+    function populateUnitSelects(propName) {
+        console.log('populateUnitSelects called, propertyType:', propertyType, 'propName:', propName);
+        const selects = propertyType === 'guesthouse' 
+            ? ['rev-unit-id', 'con-unit-id', 'ren-unit-id', 'me-unit-id']
+            : ['rev-unit-id', 'con-unit-id', 'ren-unit-id', 'rent-unit-id', 'me-unit-id'];
         selects.forEach(id => {
             const sel = document.getElementById(id);
             if (!sel) return;
             sel.innerHTML = allUnits.map(u => '<option value="' + u.id + '">' + (u.unit_number || u.unit_name.split('|')[1]?.trim() || u.unit_name.slice(0,20)) + '</option>').join('');
         });
+        // For guesthouse - replace rent unit select with property name
+        console.log('checking guesthouse block, propertyType:', propertyType);
+        if (propertyType === 'guesthouse') {
+            const rentUnitGroup = document.getElementById('rent-unit-group');
+            console.log('rentUnitGroup:', rentUnitGroup);
+            if (rentUnitGroup) {
+                console.log('propName:', propName, 'propertyType:', propertyType);
+                const pn = propName || localStorage.getItem('rc_property_name') || 'Property';
+                rentUnitGroup.innerHTML = '<label>Property</label><input type="text" value="' + pn + '" readonly style="background:#f4f5f7;border:1.5px solid #e5e7eb;border-radius:8px;padding:9px 12px;font-size:13px;width:100%">';
+            }
+        }
     }
-
     function selectUnit(id, el) {
         selectedUnitId = id;
         document.querySelectorAll('.unit-pill').forEach(p => p.classList.remove('active'));
@@ -1390,7 +1404,7 @@ input:focus, select:focus, textarea:focus { border-color:var(--teal); }
         const method = id ? 'PUT' : 'POST';
         const res = await fetch(url, { method, headers: authHeaders(), body: JSON.stringify(body) });
         const data = await res.json();
-        if (data.success) { closeModal('contract-modal'); loadContracts(); }
+        if (data.success) { closeModal('contract-modal'); loadContracts(); loadSummary(); }
         else alert(data.error || 'Failed to save');
     }
 
@@ -1449,7 +1463,7 @@ input:focus, select:focus, textarea:focus { border-color:var(--teal); }
         if (!body.description || !body.amount_mvr) { alert('Please fill description and amount'); return; }
         const res = await fetch(`${API}/admin/renovation-costs`, { method: 'POST', headers: authHeaders(), body: JSON.stringify(body) });
         const data = await res.json();
-        if (data.success) { closeModal('renovation-modal'); loadRenovation(); }
+        if (data.success) { closeModal('renovation-modal'); loadRenovation(); loadSummary(); }
         else alert(data.error || 'Failed to save');
     }
 
@@ -1457,7 +1471,7 @@ input:focus, select:focus, textarea:focus { border-color:var(--teal); }
         if (!confirm('Delete this renovation cost?')) return;
         const res = await fetch(`${API}/admin/renovation-costs/${id}`, { method: 'DELETE', headers: authHeaders() });
         const data = await res.json();
-        if (data.success) loadRenovation();
+        if (data.success) { loadRenovation(); loadSummary(); }
     }
 
     // ==================== DEPOSITS ====================
@@ -1511,7 +1525,7 @@ input:focus, select:focus, textarea:focus { border-color:var(--teal); }
         };
         const res = await fetch(`${API}/admin/security-deposits/${id}`, { method: 'PUT', headers: authHeaders(), body: JSON.stringify(body) });
         const data = await res.json();
-        if (data.success) { closeModal('deposit-modal'); loadDeposits(); }
+        if (data.success) { closeModal('deposit-modal'); loadDeposits(); loadSummary(); }
         else alert(data.error || 'Failed to save');
     }
 
@@ -1655,7 +1669,7 @@ input:focus, select:focus, textarea:focus { border-color:var(--teal); }
 
     async function saveRentPayment() {
         var body = {
-            unit_id: document.getElementById('rent-unit-id').value,
+            unit_id: document.getElementById('rent-unit-id') ? document.getElementById('rent-unit-id').value : (allUnits[0]?.id || null),
             payment_month: document.getElementById('rent-month').value + '-01',
             full_rent: parseFloat(document.getElementById('rent-full').value),
             deduction_applied: parseFloat(document.getElementById('rent-deduction').value) || 0,
@@ -1666,7 +1680,7 @@ input:focus, select:focus, textarea:focus { border-color:var(--teal); }
         if (!body.full_rent) { alert('Please enter full rent amount'); return; }
         var res = await fetch(API + '/admin/rent/payment', { method: 'POST', headers: authHeaders(), body: JSON.stringify(body) });
         var data = await res.json();
-        if (data.success) { closeModal('rent-modal'); loadRent(); }
+        if (data.success) { closeModal('rent-modal'); loadRent(); loadSummary(); }
         else alert(data.error || 'Failed to save');
     }
 
@@ -1674,7 +1688,7 @@ input:focus, select:focus, textarea:focus { border-color:var(--teal); }
         if (!confirm('Delete this rent payment?')) return;
         var res = await fetch(API + '/admin/rent/payment/' + id, { method: 'DELETE', headers: authHeaders() });
         var data = await res.json();
-        if (data.success) loadRent();
+        if (data.success) { loadRent(); loadSummary(); }
     }
 
     // ========== MONTHLY EXPENSES ==========
@@ -1685,7 +1699,7 @@ input:focus, select:focus, textarea:focus { border-color:var(--teal); }
         var data = await res.json();
         var tbody = document.getElementById('monthly-exp-body');
         if (!tbody) return;
-        var catLabels = { electricity:'Electricity', water:'Water', phone:'Phone Bill', wifi:'WiFi', laundry:'Laundry', petty_cash:'Petty Cash', salary_share:'Salary Share', other:'Other' };
+        var catLabels = { electricity:'Electricity', water:'Water', phone:'Phone Bill', wifi:'WiFi', laundry:'Laundry', other:'Other' };
         if (!data.success || !data.expenses.length) {
             tbody.innerHTML = '<tr><td colspan="6" class="empty">No monthly expenses yet.</td></tr>';
             return;
@@ -1728,10 +1742,37 @@ input:focus, select:focus, textarea:focus { border-color:var(--teal); }
         if (!confirm('Delete this expense?')) return;
         var res = await fetch(API + '/admin/monthly-expenses/' + id, { method: 'DELETE', headers: authHeaders() });
         var data = await res.json();
-        if (data.success) loadMonthlyExpenses();
+        if (data.success) { loadMonthlyExpenses(); loadSummary(); }
     }
 
     init();
+let propertyType = 'apartment';
+
+async function loadPropertyType() {
+  try {
+    const r = await fetch('https://api.htmrentals.com/api/rental-connect/settings', { headers: authHeaders() });
+    const d = await r.json();
+    console.log('settings response:', d);
+    propertyType = d.settings?.property_type || 'apartment';
+    if (d.settings?.property_name) localStorage.setItem('rc_property_name', d.settings.property_name);
+    populateUnitSelects(d.settings?.property_name); // re-run now propertyType and property_name are known
+    const isGuesthouse = propertyType === 'guesthouse';
+    // Hide unit selector in rent modal for guesthouse
+    const rentUnitGroup = document.getElementById('rent-unit-group');
+    // unit group handled in populateUnitSelects
+    // Update rent tab label
+    const rentTab = document.querySelector('[onclick*=\'rent\']');
+    if (rentTab && isGuesthouse) rentTab.innerHTML = '<i class="fas fa-home"></i> Property Rent';
+    // Hide rent setup section for guesthouse - just show payment history
+    if (isGuesthouse) {
+      const setupSections = document.querySelectorAll('.rent-setup-section');
+      setupSections.forEach(el => el.style.display = 'none');
+      // Hide unit column in rent table
+      document.querySelectorAll('.rent-unit-col').forEach(el => el.style.display = 'none');
+    }
+  } catch(e) { console.error('loadPropertyType error:', e.message, e); }
+}
+
 function logout() { localStorage.clear(); window.location.href = 'index.html'; }
 </script>
 <!-- RENT PAYMENT MODAL -->
@@ -1742,7 +1783,7 @@ function logout() { localStorage.clear(); window.location.href = 'index.html'; }
         <div class="form-row">
             <div class="form-group">
                 <label>Unit</label>
-                <select id="rent-unit-id"></select>
+                <div id="rent-unit-group"><select id="rent-unit-id"></select></div>
             </div>
             <div class="form-group">
                 <label>Payment Month</label>
@@ -1803,8 +1844,6 @@ function logout() { localStorage.clear(); window.location.href = 'index.html'; }
                     <option value="phone">Phone Bill</option>
                     <option value="wifi">WiFi</option>
                     <option value="laundry">Laundry</option>
-                    <option value="petty_cash">Petty Cash Contribution</option>
-                    <option value="salary_share">Salary Share</option>
                     <option value="other">Other</option>
                 </select>
             </div>
@@ -1842,8 +1881,6 @@ function logout() { localStorage.clear(); window.location.href = 'index.html'; }
     if (a.getAttribute('href') === cur) a.classList.add('active');
   });
 })();
-if (typeof logout === 'undefined') {
-  function logout() { localStorage.clear(); window.location.href = 'index.html'; }
-}</script>
+function logout() { localStorage.clear(); window.location.href = 'index.html'; }</script>
 </body>
 </html>

@@ -189,6 +189,13 @@ body { font-family: 'Inter', sans-serif; background: var(--gray); color: var(--t
       <div class="card-desc">Details shown to guests and on invoices</div>
       <div class="form-row">
         <div class="form-group"><label>Property Name</label><input type="text" id="prop-name" placeholder="e.g. HTM Rentals"></div>
+        <div class="form-group"><label>Property Type</label>
+          <select id="prop-type">
+            <option value="apartment">Apartment / Vacation Rental</option>
+            <option value="guesthouse">Guesthouse / Hotel</option>
+          </select>
+          <p style="font-size:11px;color:var(--text-muted);margin-top:4px">Affects how rent and expenses are tracked</p>
+        </div>
         <div class="form-group"><label>Contact Email</label><input type="email" id="prop-email" placeholder="contact@yourproperty.com"></div>
       </div>
       <div class="form-row">
@@ -406,6 +413,7 @@ async function loadSettings() {
     const d = await r.json();
     const s = d.settings || {};
     if (s.property_name) document.getElementById('prop-name').value = s.property_name;
+    if (s.property_type) document.getElementById('prop-type').value = s.property_type;
     if (s.contact_email) document.getElementById('prop-email').value = s.contact_email;
     if (s.phone) document.getElementById('prop-phone').value = s.phone;
     if (s.website) document.getElementById('prop-website').value = s.website;
@@ -436,6 +444,7 @@ async function loadSettings() {
 async function saveProperty() {
   const payload = {
     property_name: document.getElementById('prop-name').value,
+      property_type: document.getElementById('prop-type').value,
     contact_email: document.getElementById('prop-email').value,
     phone: document.getElementById('prop-phone').value,
     website: document.getElementById('prop-website').value,

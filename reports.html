@@ -236,8 +236,6 @@ input:focus, select:focus, textarea:focus { border-color:var(--teal); }
         <button class="tab" onclick="switchTab('occupancy',this)">Occupancy</button>
         <button class="tab" onclick="switchTab('arrivals',this)">Arrivals</button>
         <button class="tab" onclick="switchTab('bookings',this)">Bookings</button>
-        <button class="tab" onclick="switchTab('partners',this)">Partners</button>
-        <button class="tab" onclick="switchTab('loans',this)">Loans</button>
     </div>
     <div class="card" id="filters-card">
         <div class="presets">
@@ -342,8 +340,6 @@ function render(d){
     else if(currentTab==='occupancy')renderOccupancy(d);
     else if(currentTab==='arrivals')renderArrivals(d);
     else if(currentTab==='bookings')renderBookings(d);
-    else if(currentTab==='partners')renderPartners(d);
-    else if(currentTab==='loans')renderLoans(d);
 }
 
 function renderRevenue(d){

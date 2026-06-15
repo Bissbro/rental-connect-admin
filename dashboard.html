@@ -199,58 +199,7 @@ body { font-family: 'Inter', sans-serif; background: var(--gray); color: var(--t
         </div>
     </div>
 
-    <!-- Units -->
-    <div class="page" id="page-units">
-        <div class="page-header">
-            <h2>Units</h2>
-            <p>Manage your property units</p>
-        </div>
-        <div id="units-list" style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;">
-            <div style="text-align:center;padding:40px;color:#999;grid-column:1/-1;">Loading...</div>
-        </div>
-    </div>
-
-    <!-- Invoices -->
-    <div class="page" id="page-invoices">
-        <div class="page-header">
-            <h2>Invoices</h2>
-            <p>Track payments and invoices</p>
-        </div>
-        <div class="card">
-            <div class="card-header">
-                <span class="card-title">All Invoices</span>
-            </div>
-            <table class="table">
-                <thead><tr><th>Invoice</th><th>Guest</th><th>Amount</th><th>Status</th><th>Date</th></tr></thead>
-                <tbody id="all-invoices"><tr><td colspan="5" style="text-align:center;padding:24px;color:#999;">Loading...</td></tr></tbody>
-            </table>
-        </div>
-    </div>
-
-    <!-- Calendar -->
-    <div class="page" id="page-calendar">
-        <div class="page-header">
-            <h2>Calendar</h2>
-            <p>View availability and bookings</p>
-        </div>
-        <div class="card" style="text-align:center;padding:60px;color:#999;">
-            <i class="fas fa-calendar" style="font-size:48px;margin-bottom:16px;display:block;opacity:0.3;"></i>
-            Calendar coming soon
-        </div>
-    </div>
-
-    <!-- Settings -->
-    <div class="page" id="page-settings">
-        <div class="page-header">
-            <h2>Settings</h2>
-            <p>Configure your property</p>
-        </div>
-        <div class="card" style="text-align:center;padding:60px;color:#999;">
-            <i class="fas fa-cog" style="font-size:48px;margin-bottom:16px;display:block;opacity:0.3;"></i>
-            Settings coming soon
-        </div>
-    </div>
-</main>
+    </main>
 
 <script>
 const API = 'https://api.htmrentals.com/api';
@@ -269,15 +218,7 @@ function logout() {
     window.location.href = 'index.html';
 }
 
-function showPage(name) {
-    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-    document.getElementById('page-' + name).classList.add('active');
-    event.currentTarget.classList.add('active');
-    if (name === 'bookings') loadBookings();
-    if (name === 'units') loadUnits();
-    if (name === 'invoices') loadInvoices();
-}
+
 
 function fmt(n) { return parseFloat(n||0).toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2}); }
 function fmtDate(d) { return d ? new Date(d).toLocaleDateString('en-GB', {day:'numeric',month:'short',year:'numeric'}) : '—'; }

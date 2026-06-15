@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTM Rentals | Block Dates</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --navy: #0A2540;
+            --ocean: #006994;
+            --turquoise: #40B5AD;
+            --gray-light: #F8F9FA;
+            --gray-border: #E5E5E5;
+            --gray-text: #6C757D;
+            --danger: #dc3545;
+            --success: #28a745;
+            --radius-lg: 20px;
+            --radius-md: 12px;
+            --radius-sm: 8px;
+            --shadow: 0 2px 12px rgba(0,0,0,0.06);
+        }
+        body { font-family: 'Inter', sans-serif; background: #F0F2F5; min-height: 100vh; }
+        .header { background: white; border-bottom: 1px solid var(--gray-border); padding: 0 24px; position: sticky; top: 0; z-index: 100; box-shadow: var(--shadow); }
+        .header-inner { max-width: 1000px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; height: 60px; }
+        .header h1 { font-family: 'Playfair Display', serif; font-size: 1.25rem; color: var(--navy); }
+        .back-link { display: flex; align-items: center; gap: 6px; color: var(--ocean); text-decoration: none; font-size: 0.85rem; font-weight: 500; padding: 6px 14px; border: 1px solid var(--ocean); border-radius: 40px; transition: all 0.2s; }
+        .back-link:hover { background: var(--ocean); color: white; }
+        .main { max-width: 1000px; margin: 0 auto; padding: 24px 16px; }
+        .unit-selector { background: white; border-radius: var(--radius-lg); padding: 20px 24px; margin-bottom: 20px; box-shadow: var(--shadow); display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+        .unit-selector label { font-weight: 600; font-size: 13px; color: var(--navy); white-space: nowrap; }
+        .unit-selector select { flex: 1; min-width: 200px; padding: 10px 16px; border: 1.5px solid var(--gray-border); border-radius: var(--radius-md); font-size: 14px; font-family: 'Inter', sans-serif; color: var(--navy); background: var(--gray-light); cursor: pointer; transition: border-color 0.2s; }
+        .unit-selector select:focus { outline: none; border-color: var(--turquoise); background: white; }
+        .content-grid { display: grid; grid-template-columns: 1fr 340px; gap: 20px; }
+        @media (max-width: 768px) { .content-grid { grid-template-columns: 1fr; } }
+        .card { background: white; border-radius: var(--radius-lg); padding: 24px; box-shadow: var(--shadow); }
+        .card-title { font-family: 'Playfair Display', serif; font-size: 1.1rem; color: var(--navy); margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+        .card-title i { color: var(--turquoise); font-size: 1rem; }
+        .cal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+        .cal-month { font-weight: 700; font-size: 1rem; color: var(--navy); }
+        .cal-nav { display: flex; gap: 8px; }
+        .cal-nav button { background: var(--gray-light); border: none; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; font-size: 13px; color: var(--navy); transition: all 0.2s; }
+        .cal-nav button:hover { background: var(--turquoise); color: white; }
+        .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; }
+        .cal-weekday { text-align: center; font-weight: 600; font-size: 11px; color: var(--gray-text); padding: 8px 0; text-transform: uppercase; letter-spacing: 0.5px; }
+        .cal-day { aspect-ratio: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: 50%; cursor: pointer; font-size: 13px; font-weight: 500; transition: all 0.15s; position: relative; }
+        .cal-day.empty { cursor: default; }
+        .cal-day.available:hover { background: rgba(64,181,173,0.15); color: var(--turquoise); }
+        .cal-day.booked { background: #FEE2E2; color: #DC2626; text-decoration: line-through; cursor: not-allowed; font-size: 11px; }
+        .cal-day.ical-airbnb { background: #FF5A5F25; color: #FF5A5F; cursor: not-allowed; font-size: 11px; border: 1px solid #FF5A5F44; }
+        .cal-day.ical-agoda { background: #FF6B3525; color: #E55A00; cursor: not-allowed; font-size: 11px; border: 1px solid #FF6B3544; }
+        .cal-day.ical-booking { background: #003580; color: white; cursor: not-allowed; font-size: 11px; }
+        .cal-day.ical-blocked { background: #FEF3C7; color: #D97706; cursor: not-allowed; font-size: 11px; }
+        .cal-day.manual-blocked { background: #EDE9FE; color: #7C3AED; cursor: pointer; }
+        .cal-badge { font-size: 8px; font-weight: 700; display: block; line-height: 1; margin-top: 1px; }
+        .cal-day.selected { background: var(--ocean); color: white; font-weight: 700; }
+        .cal-day.in-range { background: rgba(0,105,148,0.15); color: var(--ocean); border-radius: 0; }
+        .cal-day.range-start { border-radius: 50% 0 0 50%; }
+        .cal-day.range-end { border-radius: 0 50% 50% 0; }
+        .cal-day.range-start.range-end { border-radius: 50%; }
+        .cal-day.today { box-shadow: inset 0 0 0 2px var(--turquoise); }
+        .cal-day.past { opacity: 0.35; cursor: not-allowed; }
+        .legend { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--gray-border); }
+        .legend-item { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--gray-text); }
+        .legend-dot { width: 12px; height: 12px; border-radius: 50%; }
+        .selection-preview { background: linear-gradient(135deg, rgba(0,105,148,0.08), rgba(64,181,173,0.08)); border: 1px solid rgba(64,181,173,0.3); border-radius: var(--radius-md); padding: 14px 18px; margin-top: 16px; display: none; }
+        .selection-preview.show { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+        .selection-preview .dates { font-weight: 600; color: var(--navy); font-size: 14px; }
+        .selection-preview .nights { font-size: 12px; color: var(--gray-text); margin-top: 2px; }
+        .action-row { display: flex; gap: 10px; margin-top: 16px; }
+        .btn { padding: 10px 20px; border: none; border-radius: 40px; font-weight: 600; cursor: pointer; font-size: 13px; transition: all 0.2s; display: flex; align-items: center; gap: 6px; }
+        .btn-primary { background: var(--turquoise); color: white; flex: 1; justify-content: center; }
+        .btn-primary:hover { background: var(--ocean); }
+        .btn-primary:disabled { background: var(--gray-border); color: var(--gray-text); cursor: not-allowed; }
+        .btn-outline { background: transparent; border: 1.5px solid var(--gray-border); color: var(--gray-text); }
+        .btn-outline:hover { border-color: var(--danger); color: var(--danger); }
+        .reason-input { width: 100%; padding: 10px 14px; border: 1.5px solid var(--gray-border); border-radius: var(--radius-md); font-size: 13px; font-family: 'Inter', sans-serif; margin-top: 12px; transition: border-color 0.2s; }
+        .reason-input:focus { outline: none; border-color: var(--turquoise); }
+        .blocked-list { display: flex; flex-direction: column; gap: 8px; }
+        .blocked-item { display: flex; align-items: center; justify-content: space-between; padding: 12px 14px; border-radius: var(--radius-md); background: var(--gray-light); transition: all 0.2s; }
+        .blocked-item:hover { background: #EDE9FE; }
+        .blocked-item .item-dates { font-weight: 600; font-size: 13px; color: var(--navy); }
+        .blocked-item .item-reason { font-size: 11px; color: var(--gray-text); margin-top: 2px; }
+        .blocked-item .item-source { font-size: 10px; padding: 2px 8px; border-radius: 20px; font-weight: 600; margin-top: 4px; display: inline-block; }
+        .source-manual { background: #EDE9FE; color: #7C3AED; }
+        .source-ical { background: #FEF3C7; color: #D97706; }
+        .source-booking { background: #FEE2E2; color: #DC2626; }
+        .btn-unblock { background: transparent; border: 1px solid var(--gray-border); color: var(--gray-text); padding: 5px 12px; border-radius: 20px; font-size: 11px; font-weight: 600; cursor: pointer; transition: all 0.2s; white-space: nowrap; }
+        .btn-unblock:hover { background: var(--danger); color: white; border-color: var(--danger); }
+        .btn-unblock.ical-block { opacity: 0.5; cursor: not-allowed; }
+        .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(100px); background: var(--navy); color: white; padding: 12px 24px; border-radius: 40px; font-size: 13px; font-weight: 500; transition: transform 0.3s ease; z-index: 1000; white-space: nowrap; box-shadow: 0 4px 20px rgba(0,0,0,0.2); }
+        .toast.show { transform: translateX(-50%) translateY(0); }
+        .toast.success { background: var(--success); }
+        .toast.error { background: var(--danger); }
+        .empty-state { text-align: center; padding: 40px 20px; color: var(--gray-text); }
+        .empty-state i { font-size: 2rem; margin-bottom: 12px; opacity: 0.4; display: block; }
+        .empty-state p { font-size: 13px; }
+        .stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 16px; }
+        .stat-item { background: var(--gray-light); border-radius: var(--radius-md); padding: 12px; text-align: center; }
+        .stat-item .stat-val { font-size: 1.3rem; font-weight: 700; color: var(--navy); }
+        .stat-item .stat-lbl { font-size: 10px; color: var(--gray-text); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 2px; }
+    </style>
+</head>
+<body>
+<div class="header">
+    <div class="header-inner">
+        <h1><i class="fas fa-calendar-times" style="color:var(--turquoise);margin-right:8px;"></i>Block Dates</h1>
+        <a href="admin.html" class="back-link"><i class="fas fa-arrow-left"></i> Dashboard</a>
+    </div>
+</div>
+<div class="main">
+    <div class="unit-selector">
+        <label><i class="fas fa-building" style="color:var(--turquoise);margin-right:6px;"></i>Unit</label>
+        <select id="unit-select"><option value="">— Select a unit to manage —</option></select>
+    </div>
+    <div class="content-grid" id="content-grid" style="display:none;">
+        <div>
+            <div class="card">
+                <div class="cal-header">
+                    <div class="cal-month" id="cal-month-year">May 2026</div>
+                    <div class="cal-nav">
+                        <button id="prev-month"><i class="fas fa-chevron-left"></i></button>
+                        <button id="next-month"><i class="fas fa-chevron-right"></i></button>
+                    </div>
+                </div>
+                <div class="cal-grid" id="cal-grid"></div>
+                <div class="legend">
+                    <div class="legend-item"><div class="legend-dot" style="background:#EDE9FE;border:1px solid #7C3AED44;"></div> Manual</div>
+                    <div class="legend-item"><div class="legend-dot" style="background:#FEE2E2;"></div> HTM Booking</div>
+                    <div class="legend-item"><div class="legend-dot" style="background:#FF5A5F33;border:1px solid #FF5A5F44;"></div> Airbnb</div>
+                    <div class="legend-item"><div class="legend-dot" style="background:#FF6B3525;border:1px solid #FF6B3544;"></div> Agoda</div>
+                    <div class="legend-item"><div class="legend-dot" style="background:#00358022;border:1px solid #00358044;"></div> Booking.com</div>
+                    <div class="legend-item"><div class="legend-dot" style="background:var(--ocean);"></div> Selected</div>
+                </div>
+                <div class="selection-preview" id="selection-preview">
+                    <div><div class="dates" id="preview-dates">—</div><div class="nights" id="preview-nights"></div></div>
+                </div>
+                <input type="text" class="reason-input" id="block-reason" placeholder="Reason (optional, e.g. Owner stay, Maintenance...)">
+                <div class="action-row">
+                    <button class="btn btn-primary" id="block-btn" disabled onclick="blockSelected()"><i class="fas fa-lock"></i> Block Dates</button>
+                    <button class="btn btn-outline" onclick="clearSelection()"><i class="fas fa-times"></i> Clear</button>
+                </div>
+            </div>
+        </div>
+        <div>
+            <div class="card" style="margin-bottom:16px;">
+                <div class="stats-row">
+                    <div class="stat-item"><div class="stat-val" id="stat-blocked">—</div><div class="stat-lbl">Blocked</div></div>
+                    <div class="stat-item"><div class="stat-val" id="stat-booked">—</div><div class="stat-lbl">Booked</div></div>
+                    <div class="stat-item"><div class="stat-val" id="stat-available">—</div><div class="stat-lbl">Available</div></div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-title"><i class="fas fa-list"></i> Blocked Periods</div>
+                <div id="blocked-list"><div class="empty-state"><i class="fas fa-calendar-check"></i><p>No blocked dates</p></div></div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="toast" id="toast"></div>
+<script>
+    if (!localStorage.getItem('rc_token')) window.location.href = 'index.html';
+    const API = 'https://api.htmrentals.com/api';
+    const tkn = () => localStorage.getItem('rc_token');
+    const hdrs = () => ({ 'Authorization': `Bearer ${tkn()}`, 'Content-Type': 'application/json' });
+    let selectedUnitId = null, bookedDates = [], blockedDatesData = [];
+    let selStart = null, selEnd = null;
+    let curMonth = new Date().getMonth(), curYear = new Date().getFullYear();
+    const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+    function fmt(d) { const dt = new Date(d + 'T12:00:00'); return dt.toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' }); }
+    function nights(a, b) { return Math.round((new Date(b) - new Date(a)) / 86400000) + 1; }
+    async function loadUnits() {
+        const res = await fetch(`${API}/admin/units`, { headers: hdrs() });
+        const data = await res.json();
+        if (data.success) {
+            const units = data.units;
+            const sel = document.getElementById('unit-select');
+            sel.innerHTML = units.map(u => {
+                const label = u.unit_number || u.unit_name.split('|')[1]?.trim() || u.unit_name.slice(0,15);
+                return `<option value="${u.id}">${label}</option>`;
+            }).join('');
+            // Check URL param first
+            const urlUnit = new URLSearchParams(window.location.search).get('unit');
+            if (urlUnit && units.find(u => u.id == urlUnit)) {
+                sel.value = urlUnit;
+            } else {
+                sel.value = units[0]?.id || '';
+            }
+            selectedUnitId = sel.value;
+            if (selectedUnitId) {
+                document.getElementById('content-grid').style.display = 'grid';
+                await loadAvailability();
+            }
+        }
+    }
+    async function loadAvailability() {
+        if (!selectedUnitId) return;
+        const res = await fetch(`${API}/bookings/availability?unit_id=${selectedUnitId}&show_all=1`, { headers: hdrs() });
+        const data = await res.json();
+        if (!data.success) return;
+        bookedDates = [];
+        (data.bookings || []).forEach(b => {
+            let d = new Date(b.check_in_date); const end = new Date(b.check_out_date);
+            while (d < end) { bookedDates.push(d.toISOString().split('T')[0]); d.setDate(d.getDate() + 1); }
+        });
+        blockedDatesData = (data.blocked_dates || []).map(b => ({ id: b.id, date: (b.blocked_date || b.date || '').split('T')[0], reason: b.reason || '', unit_id: b.unit_id })).filter(b => b.date);
+        updateStats(); renderCalendar(); renderBlockedList();
+    }
+    function updateStats() {
+        const dim = new Date(curYear, curMonth + 1, 0).getDate();
+        const mDates = Array.from({length: dim}, (_, i) => `${curYear}-${String(curMonth+1).padStart(2,'0')}-${String(i+1).padStart(2,'0')}`);
+        const blocked = mDates.filter(d => blockedDatesData.some(b => b.date === d)).length;
+        const booked = mDates.filter(d => bookedDates.includes(d)).length;
+        document.getElementById('stat-blocked').textContent = blocked;
+        document.getElementById('stat-booked').textContent = booked;
+        document.getElementById('stat-available').textContent = Math.max(0, dim - blocked - booked);
+    }
+    function renderCalendar() {
+        const firstDay = new Date(curYear, curMonth, 1).getDay();
+        const dim = new Date(curYear, curMonth + 1, 0).getDate();
+        const today = new Date();
+        const todayStr = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
+        let html = ['Su','Mo','Tu','We','Th','Fr','Sa'].map(d => `<div class="cal-weekday">${d}</div>`).join('');
+        for (let i = 0; i < firstDay; i++) html += '<div class="cal-day empty"></div>';
+        for (let d = 1; d <= dim; d++) {
+            const ds = `${curYear}-${String(curMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+            const isBooked = bookedDates.includes(ds);
+            const bEntry = blockedDatesData.find(b => b.date === ds);
+            const isIcal = bEntry && bEntry.reason.startsWith('iCal:');
+            const isManual = bEntry && !isIcal;
+            const platform = isIcal ? bEntry.reason.replace('iCal:','').toLowerCase() : null;
+            const badge = platform === 'airbnb' ? 'Air' : platform === 'agoda' ? 'Ago' : platform === 'booking.com' ? 'Bkg' : null;
+            const isPast = ds < todayStr;
+            const isToday = ds === todayStr;
+            let inSel = false, isStart = false, isEnd = false;
+            if (selStart && selEnd) {
+                const lo = selStart < selEnd ? selStart : selEnd, hi = selStart < selEnd ? selEnd : selStart;
+                if (ds >= lo && ds <= hi) inSel = true;
+                if (ds === lo) isStart = true;
+                if (ds === hi) isEnd = true;
+            } else if (selStart && ds === selStart) { inSel = true; isStart = true; isEnd = true; }
+            let cls = 'cal-day';
+            if (isBooked) cls += ' booked';
+            else if (isIcal) {
+                if (platform === 'airbnb') cls += ' ical-airbnb';
+                else if (platform === 'agoda') cls += ' ical-agoda';
+                else if (platform === 'booking.com') cls += ' ical-booking';
+                else cls += ' ical-blocked';
+            }
+            else if (isManual) cls += ' manual-blocked';
+            else if (isPast) cls += ' past';
+            else cls += ' available';
+            if (isToday) cls += ' today';
+            if (inSel && !isBooked && !isIcal && !isPast) {
+                if (isStart && isEnd) cls += ' selected';
+                else { cls += ' in-range'; if (isStart) cls += ' range-start'; if (isEnd) cls += ' range-end'; }
+            }
+            const clickable = !isBooked && !isIcal && !isPast;
+            const badgeHtml = badge ? `<span class="cal-badge">${badge}</span>` : '';
+            html += `<div class="${cls}" ${clickable ? `onclick="selectDate('${ds}')"` : ''}>${d}${badgeHtml}</div>`;
+        }
+        document.getElementById('cal-grid').innerHTML = html;
+        document.getElementById('cal-month-year').textContent = `${MONTHS[curMonth]} ${curYear}`;
+        updatePreview(); updateStats();
+    }
+    function selectDate(ds) {
+        if (!selStart || (selStart && selEnd)) { selStart = ds; selEnd = null; }
+        else { selEnd = ds; }
+        renderCalendar();
+    }
+    function updatePreview() {
+        const el = document.getElementById('selection-preview');
+        const btn = document.getElementById('block-btn');
+        if (!selStart) { el.classList.remove('show'); btn.disabled = true; return; }
+        el.classList.add('show'); btn.disabled = false;
+        if (!selEnd) {
+            document.getElementById('preview-dates').textContent = fmt(selStart);
+            document.getElementById('preview-nights').textContent = '1 night selected';
+        } else {
+            const lo = selStart < selEnd ? selStart : selEnd, hi = selStart < selEnd ? selEnd : selStart;
+            document.getElementById('preview-dates').textContent = `${fmt(lo)} → ${fmt(hi)}`;
+            document.getElementById('preview-nights').textContent = `${nights(lo, hi)} nights selected`;
+        }
+    }
+    function clearSelection() { selStart = null; selEnd = null; document.getElementById('block-reason').value = ''; renderCalendar(); }
+    async function blockSelected() {
+        if (!selStart) return;
+        const lo = selEnd ? (selStart < selEnd ? selStart : selEnd) : selStart;
+        const hi = selEnd ? (selStart < selEnd ? selEnd : selStart) : selStart;
+        const reason = document.getElementById('block-reason').value.trim() || 'Manually blocked';
+        const res = await fetch(`${API}/admin/block-dates`, { method: 'POST', headers: hdrs(), body: JSON.stringify({ start_date: lo, end_date: hi, reason, unit_id: selectedUnitId }) });
+        const data = await res.json();
+        if (data.success) { showToast(`Blocked ${fmt(lo)} → ${fmt(hi)}`, 'success'); clearSelection(); await loadAvailability(); }
+        else showToast(data.error || 'Failed', 'error');
+    }
+    async function unblock(start, end) {
+        if (!confirm(`Unblock ${fmt(start)} to ${fmt(end)}?`)) return;
+        const rangeDates = [];
+        let d = new Date(start + 'T12:00:00'); const endD = new Date(end + 'T12:00:00');
+        while (d <= endD) { rangeDates.push(d.toISOString().split('T')[0]); d.setDate(d.getDate() + 1); }
+        const ids = blockedDatesData.filter(b => rangeDates.includes(b.date) && !b.reason.startsWith('iCal:')).map(b => b.id);
+        let ok = 0;
+        for (const id of ids) { const r = await fetch(`${API}/admin/unblock-date/${id}`, { method: 'DELETE', headers: hdrs() }); if (r.ok) ok++; }
+        if (ok > 0) { showToast('Unblocked successfully', 'success'); await loadAvailability(); }
+        else showToast('Nothing to unblock', 'error');
+    }
+    function renderBlockedList() {
+        const container = document.getElementById('blocked-list');
+        const unitBlocked = blockedDatesData.filter(b => b.unit_id == selectedUnitId);
+        if (!unitBlocked.length) { container.innerHTML = '<div class="empty-state"><i class="fas fa-calendar-check"></i><p>No blocked dates for this unit</p></div>'; return; }
+        const sorted = [...unitBlocked].sort((a, b) => a.date.localeCompare(b.date));
+        const ranges = [];
+        let rs = sorted[0].date, re = sorted[0].date, rr = sorted[0].reason;
+        for (let i = 1; i < sorted.length; i++) {
+            const prev = new Date(re + 'T12:00:00'); prev.setDate(prev.getDate() + 1);
+            if (sorted[i].date === prev.toISOString().split('T')[0] && sorted[i].reason === rr) { re = sorted[i].date; }
+            else { ranges.push({ start: rs, end: re, reason: rr }); rs = sorted[i].date; re = sorted[i].date; rr = sorted[i].reason; }
+        }
+        ranges.push({ start: rs, end: re, reason: rr });
+        container.innerHTML = ranges.map(r => {
+            const isIcal = r.reason.startsWith('iCal:'), isSync = r.reason.startsWith('Sync:');
+            const srcCls = isIcal ? 'source-ical' : isSync ? 'source-booking' : 'source-manual';
+            const srcLbl = isIcal ? r.reason.replace('iCal:','') + ' sync' : isSync ? 'Booking sync' : 'Manual';
+            const n = nights(r.start, r.end);
+            return `<div class="blocked-item"><div><div class="item-dates">${fmt(r.start)}${r.start!==r.end?' → '+fmt(r.end):''}</div><div class="item-reason">${!isIcal&&!isSync?r.reason+' · ':''} ${n} night${n>1?'s':''}</div><span class="item-source ${srcCls}">${srcLbl}</span></div>${!isIcal&&!isSync?`<button class="btn-unblock" onclick="unblock('${r.start}','${r.end}')">Unblock</button>`:'<span class="btn-unblock ical-block">Auto</span>'}</div>`;
+        }).join('');
+    }
+    function showToast(msg, type = '') { const t = document.getElementById('toast'); t.textContent = msg; t.className = `toast ${type} show`; setTimeout(() => t.className = 'toast', 3000); }
+    document.getElementById('unit-select').addEventListener('change', e => {
+        selectedUnitId = e.target.value; selStart = null; selEnd = null;
+        document.getElementById('content-grid').style.display = selectedUnitId ? 'grid' : 'none';
+        if (selectedUnitId) loadAvailability();
+        // Update URL param
+        const url = new URL(window.location);
+        url.searchParams.set('unit', selectedUnitId);
+        window.history.replaceState({}, '', url);
+    });
+    document.getElementById('prev-month').addEventListener('click', () => { curMonth--; if (curMonth < 0) { curMonth = 11; curYear--; } renderCalendar(); });
+    document.getElementById('next-month').addEventListener('click', () => { curMonth++; if (curMonth > 11) { curMonth = 0; curYear++; } renderCalendar(); });
+    loadUnits();
+function logout() { localStorage.clear(); window.location.href = 'index.html'; }
+
+document.addEventListener('DOMContentLoaded', () => {
+  const n = localStorage.getItem('rc_tenant_name');
+  const u = localStorage.getItem('rc_username');
+  if (document.getElementById('tenant-name')) document.getElementById('tenant-name').textContent = n || '';
+  if (document.getElementById('sidebar-username')) document.getElementById('sidebar-username').textContent = u || '';
+});
+</script>
+</body>
+</html>

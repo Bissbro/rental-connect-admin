@@ -188,6 +188,10 @@ body { font-family: 'Inter', sans-serif; background: var(--gray); color: var(--t
         <div class="form-group"><label>Accent Color</label><input type="color" id="prop-color-accent" value="#40B5AD"><div class="input-hint">Buttons / highlights</div></div>
         <div class="form-group"><label>Gold / Trim</label><input type="color" id="prop-color-gold" value="#B8975A"><div class="input-hint">Decorative accents</div></div>
       </div>
+      <div class="form-row">
+        <div class="form-group"><label>Payment Details MVR</label><input type="text" id="prop-payment-mvr" placeholder="e.g. BML 123456789 (HTM)"></div>
+        <div class="form-group"><label>Payment Details USD</label><input type="text" id="prop-payment-usd" placeholder="e.g. BML 987654321 (HTM)"></div>
+      </div>
       <div class="btn-row">
         <button class="btn btn-teal" onclick="saveProperty()"><i class="fas fa-save"></i> Save Property Settings</button>
       </div>
@@ -377,6 +381,8 @@ async function loadSettings() {
     if (s.color_primary) document.getElementById('prop-color-primary').value = s.color_primary;
     if (s.color_accent) document.getElementById('prop-color-accent').value = s.color_accent;
     if (s.color_gold) document.getElementById('prop-color-gold').value = s.color_gold;
+    if (s.payment_mvr) document.getElementById('prop-payment-mvr').value = s.payment_mvr;
+    if (s.payment_usd) document.getElementById('prop-payment-usd').value = s.payment_usd;
     // Notifications
     if (s.notif_new_booking !== undefined) document.getElementById('notif-new-booking').checked = !!s.notif_new_booking;
     if (s.notif_confirmed !== undefined) document.getElementById('notif-confirmed').checked = !!s.notif_confirmed;
@@ -405,6 +411,8 @@ async function saveProperty() {
     color_primary: document.getElementById('prop-color-primary').value,
     color_accent: document.getElementById('prop-color-accent').value,
     color_gold: document.getElementById('prop-color-gold').value,
+    payment_mvr: document.getElementById('prop-payment-mvr').value,
+    payment_usd: document.getElementById('prop-payment-usd').value,
   };
   await patchSettings(payload, 'Property settings saved');
 }

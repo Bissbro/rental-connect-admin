@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reviews - HTM Rentals Admin</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{font-family:'Inter',sans-serif;background:#F8F9FA;color:#1C1C1E}
+        :root{--navy:#0A2540;--teal:#2A9D8F;--gold:#C9A96E;--gray-border:#E5E5E5;--gray-text:#6C757D;--shadow:0 2px 12px rgba(0,0,0,0.06);--radius-lg:20px}
+        .topnav{background:var(--navy);padding:0 20px;display:flex;align-items:center;justify-content:space-between;height:60px;position:sticky;top:0;z-index:100}
+        .topnav-brand{font-family:'Playfair Display',serif;font-size:1.1rem;color:white}
+        .back-link{color:rgba(255,255,255,0.7);text-decoration:none;font-size:13px;display:flex;align-items:center;gap:6px}
+        .container{max-width:900px;margin:0 auto;padding:24px 16px}
+        .page-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px}
+        .page-title{font-family:'Playfair Display',serif;font-size:1.4rem;color:var(--navy)}
+        .btn{padding:10px 20px;border-radius:40px;border:none;font-weight:600;font-size:13px;cursor:pointer;display:inline-flex;align-items:center;gap:6px}
+        .btn-teal{background:var(--teal);color:white}
+        .btn-danger{background:#dc3545;color:white}
+        .btn-sm{padding:6px 14px;font-size:12px}
+        .card{background:white;border-radius:var(--radius-lg);box-shadow:var(--shadow);margin-bottom:16px;overflow:hidden}
+        .card-header{padding:16px 20px;border-bottom:1px solid var(--gray-border);display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+        .card-body{padding:16px 20px}
+        .review-name{font-weight:700;font-size:15px;color:var(--navy)}
+        .review-meta{font-size:12px;color:var(--gray-text);margin-top:3px}
+        .review-comment{font-size:13px;color:#444;line-height:1.7;font-style:italic}
+        .stars{display:flex;gap:2px;margin-top:5px}
+        .stars i{color:var(--gold);font-size:12px}
+        .stars i.off{color:#ddd}
+        .badge{padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600}
+        .badge-active{background:#d4edda;color:#155724}
+        .badge-inactive{background:#f8d7da;color:#721c24}
+        .badge-verified{background:rgba(42,157,143,0.1);color:var(--teal);border:1px solid rgba(42,157,143,0.2)}
+        .actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end;flex-shrink:0}
+        .stats-bar{display:flex;gap:0;background:white;border-radius:var(--radius-lg);box-shadow:var(--shadow);margin-bottom:20px;overflow:hidden}
+        .stat{flex:1;text-align:center;padding:20px 12px;border-right:1px solid var(--gray-border)}
+        .stat:last-child{border-right:none}
+        .stat-value{font-family:'Playfair Display',serif;font-size:1.8rem;font-weight:700;color:var(--navy)}
+        .stat-label{font-size:11px;color:var(--gray-text);text-transform:uppercase;letter-spacing:1px;margin-top:2px}
+        .stat-stars{display:flex;justify-content:center;gap:2px;margin-top:4px}
+        .stat-stars i{color:var(--gold);font-size:11px}
+        .empty-state{text-align:center;padding:60px 20px;color:var(--gray-text)}
+        .empty-state i{font-size:2.5rem;color:#ddd;margin-bottom:12px;display:block}
+        .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:1000;align-items:center;justify-content:center;padding:16px}
+        .modal-overlay.open{display:flex}
+        .modal{background:white;border-radius:var(--radius-lg);width:100%;max-width:520px;max-height:90vh;overflow-y:auto}
+        .modal-header{padding:20px;border-bottom:1px solid var(--gray-border);display:flex;justify-content:space-between;align-items:center}
+        .modal-title{font-family:'Playfair Display',serif;font-size:1.1rem;color:var(--navy)}
+        .modal-body{padding:20px}
+        .modal-footer{padding:16px 20px;border-top:1px solid var(--gray-border);display:flex;gap:10px;justify-content:flex-end}
+        .form-group{margin-bottom:16px}
+        .form-group label{display:block;font-size:12px;font-weight:600;color:var(--navy);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px}
+        .form-group input,.form-group textarea,.form-group select{width:100%;padding:10px 14px;border:1.5px solid var(--gray-border);border-radius:10px;font-size:14px;font-family:'Inter',sans-serif;outline:none}
+        .form-group input:focus,.form-group textarea:focus,.form-group select:focus{border-color:var(--teal)}
+        .form-group textarea{height:120px;resize:vertical}
+        .form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+        .star-select{display:flex;gap:6px;margin-top:4px}
+        .star-select button{background:none;border:none;font-size:28px;cursor:pointer;color:#ddd;transition:color 0.15s;padding:0;line-height:1}
+        .star-select button.active{color:var(--gold)}
+        .toggle-wrap{display:flex;align-items:center;gap:12px;margin-top:8px}
+        .toggle{position:relative;display:inline-block;width:44px;height:24px;flex-shrink:0}
+        .toggle input{opacity:0;width:0;height:0}
+        .slider{position:absolute;cursor:pointer;inset:0;background:#ccc;border-radius:24px;transition:0.3s}
+        .slider:before{position:absolute;content:'';height:18px;width:18px;left:3px;bottom:3px;background:white;border-radius:50%;transition:0.3s}
+        input:checked + .slider{background:var(--teal)}
+        input:checked + .slider:before{transform:translateX(20px)}
+        .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1C1C1E;color:white;padding:12px 24px;border-radius:40px;font-size:13px;font-weight:600;z-index:9999;opacity:0;transition:opacity 0.3s;pointer-events:none}
+        .toast.show{opacity:1}
+    </style>
+</head>
+<body>
+
+<nav class="topnav">
+    <a href="admin.html" class="back-link"><i class="fas fa-arrow-left"></i> Admin</a>
+    <div class="topnav-brand">Guest Reviews</div>
+    <div style="width:60px"></div>
+</nav>
+
+<div class="container">
+    <div class="page-header">
+        <div class="page-title">Guest Reviews</div>
+        <button class="btn btn-teal" onclick="openModal()"><i class="fas fa-plus"></i> Add Review</button>
+    </div>
+
+    <div class="stats-bar" id="stats-bar" style="display:none">
+        <div class="stat">
+            <div class="stat-value" id="stat-avg">0.0</div>
+            <div class="stat-stars" id="stat-stars"></div>
+            <div class="stat-label">Average</div>
+        </div>
+        <div class="stat">
+            <div class="stat-value" id="stat-total">0</div>
+            <div class="stat-label">Total</div>
+        </div>
+        <div class="stat">
+            <div class="stat-value" id="stat-verified">0</div>
+            <div class="stat-label">Verified</div>
+        </div>
+    </div>
+
+    <div id="reviews-list"></div>
+</div>
+
+<div class="modal-overlay" id="modal">
+    <div class="modal">
+        <div class="modal-header">
+            <div class="modal-title" id="modal-title">Add Review</div>
+            <button onclick="closeModal()" style="background:none;border:none;font-size:20px;cursor:pointer;color:#999">x</button>
+        </div>
+        <div class="modal-body">
+            <input type="hidden" id="rev-id">
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Guest Name</label>
+                    <input type="text" id="rev-name" placeholder="e.g. Ahmed M.">
+                </div>
+                <div class="form-group">
+                    <label>Country</label>
+                    <input type="text" id="rev-country" placeholder="e.g. Maldives">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Unit Stayed In</label>
+                <select id="rev-unit">
+                    <option value="">General (no specific unit)</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Star Rating</label>
+                <div class="star-select" id="star-select">
+                    <button type="button" onclick="setRating(1)">&#9733;</button>
+                    <button type="button" onclick="setRating(2)">&#9733;</button>
+                    <button type="button" onclick="setRating(3)">&#9733;</button>
+                    <button type="button" onclick="setRating(4)">&#9733;</button>
+                    <button type="button" onclick="setRating(5)">&#9733;</button>
+                </div>
+                <input type="hidden" id="rev-rating" value="5">
+            </div>
+            <div class="form-group">
+                <label>Review (guest exact words)</label>
+                <textarea id="rev-comment" placeholder="Paste the guest review exactly as written..."></textarea>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Platform</label>
+                    <select id="rev-platform">
+                        <option value="direct">HTM Direct</option>
+                        <option value="airbnb">Airbnb</option>
+                        <option value="booking">Booking.com</option>
+                        <option value="google">Google</option>
+                        <option value="agoda">Agoda</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Sort Order</label>
+                    <input type="number" id="rev-sort" value="0">
+                </div>
+                <div class="form-group">
+                    <label>Active</label>
+                    <div class="toggle-wrap">
+                        <label class="toggle"><input type="checkbox" id="rev-active" checked><span class="slider"></span></label>
+                        <span style="font-size:12px;color:var(--gray-text)">Show on website</span>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Verified Stay</label>
+                <div class="toggle-wrap">
+                    <label class="toggle"><input type="checkbox" id="rev-verified" checked><span class="slider"></span></label>
+                    <span style="font-size:12px;color:var(--gray-text)">Guest booked through HTM Rentals</span>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn" onclick="closeModal()" style="background:#f0f0f0;color:#333">Cancel</button>
+            <button class="btn btn-teal" onclick="saveReview()">Save Review</button>
+        </div>
+    </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const API = 'https://api.htmrentals.com/api';
+const token = localStorage.getItem('rc_token');
+if (!token) window.location.href = 'index.html';
+const hdrs = () => ({'Content-Type':'application/json','Authorization':'Bearer '+token});
+
+let reviews = [], units = [], currentRating = 5;
+
+async function load() {
+    try {
+        const [rRes, uRes] = await Promise.all([
+            fetch(API+'/admin/reviews', {headers:hdrs()}),
+            fetch(API+'/admin/units', {headers:hdrs()})
+        ]);
+        if (rRes.status === 401) { window.location.href = 'index.html'; return; }
+        const rData = await rRes.json();
+        const uData = await uRes.json();
+        reviews = rData.reviews || [];
+        units = uData.units || uData || [];
+        populateUnits();
+        renderStats();
+        renderReviews();
+    } catch(e) { console.error(e); }
+}
+
+function populateUnits() {
+    const sel = document.getElementById('rev-unit');
+    sel.innerHTML = '<option value="">General (no specific unit)</option>';
+    units.forEach(u => {
+        sel.innerHTML += '<option value="'+u.id+'">'+u.unit_number+' - '+(u.unit_type_label||'')+'</option>';
+    });
+}
+
+function renderStats() {
+    if (!reviews.length) return;
+    document.getElementById('stats-bar').style.display = 'flex';
+    const avg = reviews.reduce((s,r) => s+r.rating, 0) / reviews.length;
+    document.getElementById('stat-avg').textContent = avg.toFixed(1);
+    document.getElementById('stat-total').textContent = reviews.length;
+    document.getElementById('stat-verified').textContent = reviews.filter(r=>r.is_verified).length;
+    document.getElementById('stat-stars').innerHTML = [1,2,3,4,5].map(i =>
+        '<i class="fas fa-star'+(i<=Math.round(avg)?'':'-o')+'"></i>'
+    ).join('');
+}
+
+function renderReviews() {
+    const el = document.getElementById('reviews-list');
+    if (!reviews.length) {
+        el.innerHTML = '<div class="empty-state"><i class="fas fa-star"></i><p>No reviews yet. Add your first one!</p></div>';
+        return;
+    }
+    el.innerHTML = reviews.map(r => {
+        const stars = [1,2,3,4,5].map(i => '<i class="fas fa-star'+(i<=r.rating?'':' off')+'"></i>').join('');
+        return '<div class="card">' +
+            '<div class="card-header">' +
+                '<div>' +
+                    '<div class="review-name">'+r.guest_name+'</div>' +
+                    '<div class="review-meta">'+(r.country||'')+(r.unit_number?' - Stayed in '+r.unit_number:'')+'</div>' +
+                    '<div class="stars">'+stars+'</div>' +
+                '</div>' +
+                '<div class="actions">' +
+                    (r.is_verified ? '<span class="badge badge-verified"><i class="fas fa-check-circle"></i> Verified</span>' : '') +
+                    '<span class="badge '+(r.is_active?'badge-active':'badge-inactive')+'">'+(r.is_active?'Active':'Hidden')+'</span>' +
+                    '<button class="btn btn-sm btn-teal" onclick="openModal('+r.id+')"><i class="fas fa-edit"></i></button>' +
+                    '<button class="btn btn-sm btn-danger" onclick="deleteReview('+r.id+')"><i class="fas fa-trash"></i></button>' +
+                '</div>' +
+            '</div>' +
+            (r.comment ? '<div class="card-body"><div class="review-comment">"'+r.comment+'"</div></div>' : '') +
+        '</div>';
+    }).join('');
+}
+
+function setRating(n) {
+    currentRating = n;
+    document.getElementById('rev-rating').value = n;
+    document.querySelectorAll('#star-select button').forEach((b,i) => b.classList.toggle('active', i<n));
+}
+
+function openModal(id=null) {
+    document.getElementById('modal-title').textContent = id ? 'Edit Review' : 'Add Review';
+    document.getElementById('rev-id').value = id || '';
+    if (id) {
+        const r = reviews.find(x => x.id===id);
+        document.getElementById('rev-name').value = r.guest_name;
+        document.getElementById('rev-country').value = r.country||'';
+        document.getElementById('rev-unit').value = r.unit_id||'';
+        document.getElementById('rev-comment').value = r.comment||'';
+        document.getElementById('rev-sort').value = r.sort_order||0;
+        document.getElementById('rev-active').checked = !!r.is_active;
+        document.getElementById('rev-verified').checked = !!r.is_verified;
+        document.getElementById('rev-platform').value = r.platform || 'direct';
+        setRating(r.rating||5);
+    } else {
+        document.getElementById('rev-name').value = '';
+        document.getElementById('rev-country').value = '';
+        document.getElementById('rev-unit').value = '';
+        document.getElementById('rev-comment').value = '';
+        document.getElementById('rev-sort').value = 0;
+        document.getElementById('rev-active').checked = true;
+        document.getElementById('rev-verified').checked = true;
+        document.getElementById('rev-platform').value = 'direct';
+        setRating(5);
+    }
+    document.getElementById('modal').classList.add('open');
+}
+
+function closeModal() { document.getElementById('modal').classList.remove('open'); }
+
+async function saveReview() {
+    const id = document.getElementById('rev-id').value;
+    const name = document.getElementById('rev-name').value.trim();
+    if (!name) { showToast('Guest name is required'); return; }
+    const body = {
+        guest_name: name,
+        country: document.getElementById('rev-country').value,
+        unit_id: document.getElementById('rev-unit').value || null,
+        rating: parseInt(document.getElementById('rev-rating').value) || 5,
+        comment: document.getElementById('rev-comment').value,
+        sort_order: parseInt(document.getElementById('rev-sort').value) || 0,
+        is_active: document.getElementById('rev-active').checked ? 1 : 0,
+        is_verified: document.getElementById('rev-verified').checked ? 1 : 0,
+                platform: document.getElementById('rev-platform').value || 'direct'
+    };
+    const url = id ? API+'/admin/reviews/'+id : API+'/admin/reviews';
+    const method = id ? 'PUT' : 'POST';
+    const res = await fetch(url, {method, headers:hdrs(), body:JSON.stringify(body)});
+    const data = await res.json();
+    if (data.success !== false) {
+        showToast(id ? 'Review updated!' : 'Review added!');
+        closeModal();
+        await load();
+    } else {
+        showToast('Error: '+(data.error||'Failed'));
+    }
+}
+
+async function deleteReview(id) {
+    if (!confirm('Delete this review?')) return;
+    await fetch(API+'/admin/reviews/'+id, {method:'DELETE', headers:hdrs()});
+    showToast('Deleted');
+    await load();
+}
+
+function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+load();
+setRating(5);
+function logout() { localStorage.clear(); window.location.href = 'index.html'; }
+</script>
+</body>
+</html>

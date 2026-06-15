@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>HTM Rentals | Promotion Gallery</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #F8F9FA;
+            padding: 20px;
+        }
+        :root {
+            --navy: #0A2540;
+            --ocean: #006994;
+            --turquoise: #40B5AD;
+            --gray-light: #F8F9FA;
+            --gray-border: #E5E5E5;
+            --gray-text: #6C757D;
+            --danger: #dc3545;
+            --radius-lg: 20px;
+            --radius-md: 12px;
+            --radius-sm: 8px;
+        }
+        .container { max-width: 1000px; margin: 0 auto; }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 0;
+            margin-bottom: 24px;
+            border-bottom: 1px solid var(--gray-border);
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+        .header h1 { font-family: 'Playfair Display', serif; font-size: 1.5rem; color: var(--navy); }
+        .back-link { color: var(--ocean); text-decoration: none; font-size: 1rem; }
+        
+        .card {
+            background: white;
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 40px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+        .btn-primary { background: var(--turquoise); color: white; }
+        .btn-primary:hover { background: var(--ocean); }
+        .btn-danger { background: var(--danger); color: white; }
+        .btn-sm { padding: 6px 12px; font-size: 12px; }
+        
+        /* Grid for promotion images */
+        .promo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+        .promo-card {
+            background: white;
+            border: 1px solid var(--gray-border);
+            border-radius: var(--radius-md);
+            overflow: hidden;
+        }
+        .promo-card-image {
+            width: 100%;
+            height: 160px;
+            object-fit: cover;
+        }
+        .promo-card-content {
+            padding: 16px;
+        }
+        .promo-card-title {
+            font-weight: 700;
+            font-size: 16px;
+            color: var(--navy);
+            margin-bottom: 4px;
+        }
+        .promo-card-link {
+            font-size: 12px;
+            color: var(--gray-text);
+            margin-bottom: 8px;
+            word-break: break-all;
+        }
+        .promo-card-order {
+            font-size: 12px;
+            color: var(--gray-text);
+            margin-bottom: 12px;
+        }
+        .promo-card-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+        }
+        
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .modal-content {
+            background: white;
+            border-radius: var(--radius-lg);
+            max-width: 600px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        .modal-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--gray-border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .modal-body {
+            padding: 20px;
+        }
+        .form-group {
+            margin-bottom: 16px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 600;
+            font-size: 13px;
+            color: var(--navy);
+        }
+        .form-group input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--gray-border);
+            border-radius: var(--radius-sm);
+            font-size: 14px;
+            font-family: 'Inter', sans-serif;
+        }
+        .image-upload-area {
+            border: 2px dashed var(--gray-border);
+            border-radius: var(--radius-sm);
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            background: var(--gray-light);
+        }
+        .image-preview {
+            margin-top: 10px;
+        }
+        .preview-img {
+            max-width: 100%;
+            max-height: 150px;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--gray-border);
+        }
+        
+        .message {
+            padding: 14px;
+            border-radius: var(--radius-md);
+            margin-bottom: 16px;
+            display: none;
+        }
+        .message.success { background: #D4EDDA; color: #155724; display: block; }
+        .message.error { background: #F8D7DA; color: #721C24; display: block; }
+        
+        .loading { text-align: center; padding: 40px; color: var(--gray-text); }
+        .empty { text-align: center; padding: 40px; color: var(--gray-text); }
+        
+        @media (max-width: 768px) {
+            body { padding: 12px; }
+            .card { padding: 16px; }
+            .promo-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Promotion Gallery</h1>
+            <a href="admin.html" class="back-link">← Back to Admin</a>
+        </div>
+        
+        <div class="card">
+            <div class="card-header">
+                <h2>Promotion Images</h2>
+                <button class="btn btn-primary" onclick="openPromotionModal()">+ Add Image</button>
+            </div>
+            
+            <div id="message" class="message"></div>
+            
+            <div id="promo-container" class="loading">Loading promotion images...</div>
+        </div>
+    </div>
+    
+    <!-- Promotion Modal -->
+    <div id="promotion-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modal-title">Add Promotion Image</h2>
+                <button onclick="closePromotionModal()" style="background:none; border:none; font-size:24px; cursor:pointer;">&times;</button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="promo-id">
+                
+                <div class="form-group">
+                    <label>Image *</label>
+                    <div class="image-upload-area" onclick="document.getElementById('promo-image-input').click()">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <p>Click to upload</p>
+                        <input type="file" id="promo-image-input" accept="image/*" style="display:none" onchange="uploadPromoImage(this)">
+                    </div>
+                    <div id="promo-image-preview" class="image-preview"></div>
+                    <input type="hidden" id="promo-image-url">
+                </div>
+                
+                <div class="form-group">
+                    <label>Link URL (optional)</label>
+                    <input type="text" id="promo-link" placeholder="https://example.com">
+                    <small>When clicked, opens this link</small>
+                </div>
+                
+                <div class="form-group">
+                    <label>Title (optional)</label>
+                    <input type="text" id="promo-title" placeholder="Special Offer">
+                </div>
+                
+                <div class="form-group">
+                    <label>Sort Order</label>
+                    <input type="number" id="promo-order" value="0">
+                    <small>Lower numbers appear first</small>
+                </div>
+                
+                <div style="display:flex; gap:12px; margin-top:20px;">
+                    <button class="btn btn-primary" onclick="savePromotionImage()">Save</button>
+                    <button class="btn btn-danger" id="delete-promo-btn" style="display:none" onclick="deletePromotionImage()">Delete</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ==================== AUTHENTICATION CHECK ====================
+        if (!localStorage.getItem('rc_token')) {
+            window.location.href = 'index.html';
+        }
+        // ============================================================
+
+        const API_BASE_URL = 'https://api.htmrentals.com/api';
+        function getToken() { return localStorage.getItem('rc_token'); }
+        function authHeaders(extra) { return { 'Authorization': `Bearer ${getToken()}`, 'Content-Type': 'application/json', ...extra }; }
+        function handleAuthError(res) { if (res && res.status === 401) { localStorage.removeItem('rc_token'); window.location.href = 'index.html'; return true; } return false; }
+        
+        let allPromoImages = [];
+        
+        async function loadPromotionImages() {
+            const container = document.getElementById('promo-container');
+            container.innerHTML = '<div class="loading">Loading promotion images...</div>';
+            
+            try {
+                const res = await fetch(`${API_BASE_URL}/admin/promotion-gallery`, { headers: authHeaders() });
+                if (handleAuthError(res)) return;
+                const data = await res.json();
+                
+                if (data.success) {
+                    allPromoImages = data.images;
+                    displayPromotionImages();
+                } else {
+                    container.innerHTML = '<div class="empty">Failed to load promotion images</div>';
+                }
+            } catch(e) {
+                console.error(e);
+                container.innerHTML = '<div class="empty">Error loading promotion images</div>';
+            }
+        }
+        
+        function displayPromotionImages() {
+            const container = document.getElementById('promo-container');
+            
+            if (!allPromoImages || allPromoImages.length === 0) {
+                container.innerHTML = '<div class="empty">No promotion images found. Click "Add Image" to create one.</div>';
+                return;
+            }
+            
+            container.innerHTML = `
+                <div class="promo-grid">
+                    ${allPromoImages.map(img => `
+                        <div class="promo-card">
+                            <img src="${img.image_url}" class="promo-card-image" onerror="this.src='https://via.placeholder.com/400x200?text=No+Image'">
+                            <div class="promo-card-content">
+                                <div class="promo-card-title">${escapeHtml(img.title || 'Untitled')}</div>
+                                <div class="promo-card-link">${img.link_url ? '🔗 Has link' : 'No link'}</div>
+                                <div class="promo-card-order">Order: ${img.sort_order || 0}</div>
+                                <div class="promo-card-actions">
+                                    <button class="btn btn-sm" style="background:var(--turquoise); color:white;" onclick="editPromotionImage(${img.id})">Edit</button>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+        
+        function openPromotionModal() {
+            document.getElementById('modal-title').textContent = 'Add Promotion Image';
+            document.getElementById('promo-id').value = '';
+            document.getElementById('promo-link').value = '';
+            document.getElementById('promo-title').value = '';
+            document.getElementById('promo-order').value = '0';
+            document.getElementById('promo-image-url').value = '';
+            document.getElementById('promo-image-preview').innerHTML = '';
+            document.getElementById('delete-promo-btn').style.display = 'none';
+            document.getElementById('promotion-modal').style.display = 'flex';
+        }
+        
+        function editPromotionImage(id) {
+            const img = allPromoImages.find(i => i.id === id);
+            if (!img) return;
+            
+            document.getElementById('modal-title').textContent = 'Edit Promotion Image';
+            document.getElementById('promo-id').value = img.id;
+            document.getElementById('promo-link').value = img.link_url || '';
+            document.getElementById('promo-title').value = img.title || '';
+            document.getElementById('promo-order').value = img.sort_order || 0;
+            document.getElementById('promo-image-url').value = img.image_url;
+            
+            if (img.image_url) {
+                document.getElementById('promo-image-preview').innerHTML = `<img src="${img.image_url}" class="preview-img">`;
+            }
+            
+            document.getElementById('delete-promo-btn').style.display = 'inline-block';
+            document.getElementById('promotion-modal').style.display = 'flex';
+        }
+        
+        function closePromotionModal() {
+            document.getElementById('promotion-modal').style.display = 'none';
+        }
+        
+        async function uploadPromoImage(input) {
+            const file = input.files[0];
+            if (!file) return;
+            
+            const formData = new FormData();
+            formData.append('image', file);
+            
+            try {
+                const res = await fetch(`${API_BASE_URL}/admin/upload`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${getToken()}` },
+                    body: formData
+                });
+                const data = await res.json();
+                
+                if (data.success) {
+                    document.getElementById('promo-image-url').value = data.url;
+                    document.getElementById('promo-image-preview').innerHTML = `<img src="${data.url}" class="preview-img">`;
+                    showMessage('Image uploaded', 'success');
+                } else {
+                    showMessage('Upload failed', 'error');
+                }
+            } catch(e) {
+                showMessage('Error uploading', 'error');
+            }
+            input.value = '';
+        }
+        
+        async function savePromotionImage() {
+            const id = document.getElementById('promo-id').value;
+            const imageUrl = document.getElementById('promo-image-url').value;
+            
+            if (!imageUrl) {
+                showMessage('Image is required', 'error');
+                return;
+            }
+            
+            const promoData = {
+                image_url: imageUrl,
+                link_url: document.getElementById('promo-link').value,
+                title: document.getElementById('promo-title').value,
+                sort_order: parseInt(document.getElementById('promo-order').value) || 0
+            };
+            
+            try {
+                let url, method;
+                if (id) {
+                    url = `${API_BASE_URL}/admin/promotion-gallery/${id}`;
+                    method = 'PUT';
+                } else {
+                    url = `${API_BASE_URL}/admin/promotion-gallery`;
+                    method = 'POST';
+                }
+                
+                const res = await fetch(url, {
+                    method,
+                    headers: authHeaders(),
+                    body: JSON.stringify(promoData)
+                });
+                const data = await res.json();
+                
+                if (data.success) {
+                    showMessage(id ? 'Promotion image updated' : 'Promotion image added', 'success');
+                    closePromotionModal();
+                    loadPromotionImages();
+                } else {
+                    showMessage(data.error || 'Failed to save', 'error');
+                }
+            } catch(e) {
+                showMessage('Error saving', 'error');
+            }
+        }
+        
+        async function deletePromotionImage() {
+            const id = document.getElementById('promo-id').value;
+            if (!id || !confirm('Delete this promotion image permanently?')) return;
+            
+            try {
+                const res = await fetch(`${API_BASE_URL}/admin/promotion-gallery/${id}`, {
+                    method: 'DELETE',
+                    headers: authHeaders()
+                });
+                const data = await res.json();
+                
+                if (data.success) {
+                    showMessage('Promotion image deleted', 'success');
+                    closePromotionModal();
+                    loadPromotionImages();
+                } else {
+                    showMessage(data.error || 'Failed to delete', 'error');
+                }
+            } catch(e) {
+                showMessage('Error deleting', 'error');
+            }
+        }
+        
+        function showMessage(msg, type) {
+            const el = document.getElementById('message');
+            el.textContent = msg;
+            el.className = `message ${type}`;
+            setTimeout(() => {
+                el.style.display = 'none';
+                el.className = 'message';
+            }, 3000);
+        }
+        
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[m]));
+        }
+        
+        loadPromotionImages();
+    function logout() { localStorage.clear(); window.location.href = 'index.html'; }
+</script>
+</body>
+</html>

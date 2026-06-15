@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Promo Banners — HTM Rentals Admin</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: #F8F9FA; color: #1C1C1E; }
+        :root { --navy: #0A2540; --teal: #40B5AD; --gold: #B8975A; --gray-border: #E5E5E5; --gray-text: #6C757D; --radius-lg: 20px; --shadow: 0 2px 12px rgba(0,0,0,0.06); }
+        .topnav { background: var(--navy); padding: 0 20px; display: flex; align-items: center; justify-content: space-between; height: 60px; position: sticky; top: 0; z-index: 100; }
+        .topnav-brand { font-family: 'Playfair Display', serif; font-size: 1.1rem; color: white; }
+        .back-link { color: rgba(255,255,255,0.7); text-decoration: none; font-size: 13px; display: flex; align-items: center; gap: 6px; }
+        .container { max-width: 900px; margin: 0 auto; padding: 24px 16px; }
+        .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+        .page-title { font-family: 'Playfair Display', serif; font-size: 1.4rem; color: var(--navy); }
+        .btn { padding: 10px 20px; border-radius: 40px; border: none; font-weight: 600; font-size: 13px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
+        .btn-primary { background: var(--navy); color: white; }
+        .btn-danger { background: #dc3545; color: white; }
+        .btn-sm { padding: 6px 14px; font-size: 12px; }
+        .card { background: white; border-radius: var(--radius-lg); box-shadow: var(--shadow); margin-bottom: 16px; overflow: hidden; }
+        .card-header { padding: 16px 20px; border-bottom: 1px solid var(--gray-border); display: flex; justify-content: space-between; align-items: center; }
+        .banner-preview { width: 100%; height: 160px; object-fit: cover; display: block; }
+        .badge { padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+        .badge-active { background: #d4edda; color: #155724; }
+        .badge-inactive { background: #f8d7da; color: #721c24; }
+        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; padding: 16px; }
+        .modal-overlay.open { display: flex; }
+        .modal { background: white; border-radius: var(--radius-lg); width: 100%; max-width: 480px; }
+        .modal-header { padding: 20px; border-bottom: 1px solid var(--gray-border); display: flex; justify-content: space-between; align-items: center; }
+        .modal-title { font-family: 'Playfair Display', serif; font-size: 1.1rem; color: var(--navy); }
+        .modal-body { padding: 20px; }
+        .modal-footer { padding: 16px 20px; border-top: 1px solid var(--gray-border); display: flex; gap: 10px; justify-content: flex-end; }
+        .form-group { margin-bottom: 16px; }
+        .form-group label { display: block; font-size: 12px; font-weight: 600; color: var(--navy); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .form-group input { width: 100%; padding: 10px 14px; border: 1.5px solid var(--gray-border); border-radius: 10px; font-size: 14px; font-family: 'Inter', sans-serif; outline: none; }
+        .form-group input:focus { border-color: var(--teal); }
+        .upload-area { border: 2px dashed var(--gray-border); border-radius: 12px; padding: 30px; text-align: center; cursor: pointer; }
+        .upload-area:hover { border-color: var(--teal); }
+        .toggle { position: relative; display: inline-block; width: 44px; height: 24px; }
+        .toggle input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; inset: 0; background: #ccc; border-radius: 24px; transition: 0.3s; cursor: pointer; }
+        .slider:before { position: absolute; content: ''; height: 18px; width: 18px; left: 3px; bottom: 3px; background: white; border-radius: 50%; transition: 0.3s; }
+        input:checked + .slider { background: var(--teal); }
+        input:checked + .slider:before { transform: translateX(20px); }
+        .empty-state { text-align: center; padding: 60px 20px; color: var(--gray-text); }
+        .empty-state i { font-size: 3rem; margin-bottom: 16px; opacity: 0.3; display: block; }
+        .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(100px); background: var(--navy); color: white; padding: 12px 24px; border-radius: 40px; font-size: 13px; font-weight: 500; transition: transform 0.3s; z-index: 2000; }
+        .toast.show { transform: translateX(-50%) translateY(0); }
+        .info-text { font-size: 12px; color: var(--gray-text); margin-top: 4px; }
+    </style>
+</head>
+<body>
+<nav class="topnav">
+    <div class="topnav-brand">HTM Rentals</div>
+    <a href="admin.html" class="back-link"><i class="fas fa-arrow-left"></i> Dashboard</a>
+</nav>
+
+<div class="container">
+    <div class="page-header">
+        <div>
+            <h1 class="page-title">Promo Banners</h1>
+            <p class="info-text">Banners appear on the homepage between Experiences and Contact sections.</p>
+        </div>
+        <button class="btn btn-primary" onclick="openModal()"><i class="fas fa-plus"></i> Add Banner</button>
+    </div>
+    <div id="banners-list">
+        <div class="empty-state"><i class="fas fa-image"></i><p>Loading banners...</p></div>
+    </div>
+</div>
+
+<!-- Upload Modal -->
+<div class="modal-overlay" id="modal">
+    <div class="modal">
+        <div class="modal-header">
+            <div class="modal-title">Add Promo Banner</div>
+            <button onclick="closeModal()" style="background:none;border:none;font-size:20px;cursor:pointer;color:#999;">✕</button>
+        </div>
+        <div class="modal-body">
+            <div class="form-group">
+                <label>Banner Image</label>
+                <div class="upload-area" onclick="document.getElementById('banner-input').click()" id="upload-area">
+                    <i class="fas fa-cloud-upload-alt" style="font-size:2rem;color:var(--teal);margin-bottom:8px;display:block;"></i>
+                    <div style="font-weight:600;color:var(--navy);margin-bottom:4px;">Tap to upload banner</div>
+                    <div style="font-size:12px;color:var(--gray-text);">Recommended: 1200 x 400px JPG/PNG</div>
+                </div>
+                <input type="file" id="banner-input" accept="image/*" style="display:none;" onchange="previewBanner(this)">
+                <img id="banner-preview" style="display:none;width:100%;border-radius:12px;margin-top:10px;max-height:150px;object-fit:cover;">
+            </div>
+            <div class="form-group">
+                <label>Link URL (optional)</label>
+                <input type="text" id="banner-link" placeholder="https://... or leave blank">
+            </div>
+            <div class="form-group">
+                <label>Active</label>
+                <label class="toggle">
+                    <input type="checkbox" id="banner-active" checked>
+                    <span class="slider"></span>
+                </label>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn" style="background:#f0f0f0;color:#333;" onclick="closeModal()">Cancel</button>
+            <button class="btn btn-primary" onclick="saveBanner()"><i class="fas fa-save"></i> Save Banner</button>
+        </div>
+    </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+    const API = 'https://api.htmrentals.com/api';
+    const token = localStorage.getItem('rc_token');
+    if (!token) window.location.href = 'index.html';
+    const hdrs = () => ({ 'Authorization': 'Bearer ' + token });
+    let selectedFile = null;
+
+    async function load() {
+        const res = await fetch(`${API}/admin/promo-banners`, { headers: hdrs() });
+        if (res.status === 401) { window.location.href = 'index.html'; return; }
+        const banners = await res.json();
+        render(banners);
+    }
+
+    function render(banners) {
+        const container = document.getElementById('banners-list');
+        if (!banners.length) {
+            container.innerHTML = '<div class="empty-state"><i class="fas fa-image"></i><p>No promo banners yet. Add your first one!</p></div>';
+            return;
+        }
+        container.innerHTML = banners.map(b => `
+            <div class="card">
+                <img src="${b.image_url}" class="banner-preview" loading="lazy">
+                <div class="card-header">
+                    <div>
+                        <div style="font-weight:600;font-size:14px;color:var(--navy);">${b.link_url ? '🔗 ' + b.link_url : 'No link'}</div>
+                    </div>
+                    <div style="display:flex;gap:8px;align-items:center;">
+                        <span class="badge ${b.is_active ? 'badge-active' : 'badge-inactive'}">${b.is_active ? 'Active' : 'Hidden'}</span>
+                        <button class="btn btn-sm" style="background:#f0f0f0;" onclick="toggleBanner(${b.id}, ${b.is_active})">${b.is_active ? 'Hide' : 'Show'}</button>
+                        <button class="btn btn-sm btn-danger" onclick="deleteBanner(${b.id})"><i class="fas fa-trash"></i></button>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    function openModal() {
+        selectedFile = null;
+        document.getElementById('banner-input').value = '';
+        document.getElementById('banner-link').value = '';
+        document.getElementById('banner-active').checked = true;
+        document.getElementById('banner-preview').style.display = 'none';
+        document.getElementById('upload-area').style.display = 'block';
+        document.getElementById('modal').classList.add('open');
+    }
+
+    function closeModal() { document.getElementById('modal').classList.remove('open'); }
+
+    function previewBanner(input) {
+        if (!input.files[0]) return;
+        selectedFile = input.files[0];
+        const reader = new FileReader();
+        reader.onload = e => {
+            document.getElementById('banner-preview').src = e.target.result;
+            document.getElementById('banner-preview').style.display = 'block';
+            document.getElementById('upload-area').style.display = 'none';
+        };
+        reader.readAsDataURL(selectedFile);
+    }
+
+    async function saveBanner() {
+        if (!selectedFile) { showToast('Please select an image'); return; }
+        const formData = new FormData();
+        formData.append('image', selectedFile);
+        formData.append('link_url', document.getElementById('banner-link').value);
+        formData.append('is_active', document.getElementById('banner-active').checked ? 1 : 0);
+        const res = await fetch(`${API}/admin/promo-banners`, { method: 'POST', headers: hdrs(), body: formData });
+        const data = await res.json();
+        if (data.success) { showToast('Banner added!'); closeModal(); load(); }
+        else showToast('Error: ' + (data.error || 'Failed'));
+    }
+
+    async function toggleBanner(id, current) {
+        const res = await fetch(`${API}/admin/promo-banners/${id}`, {
+            method: 'PATCH',
+            headers: { ...hdrs(), 'Content-Type': 'application/json' },
+            body: JSON.stringify({ is_active: current ? 0 : 1 })
+        });
+        showToast(current ? 'Banner hidden' : 'Banner shown');
+        load();
+    }
+
+    async function deleteBanner(id) {
+        if (!confirm('Delete this banner?')) return;
+        await fetch(`${API}/admin/promo-banners/${id}`, { method: 'DELETE', headers: hdrs() });
+        showToast('Deleted');
+        load();
+    }
+
+    function showToast(msg) {
+        const t = document.getElementById('toast');
+        t.textContent = msg;
+        t.classList.add('show');
+        setTimeout(() => t.classList.remove('show'), 3000);
+    }
+
+    load();
+function logout() { localStorage.clear(); window.location.href = 'index.html'; }
+</script>
+</body>
+</html>

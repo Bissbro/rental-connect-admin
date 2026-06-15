@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hero Slides — HTM Rentals Admin</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: #F8F9FA; color: #1C1C1E; }
+        :root { --navy: #0A2540; --teal: #40B5AD; --gold: #B8975A; --gray-border: #E5E5E5; --gray-text: #6C757D; --radius-lg: 20px; --shadow: 0 2px 12px rgba(0,0,0,0.06); }
+        .topnav { background: var(--navy); padding: 0 20px; display: flex; align-items: center; justify-content: space-between; height: 60px; position: sticky; top: 0; z-index: 100; }
+        .topnav-brand { font-family: 'Playfair Display', serif; font-size: 1.1rem; color: white; }
+        .back-link { color: rgba(255,255,255,0.7); text-decoration: none; font-size: 13px; display: flex; align-items: center; gap: 6px; }
+        .container { max-width: 900px; margin: 0 auto; padding: 24px 16px; }
+        .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+        .page-title { font-family: 'Playfair Display', serif; font-size: 1.4rem; color: var(--navy); }
+        .info-text { font-size: 12px; color: var(--gray-text); margin-bottom: 24px; }
+        .btn { padding: 10px 20px; border-radius: 40px; border: none; font-weight: 600; font-size: 13px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
+        .btn-primary { background: var(--navy); color: white; }
+        .btn-teal { background: var(--teal); color: white; }
+        .btn-danger { background: #dc3545; color: white; }
+        .btn-sm { padding: 6px 14px; font-size: 12px; }
+        .card { background: white; border-radius: var(--radius-lg); box-shadow: var(--shadow); margin-bottom: 16px; overflow: hidden; }
+        .card-header { padding: 14px 20px; border-bottom: 1px solid var(--gray-border); display: flex; justify-content: space-between; align-items: center; }
+        .slide-preview { width: 100%; height: 180px; object-fit: cover; display: block; }
+        .slide-info { padding: 14px 20px; }
+        .slide-title { font-weight: 700; font-size: 15px; color: var(--navy); }
+        .slide-sub { font-size: 12px; color: var(--gray-text); margin-top: 3px; }
+        .badge { padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+        .badge-active { background: #d4edda; color: #155724; }
+        .badge-inactive { background: #f8d7da; color: #721c24; }
+        .badge-yt { background: #ffe0e0; color: #c00; }
+        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; padding: 16px; }
+        .modal-overlay.open { display: flex; }
+        .modal { background: white; border-radius: var(--radius-lg); width: 100%; max-width: 500px; max-height: 90vh; overflow-y: auto; }
+        .modal-header { padding: 20px; border-bottom: 1px solid var(--gray-border); display: flex; justify-content: space-between; align-items: center; }
+        .modal-title { font-family: 'Playfair Display', serif; font-size: 1.1rem; color: var(--navy); }
+        .modal-body { padding: 20px; }
+        .modal-footer { padding: 16px 20px; border-top: 1px solid var(--gray-border); display: flex; gap: 10px; justify-content: flex-end; }
+        .form-group { margin-bottom: 16px; }
+        .form-group label { display: block; font-size: 12px; font-weight: 600; color: var(--navy); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .form-group input, .form-group select { width: 100%; padding: 10px 14px; border: 1.5px solid var(--gray-border); border-radius: 10px; font-size: 14px; font-family: 'Inter', sans-serif; outline: none; }
+        .form-group input:focus, .form-group select:focus { border-color: var(--teal); }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .upload-area { border: 2px dashed var(--gray-border); border-radius: 12px; padding: 24px; text-align: center; cursor: pointer; }
+        .upload-area:hover { border-color: var(--teal); }
+        .toggle { position: relative; display: inline-block; width: 44px; height: 24px; }
+        .toggle input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; inset: 0; background: #ccc; border-radius: 24px; transition: 0.3s; cursor: pointer; }
+        .slider:before { position: absolute; content: ''; height: 18px; width: 18px; left: 3px; bottom: 3px; background: white; border-radius: 50%; transition: 0.3s; }
+        input:checked + .slider { background: var(--teal); }
+        input:checked + .slider:before { transform: translateX(20px); }
+        .media-tabs { display: flex; gap: 8px; margin-bottom: 16px; }
+        .media-tab { padding: 8px 16px; border-radius: 20px; border: 1.5px solid var(--gray-border); font-size: 12px; font-weight: 600; cursor: pointer; background: white; color: var(--gray-text); }
+        .media-tab.active { background: var(--navy); color: white; border-color: var(--navy); }
+        .empty-state { text-align: center; padding: 60px 20px; color: var(--gray-text); }
+        .empty-state i { font-size: 3rem; margin-bottom: 16px; opacity: 0.3; display: block; }
+        .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(100px); background: var(--navy); color: white; padding: 12px 24px; border-radius: 40px; font-size: 13px; font-weight: 500; transition: transform 0.3s; z-index: 2000; }
+        .toast.show { transform: translateX(-50%) translateY(0); }
+    </style>
+</head>
+<body>
+<nav class="topnav">
+    <div class="topnav-brand">HTM Rentals</div>
+    <a href="admin.html" class="back-link"><i class="fas fa-arrow-left"></i> Dashboard</a>
+</nav>
+
+<div class="container">
+    <div class="page-header">
+        <h1 class="page-title">Hero Slides</h1>
+        <button class="btn btn-primary" onclick="openModal()"><i class="fas fa-plus"></i> Add Slide</button>
+    </div>
+    <p class="info-text">These slides appear in the main hero section on the homepage. Supports images or YouTube videos.</p>
+    <div id="slides-list">
+        <div class="empty-state"><i class="fas fa-images"></i><p>Loading slides...</p></div>
+    </div>
+</div>
+
+<!-- Add/Edit Modal -->
+<div class="modal-overlay" id="modal">
+    <div class="modal">
+        <div class="modal-header">
+            <div class="modal-title" id="modal-title">Add Hero Slide</div>
+            <button onclick="closeModal()" style="background:none;border:none;font-size:20px;cursor:pointer;color:#999;">✕</button>
+        </div>
+        <div class="modal-body">
+            <input type="hidden" id="slide-id">
+            <div class="form-group">
+                <label>Media Type</label>
+                <div class="media-tabs">
+                    <button class="media-tab active" onclick="setMediaType('image')" id="tab-image"><i class="fas fa-image"></i> Image</button>
+                    <button class="media-tab" onclick="setMediaType('youtube')" id="tab-youtube"><i class="fab fa-youtube"></i> YouTube</button>
+                </div>
+            </div>
+            <!-- Image upload -->
+            <div id="image-section">
+                <div class="form-group">
+                    <label>Upload Image</label>
+                    <div class="upload-area" onclick="document.getElementById('slide-img-input').click()" id="img-upload-area">
+                        <i class="fas fa-cloud-upload-alt" style="font-size:2rem;color:var(--teal);margin-bottom:8px;display:block;"></i>
+                        <div style="font-weight:600;color:var(--navy);margin-bottom:4px;">Tap to upload</div>
+                        <div style="font-size:12px;color:var(--gray-text);">Recommended: 1920 x 1080px</div>
+                    </div>
+                    <input type="file" id="slide-img-input" accept="image/*" style="display:none;" onchange="previewSlide(this)">
+                    <img id="slide-preview" style="display:none;width:100%;border-radius:12px;margin-top:10px;max-height:150px;object-fit:cover;">
+                    <input type="hidden" id="slide-image-url">
+                </div>
+            </div>
+            <!-- YouTube -->
+            <div id="youtube-section" style="display:none;">
+                <div class="form-group">
+                    <label>YouTube URL</label>
+                    <input type="text" id="slide-youtube" placeholder="https://youtube.com/watch?v=...">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Title (optional)</label>
+                <input type="text" id="slide-title" placeholder="Your Safe Space">
+            </div>
+            <div class="form-group">
+                <label>Subtitle (optional)</label>
+                <input type="text" id="slide-subtitle" placeholder="Hulhumale', Maldives">
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Button Text</label>
+                    <input type="text" id="slide-btn-text" placeholder="Explore">
+                </div>
+                <div class="form-group">
+                    <label>Button Link</label>
+                    <input type="text" id="slide-btn-link" placeholder="#units">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Sort Order</label>
+                    <input type="number" id="slide-sort" value="0">
+                </div>
+                <div class="form-group">
+                    <label>Active</label><br>
+                    <label class="toggle" style="margin-top:8px;">
+                        <input type="checkbox" id="slide-active" checked>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn" style="background:#f0f0f0;color:#333;" onclick="closeModal()">Cancel</button>
+            <button class="btn btn-teal" onclick="saveSlide()"><i class="fas fa-save"></i> Save Slide</button>
+        </div>
+    </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+    const API = 'https://api.htmrentals.com/api';
+    const token = localStorage.getItem('rc_token');
+    if (!token) window.location.href = 'index.html';
+    const hdrs = () => ({ 'Authorization': 'Bearer ' + token });
+    const hdrsJson = () => ({ 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' });
+
+    let slides = [];
+    let mediaType = 'image';
+    let selectedFile = null;
+
+    async function load() {
+        const res = await fetch(`${API}/admin/hero-images`, { headers: hdrs() });
+        if (res.status === 401) { window.location.href = 'index.html'; return; }
+        const data = await res.json();
+        slides = data.images || data;
+        render();
+    }
+
+    function render() {
+        const container = document.getElementById('slides-list');
+        if (!slides.length) {
+            container.innerHTML = '<div class="empty-state"><i class="fas fa-images"></i><p>No slides yet. Add your first one!</p></div>';
+            return;
+        }
+        container.innerHTML = slides.map(s => `
+            <div class="card">
+                ${s.media_type === 'youtube'
+                    ? `<div style="background:#000;height:180px;display:flex;align-items:center;justify-content:center;"><i class="fab fa-youtube" style="font-size:3rem;color:red;"></i></div>`
+                    : `<img src="${s.image_url}" class="slide-preview" loading="lazy">`
+                }
+                <div class="card-header">
+                    <div>
+                        <div class="slide-title">${s.title || 'No title'}</div>
+                        <div class="slide-sub">${s.subtitle || ''} · Order: ${s.sort_order}</div>
+                    </div>
+                    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+                        ${s.media_type === 'youtube' ? '<span class="badge badge-yt">YouTube</span>' : ''}
+                        <span class="badge ${s.is_active ? 'badge-active' : 'badge-inactive'}">${s.is_active ? 'Active' : 'Hidden'}</span>
+                        <button class="btn btn-sm btn-teal" onclick="openModal(${s.id})"><i class="fas fa-edit"></i></button>
+                        <button class="btn btn-sm btn-danger" onclick="deleteSlide(${s.id})"><i class="fas fa-trash"></i></button>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    function setMediaType(type) {
+        mediaType = type;
+        document.getElementById('image-section').style.display = type === 'image' ? 'block' : 'none';
+        document.getElementById('youtube-section').style.display = type === 'youtube' ? 'block' : 'none';
+        document.getElementById('tab-image').classList.toggle('active', type === 'image');
+        document.getElementById('tab-youtube').classList.toggle('active', type === 'youtube');
+    }
+
+    function openModal(id = null) {
+        selectedFile = null;
+        document.getElementById('slide-id').value = id || '';
+        document.getElementById('modal-title').textContent = id ? 'Edit Slide' : 'Add Hero Slide';
+        document.getElementById('slide-preview').style.display = 'none';
+        document.getElementById('img-upload-area').style.display = 'block';
+        document.getElementById('slide-image-url').value = '';
+
+        if (id) {
+            const s = slides.find(x => x.id === id);
+            setMediaType(s.media_type || 'image');
+            document.getElementById('slide-youtube').value = s.youtube_url || '';
+            document.getElementById('slide-title').value = s.title || '';
+            document.getElementById('slide-subtitle').value = s.subtitle || '';
+            document.getElementById('slide-btn-text').value = s.button_text || '';
+            document.getElementById('slide-btn-link').value = s.button_link || '';
+            document.getElementById('slide-sort').value = s.sort_order || 0;
+            document.getElementById('slide-active').checked = !!s.is_active;
+            if (s.image_url) {
+                document.getElementById('slide-image-url').value = s.image_url;
+                document.getElementById('slide-preview').src = s.image_url;
+                document.getElementById('slide-preview').style.display = 'block';
+                document.getElementById('img-upload-area').style.display = 'none';
+            }
+        } else {
+            setMediaType('image');
+            document.getElementById('slide-youtube').value = '';
+            document.getElementById('slide-title').value = '';
+            document.getElementById('slide-subtitle').value = '';
+            document.getElementById('slide-btn-text').value = 'Explore';
+            document.getElementById('slide-btn-link').value = '#units';
+            document.getElementById('slide-sort').value = slides.length;
+            document.getElementById('slide-active').checked = true;
+        }
+        document.getElementById('modal').classList.add('open');
+    }
+
+    function closeModal() { document.getElementById('modal').classList.remove('open'); }
+
+    function previewSlide(input) {
+        if (!input.files[0]) return;
+        selectedFile = input.files[0];
+        const reader = new FileReader();
+        reader.onload = e => {
+            document.getElementById('slide-preview').src = e.target.result;
+            document.getElementById('slide-preview').style.display = 'block';
+            document.getElementById('img-upload-area').style.display = 'none';
+        };
+        reader.readAsDataURL(selectedFile);
+    }
+
+    async function saveSlide() {
+        const id = document.getElementById('slide-id').value;
+        let imageUrl = document.getElementById('slide-image-url').value;
+
+        // Upload image first if selected
+        if (selectedFile) {
+            const formData = new FormData();
+            formData.append('image', selectedFile);
+            const upRes = await fetch(`${API}/admin/upload-image`, { method: 'POST', headers: hdrs(), body: formData });
+            const upData = await upRes.json();
+            if (upData.url) imageUrl = upData.url;
+            else { showToast('Image upload failed'); return; }
+        }
+
+        if (mediaType === 'image' && !imageUrl) { showToast('Please upload an image'); return; }
+        if (mediaType === 'youtube' && !document.getElementById('slide-youtube').value) { showToast('Please enter YouTube URL'); return; }
+
+        const body = {
+            image_url: imageUrl || '',
+            youtube_url: document.getElementById('slide-youtube').value || null,
+            media_type: mediaType,
+            title: document.getElementById('slide-title').value,
+            subtitle: document.getElementById('slide-subtitle').value,
+            button_text: document.getElementById('slide-btn-text').value,
+            button_link: document.getElementById('slide-btn-link').value,
+            sort_order: parseInt(document.getElementById('slide-sort').value) || 0,
+            is_active: document.getElementById('slide-active').checked ? 1 : 0
+        };
+
+        const url = id ? `${API}/admin/hero-images/${id}` : `${API}/admin/hero-images`;
+        const method = id ? 'PUT' : 'POST';
+        const res = await fetch(url, { method, headers: hdrsJson(), body: JSON.stringify(body) });
+        const data = await res.json();
+        if (data.success !== false) {
+            showToast(id ? 'Slide updated!' : 'Slide added!');
+            closeModal();
+            load();
+        } else showToast('Error: ' + (data.error || 'Failed'));
+    }
+
+    async function deleteSlide(id) {
+        if (!confirm('Delete this slide?')) return;
+        await fetch(`${API}/admin/hero-images/${id}`, { method: 'DELETE', headers: hdrs() });
+        showToast('Deleted');
+        load();
+    }
+
+    function showToast(msg) {
+        const t = document.getElementById('toast');
+        t.textContent = msg;
+        t.classList.add('show');
+        setTimeout(() => t.classList.remove('show'), 3000);
+    }
+
+    load();
+function logout() { localStorage.clear(); window.location.href = 'index.html'; }
+</script>
+</body>
+</html>

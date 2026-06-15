@@ -517,16 +517,28 @@ async function printPayslip(id){
     const r=await fetch(`${API}/api/rental-connect/staff/payslip/${id}`,{headers:hdrs()});
     const d=await r.json();
     if(!d.record)throw new Error();
-    generatePayslipPDF(d.record,d.staff);
+    // Parse JSON fields if they're strings
+    const rec=d.record;
+    if(typeof rec.earnings==='string') rec.earnings=JSON.parse(rec.earnings||'[]');
+    if(typeof rec.deductions==='string') rec.deductions=JSON.parse(rec.deductions||'[]');
+    if(typeof rec.leave_data==='string'&&rec.leave_data) rec.leave_data=JSON.parse(rec.leave_data);
+    // Get property name from settings
+    let propName=localStorage.getItem('rc_tenant_name')||'Property';
+    try{
+      const sr=await fetch(`${API}/api/rental-connect/settings`,{headers:hdrs()});
+      const sd=await sr.json();
+      if(sd.settings?.property_name) propName=sd.settings.property_name;
+    }catch(e){}
+    generatePayslipPDF(rec,d.staff,propName);
   }catch(e){showToast('Failed to load payslip','error');}
 }
 
-function generatePayslipPDF(rec,staff){
+function generatePayslipPDF(rec,staff,propName){
   const earnings=JSON.parse(rec.earnings||'[]');
   const deductions=JSON.parse(rec.deductions||'[]');
   const leave=rec.leave_data?JSON.parse(rec.leave_data):null;
   const period=rec.salary_month?.slice(0,7);
-  const propName=localStorage.getItem('rc_tenant_name')||'Property';
+  propName=propName||localStorage.getItem('rc_tenant_name')||'Property';
 
   const win=window.open('','_blank');
   win.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Pay Slip - ${staff.name}</title>
@@ -564,7 +576,7 @@ function generatePayslipPDF(rec,staff){
     </div>
     <div>
       <div class="row"><span class="label">Days Worked</span><span>: ${rec.days_worked||'—'}</span></div>
-      <div class="row"><span class="label">Salary Period</span><span>: ${period?period.slice(0,7).replace('-','/'):'—'}/01 - ${period?period.slice(0,7).replace('-','/'):'—'}/${new Date(period+'-01').toLocaleString('en-US',{month:'long'}).length}</span></div>
+      <div class="row"><span class="label">Salary Period</span><span>: ${period?formatPeriod(period):'—'}</span></div>
       <div class="row"><span class="label">Service Charge Days</span><span>: ${rec.service_charge_days||'—'}</span></div>
     </div>
   </div>
@@ -585,7 +597,7 @@ function generatePayslipPDF(rec,staff){
     ${staff.bank_account?`<div class="row"><span>TO BANK [${staff.bank_account}]</span><span>${fmt(rec.net_pay_usd)} USD / ${fmt(rec.net_pay_mvr)} MVR</span></div>`:''}
     <div class="row total"><span>Total Amount</span><span>${fmt(rec.net_pay_usd)} USD / ${fmt(rec.net_pay_mvr)} MVR</span></div>
   </div>
-  <div class="words"><strong>Amount In Words:</strong> ${rec.currency||'USD'} ${numberToWords(rec.currency==='MVR'?rec.net_pay_mvr:rec.net_pay_usd)}</div>
+  <div class="words"><strong>Amount In Words:</strong> ${rec.currency||'USD'} ${toWords(rec.currency==='MVR'?rec.net_pay_mvr:rec.net_pay_usd)}</div>
   <div class="row" style="margin:8px 0;font-size:11px"><strong>Current Month Basic Salary:</strong> ${staff.currency||'USD'} ${fmt(staff.base_salary_mvr)}</div>
   ${leave?`<table class="leave-table">
     <thead><tr><th>Leave Name</th><th>Opening</th><th>Earned</th><th>Utilized</th><th>Applied</th><th>Balance</th></tr></thead>
@@ -604,6 +616,21 @@ function generatePayslipPDF(rec,staff){
     const parts=Number(n).toFixed(2).split('.');
     const intPart=parseInt(parts[0]);const decPart=parseInt(parts[1]);
     return convert(intPart)+(decPart?' and '+convert(decPart)+' Cents':'')+' Only';
+  }
+  function formatPeriod(p){
+    if(!p)return '—';
+    const d=new Date(p.slice(0,7)+'-01');
+    const last=new Date(d.getFullYear(),d.getMonth()+1,0).getDate();
+    const y=d.getFullYear();const m=String(d.getMonth()+1).padStart(2,'0');
+    return y+'/'+m+'/01 - '+y+'/'+m+'/'+last;
+  }
+  function toWords(n){
+    if(!n||isNaN(n))return 'Zero Only';
+    const ones=['','One','Two','Three','Four','Five','Six','Seven','Eight','Nine','Ten','Eleven','Twelve','Thirteen','Fourteen','Fifteen','Sixteen','Seventeen','Eighteen','Nineteen'];
+    const tens=['','','Twenty','Thirty','Forty','Fifty','Sixty','Seventy','Eighty','Ninety'];
+    function c(n){if(n<20)return ones[n];if(n<100)return tens[Math.floor(n/10)]+(n%10?' '+ones[n%10]:'');if(n<1000)return ones[Math.floor(n/100)]+' Hundred'+(n%100?' '+c(n%100):'');return c(Math.floor(n/1000))+' Thousand'+(n%1000?' '+c(n%1000):'');}
+    const pts=Number(n).toFixed(2).split('.');
+    return c(parseInt(pts[0]))+(parseInt(pts[1])?' and '+c(parseInt(pts[1]))+' Cents':'')+' Only';
   }
   window.onload=()=>window.print();
   <\/script>

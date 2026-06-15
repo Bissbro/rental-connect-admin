@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>HTM Rentals | Minibar Catalog</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #F8F9FA;
+            padding: 20px;
+        }
+        :root {
+            --navy: #0A2540;
+            --ocean: #006994;
+            --turquoise: #40B5AD;
+            --gray-light: #F8F9FA;
+            --gray-border: #E5E5E5;
+            --gray-text: #6C757D;
+            --success: #28a745;
+            --danger: #dc3545;
+            --radius-lg: 20px;
+            --radius-md: 12px;
+            --radius-sm: 8px;
+        }
+        .container { max-width: 800px; margin: 0 auto; }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 0;
+            margin-bottom: 24px;
+            border-bottom: 1px solid var(--gray-border);
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+        .header h1 { font-family: 'Playfair Display', serif; font-size: 1.5rem; color: var(--navy); }
+        .back-link { color: var(--ocean); text-decoration: none; font-size: 1rem; }
+        
+        .card {
+            background: white;
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 40px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+        .btn-primary { background: var(--turquoise); color: white; }
+        .btn-primary:hover { background: var(--ocean); }
+        .btn-danger { background: var(--danger); color: white; }
+        .btn-sm { padding: 6px 12px; font-size: 12px; }
+        
+        .items-table {
+            width: 100%;
+            overflow-x: auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 500px;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--gray-border);
+        }
+        th {
+            font-weight: 600;
+            color: var(--gray-text);
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        td {
+            font-size: 14px;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .modal-content {
+            background: white;
+            border-radius: var(--radius-lg);
+            max-width: 400px;
+            width: 100%;
+        }
+        .modal-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--gray-border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .modal-body {
+            padding: 20px;
+        }
+        .form-group {
+            margin-bottom: 16px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 600;
+            font-size: 13px;
+            color: var(--navy);
+        }
+        .form-group input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--gray-border);
+            border-radius: var(--radius-sm);
+            font-size: 14px;
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .message {
+            padding: 14px;
+            border-radius: var(--radius-md);
+            margin-bottom: 16px;
+            display: none;
+        }
+        .message.success { background: #D4EDDA; color: #155724; display: block; }
+        .message.error { background: #F8D7DA; color: #721C24; display: block; }
+        
+        .loading { text-align: center; padding: 40px; color: var(--gray-text); }
+        .empty { text-align: center; padding: 40px; color: var(--gray-text); }
+        
+        @media (max-width: 768px) {
+            body { padding: 12px; }
+            .card { padding: 16px; }
+            th, td { padding: 8px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Minibar Catalog</h1>
+            <a href="admin.html" class="back-link">← Back to Admin</a>
+        </div>
+        
+        <div class="card">
+            <div class="card-header">
+                <h2>Minibar Items</h2>
+                <button class="btn btn-primary" onclick="openMinibarModal()">+ Add Item</button>
+            </div>
+            
+            <div id="message" class="message"></div>
+            
+            <div class="items-table">
+                <div id="minibar-container" class="loading">Loading minibar items...</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Minibar Modal -->
+    <div id="minibar-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modal-title">Add Minibar Item</h2>
+                <button onclick="closeMinibarModal()" style="background:none; border:none; font-size:24px; cursor:pointer;">&times;</button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="item-id">
+                
+                <div class="form-group">
+                    <label>Item Name *</label>
+                    <input type="text" id="item-name" placeholder="e.g., Water Bottle (500ml)">
+                </div>
+                
+                <div class="form-group">
+                    <label>USD Price</label>
+                    <input type="number" id="item-usd" step="0.01" placeholder="2.00">
+                </div>
+                
+                <div class="form-group">
+                    <label>MVR Price</label>
+                    <input type="number" id="item-mvr" step="0.01" placeholder="30.00">
+                </div>
+                
+                <div class="form-group">
+                    <label>Sort Order</label>
+                    <input type="number" id="item-order" value="0" placeholder="0">
+                </div>
+                
+                <div style="display:flex; gap:12px; margin-top:20px;">
+                    <button class="btn btn-primary" onclick="saveMinibarItem()">Save</button>
+                    <button class="btn btn-danger" id="delete-item-btn" style="display:none" onclick="deleteMinibarItem()">Delete</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ==================== AUTHENTICATION CHECK ====================
+        if (!localStorage.getItem('rc_token')) {
+            window.location.href = 'index.html';
+        }
+        // ============================================================
+
+        const API_BASE_URL = 'https://api.htmrentals.com/api';
+        function getToken() { return localStorage.getItem('rc_token'); }
+        function authHeaders(extra) { return { 'Authorization': `Bearer ${getToken()}`, 'Content-Type': 'application/json', ...extra }; }
+        function handleAuthError(res) { if (res && res.status === 401) { localStorage.removeItem('rc_token'); window.location.href = 'index.html'; return true; } return false; }
+        
+        let minibarItems = [];
+        
+        async function loadMinibarItems() {
+            const container = document.getElementById('minibar-container');
+            container.innerHTML = '<div class="loading">Loading minibar items...</div>';
+            
+            try {
+                const res = await fetch(`${API_BASE_URL}/admin/minibar`, { headers: authHeaders() });
+                if (handleAuthError(res)) return;
+                const data = await res.json();
+                
+                if (data.success) {
+                    minibarItems = data.items;
+                    displayMinibarItems();
+                } else {
+                    container.innerHTML = '<div class="empty">Failed to load minibar items</div>';
+                }
+            } catch(e) {
+                console.error(e);
+                container.innerHTML = '<div class="empty">Error loading minibar items</div>';
+            }
+        }
+        
+        function displayMinibarItems() {
+            const container = document.getElementById('minibar-container');
+            
+            if (!minibarItems || minibarItems.length === 0) {
+                container.innerHTML = '<div class="empty">No minibar items found. Click "Add Item" to create one.</div>';
+                return;
+            }
+            
+            container.innerHTML = `
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Item Name</th>
+                            <th>USD</th>
+                            <th>MVR</th>
+                            <th>Order</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${minibarItems.map(item => `
+                            <tr>
+                                <td><strong>${escapeHtml(item.name)}</strong></td>
+                                <td>$${parseFloat(item.price_usd).toFixed(2)}</td>
+                                <td>MVR ${parseFloat(item.price_mvr).toFixed(2)}</td>
+                                <td>${item.sort_order || 0}</td>
+                                <td>
+                                    <button class="btn btn-sm" style="background:var(--turquoise); color:white;" onclick="editMinibarItem(${item.id})">Edit</button>
+                                  </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+        }
+        
+        function openMinibarModal() {
+            document.getElementById('modal-title').textContent = 'Add Minibar Item';
+            document.getElementById('item-id').value = '';
+            document.getElementById('item-name').value = '';
+            document.getElementById('item-usd').value = '';
+            document.getElementById('item-mvr').value = '';
+            document.getElementById('item-order').value = '0';
+            document.getElementById('delete-item-btn').style.display = 'none';
+            document.getElementById('minibar-modal').style.display = 'flex';
+        }
+        
+        function editMinibarItem(id) {
+            const item = minibarItems.find(i => i.id === id);
+            if (!item) return;
+            
+            document.getElementById('modal-title').textContent = 'Edit Minibar Item';
+            document.getElementById('item-id').value = item.id;
+            document.getElementById('item-name').value = item.name;
+            document.getElementById('item-usd').value = item.price_usd;
+            document.getElementById('item-mvr').value = item.price_mvr;
+            document.getElementById('item-order').value = item.sort_order || 0;
+            document.getElementById('delete-item-btn').style.display = 'inline-block';
+            document.getElementById('minibar-modal').style.display = 'flex';
+        }
+        
+        function closeMinibarModal() {
+            document.getElementById('minibar-modal').style.display = 'none';
+        }
+        
+        async function saveMinibarItem() {
+            const id = document.getElementById('item-id').value;
+            const name = document.getElementById('item-name').value.trim();
+            const usd = parseFloat(document.getElementById('item-usd').value);
+            const mvr = parseFloat(document.getElementById('item-mvr').value);
+            const sortOrder = parseInt(document.getElementById('item-order').value) || 0;
+            
+            if (!name) {
+                showMessage('Item name is required', 'error');
+                return;
+            }
+            
+            if (isNaN(usd) || usd < 0) {
+                showMessage('Valid USD price is required', 'error');
+                return;
+            }
+            
+            if (isNaN(mvr) || mvr < 0) {
+                showMessage('Valid MVR price is required', 'error');
+                return;
+            }
+            
+            const itemData = { name, price_usd: usd, price_mvr: mvr, sort_order: sortOrder };
+            
+            try {
+                let url, method;
+                if (id) {
+                    url = `${API_BASE_URL}/admin/minibar/${id}`;
+                    method = 'PUT';
+                } else {
+                    url = `${API_BASE_URL}/admin/minibar`;
+                    method = 'POST';
+                }
+                
+                const res = await fetch(url, {
+                    method,
+                    headers: authHeaders(),
+                    body: JSON.stringify(itemData)
+                });
+                const data = await res.json();
+                
+                if (data.success) {
+                    showMessage(id ? 'Item updated' : 'Item added', 'success');
+                    closeMinibarModal();
+                    loadMinibarItems();
+                } else {
+                    showMessage(data.error || 'Failed to save', 'error');
+                }
+            } catch(e) {
+                showMessage('Error saving', 'error');
+            }
+        }
+        
+        async function deleteMinibarItem() {
+            const id = document.getElementById('item-id').value;
+            if (!id) return;
+            
+            if (!confirm('Delete this minibar item permanently?')) return;
+            
+            try {
+                const res = await fetch(`${API_BASE_URL}/admin/minibar/${id}`, {
+                    method: 'DELETE',
+                    headers: authHeaders()
+                });
+                const data = await res.json();
+                
+                if (data.success) {
+                    showMessage('Item deleted', 'success');
+                    closeMinibarModal();
+                    loadMinibarItems();
+                } else {
+                    showMessage(data.error || 'Failed to delete', 'error');
+                }
+            } catch(e) {
+                showMessage('Error deleting', 'error');
+            }
+        }
+        
+        function showMessage(msg, type) {
+            const el = document.getElementById('message');
+            el.textContent = msg;
+            el.className = `message ${type}`;
+            setTimeout(() => {
+                el.style.display = 'none';
+                el.className = 'message';
+            }, 3000);
+        }
+        
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[m]));
+        }
+        
+        loadMinibarItems();
+    function logout() { localStorage.clear(); window.location.href = 'index.html'; }
+</script>
+</body>
+</html>

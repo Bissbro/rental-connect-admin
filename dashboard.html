@@ -383,10 +383,17 @@ async function loadInvoices() {
 document.getElementById('tenant-name').textContent = 'Property Dashboard';
 loadDashboard();
 
-const _ws = localStorage.getItem('rc_website');
-if (_ws && document.getElementById('view-site-link')) {
-  document.getElementById('view-site-link').href = _ws.startsWith('http') ? _ws : 'https://' + _ws;
-}
+// Load website URL from settings
+fetch('https://api.htmrentals.com/api/rental-connect/settings', {
+  headers: { Authorization: 'Bearer ' + token }
+}).then(r => r.json()).then(d => {
+  const ws = d.settings?.website;
+  if (ws) {
+    localStorage.setItem('rc_website', ws);
+    const vsl = document.getElementById('view-site-link');
+    if (vsl) vsl.href = ws.startsWith('http') ? ws : 'https://' + ws;
+  }
+}).catch(() => {});
 </script>
 </body>
 </html>

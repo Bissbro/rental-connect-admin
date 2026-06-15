@@ -7,7 +7,92 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <style>
-*{margin:0;padding:0;box-sizing:border-box}:root{--navy:#0A2540;--teal:#40B5AD;--gray:#f4f5f7;--border:#e5e7eb;--text:#1C1C1E;--text-muted:#6b7280;--sidebar-w:240px}body{font-family:'Inter',sans-serif;background:var(--gray);color:var(--text);display:flex;min-height:100vh}.sidebar{width:var(--sidebar-w);background:var(--navy);height:100vh;position:fixed;top:0;left:0;display:flex;flex-direction:column;z-index:100}.sidebar-logo{padding:24px 20px;border-bottom:1px solid rgba(255,255,255,0.1);flex-shrink:0}.sidebar-logo h1{font-family:'Playfair Display',serif;color:white;font-size:1.1rem}.sidebar-logo p{font-size:11px;color:rgba(255,255,255,0.4);margin-top:2px;letter-spacing:1px;text-transform:uppercase}.sidebar-nav{flex:1;padding:8px 0;overflow-y:auto}.nav-item{display:flex;align-items:center;gap:12px;padding:10px 20px;color:rgba(255,255,255,0.6);text-decoration:none;font-size:13px;font-weight:500;transition:all 0.2s}.nav-item:hover{background:rgba(255,255,255,0.08);color:white}.nav-item.active{background:rgba(64,181,173,0.2);color:var(--teal)}.nav-item i{width:16px;text-align:center;font-size:13px}.nav-section{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,0.25);padding:12px 20px 4px}.sidebar-footer{padding:16px 20px;border-top:1px solid rgba(255,255,255,0.1);flex-shrink:0}.sidebar-user{font-size:12px;color:rgba(255,255,255,0.5);margin-bottom:10px}.sidebar-user span{color:white;font-weight:600;display:block}.btn-logout{width:100%;padding:8px;background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.6);border:none;border-radius:8px;font-size:12px;cursor:pointer}.main{margin-left:var(--sidebar-w);flex:1;padding:32px}.page-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px}.page-header h2{font-family:'Playfair Display',serif;font-size:1.6rem}.btn{padding:9px 18px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;border:none;transition:0.2s;display:inline-flex;align-items:center;gap:6px}.btn-teal{background:var(--teal);color:white}.btn-outline{background:none;border:1.5px solid var(--border);color:var(--text-muted)}.btn-sm{padding:6px 12px;font-size:12px}.btn-danger{background:#fee2e2;color:#991b1b;border:none}.layout{display:grid;grid-template-columns:300px 1fr;gap:24px;align-items:start}.staff-grid{display:grid;gap:10px;margin-bottom:12px}.staff-card{background:white;border-radius:12px;padding:14px;box-shadow:0 1px 4px rgba(0,0,0,0.06);border:1.5px solid var(--border);cursor:pointer;transition:all 0.2s}.staff-card:hover,.staff-card.active{border-color:var(--teal)}.staff-card.active{background:#f0fafa}.staff-name{font-weight:700;font-size:14px;color:var(--navy)}.staff-role{font-size:12px;color:var(--text-muted);margin-top:2px}.staff-empid{font-size:11px;color:var(--teal);margin-top:3px;font-weight:600}.card{background:white;border-radius:12px;box-shadow:0 1px 4px rgba(0,0,0,0.06);overflow:hidden;margin-bottom:20px}.card-header{display:flex;justify-content:space-between;align-items:center;padding:18px 20px;border-bottom:1px solid var(--border)}.card-title{font-size:14px;font-weight:700}.card-body{padding:20px}table{width:100%;border-collapse:collapse}th{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-muted);padding:10px 16px;text-align:left;border-bottom:1px solid var(--border);background:#fafafa;white-space:nowrap}td{padding:12px 16px;font-size:13px;border-bottom:1px solid var(--border);vertical-align:middle}tr:last-child td{border-bottom:none}tr:hover td{background:#fafff9}.form-group{margin-bottom:14px}.form-group label{display:block;font-size:12px;font-weight:600;color:var(--text);margin-bottom:5px;text-transform:uppercase;letter-spacing:0.5px}.form-group input,.form-group select{width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:'Inter',sans-serif;outline:none;transition:border-color 0.2s}.form-group input:focus,.form-group select:focus{border-color:var(--teal)}.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}.stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px}.stat-box{background:white;border-radius:10px;padding:16px;box-shadow:0 1px 4px rgba(0,0,0,0.06);text-align:center}.stat-box-val{font-size:1.3rem;font-weight:700;color:var(--navy)}.stat-box-label{font-size:11px;color:var(--text-muted);margin-top:3px;text-transform:uppercase}.badge{padding:3px 9px;border-radius:20px;font-size:11px;font-weight:600}.badge-paid{background:#d1fae5;color:#065f46}.badge-pending{background:#fef3c7;color:#92400e}.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:500;display:none;align-items:center;justify-content:center}.modal-overlay.open{display:flex}.modal{background:white;border-radius:16px;width:100%;max-width:500px;max-height:90vh;overflow-y:auto}.modal-header{padding:20px 24px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}.modal-title{font-family:'Playfair Display',serif;font-size:1.1rem}.modal-close{width:30px;height:30px;border-radius:8px;border:none;background:var(--gray);cursor:pointer;font-size:16px;color:var(--text-muted)}.modal-body{padding:24px}.modal-footer{padding:16px 24px;border-top:1px solid var(--border);display:flex;gap:8px;justify-content:flex-end}.empty-state{text-align:center;padding:40px;color:var(--text-muted)}.empty-state i{font-size:32px;margin-bottom:10px;opacity:0.3;display:block}.toast{position:fixed;bottom:24px;right:24px;background:var(--navy);color:white;padding:12px 20px;border-radius:10px;font-size:13px;font-weight:500;z-index:999;display:none}.toast.show{display:block}.toast.success{border-left:3px solid var(--teal)}.toast.error{border-left:3px solid #dc2626}
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--navy:#0A2540;--teal:#40B5AD;--gray:#f4f5f7;--border:#e5e7eb;--text:#1C1C1E;--text-muted:#6b7280;--sidebar-w:240px}
+body{font-family:'Inter',sans-serif;background:var(--gray);color:var(--text);display:flex;min-height:100vh}
+.sidebar{width:var(--sidebar-w);background:var(--navy);height:100vh;position:fixed;top:0;left:0;display:flex;flex-direction:column;z-index:100}
+.sidebar-logo{padding:24px 20px;border-bottom:1px solid rgba(255,255,255,0.1);flex-shrink:0}
+.sidebar-logo h1{font-family:'Playfair Display',serif;color:white;font-size:1.1rem}
+.sidebar-logo p{font-size:11px;color:rgba(255,255,255,0.4);margin-top:2px;letter-spacing:1px;text-transform:uppercase}
+.sidebar-nav{flex:1;padding:8px 0;overflow-y:auto}
+.nav-item{display:flex;align-items:center;gap:12px;padding:10px 20px;color:rgba(255,255,255,0.6);text-decoration:none;font-size:13px;font-weight:500;transition:all 0.2s}
+.nav-item:hover{background:rgba(255,255,255,0.08);color:white}
+.nav-item.active{background:rgba(64,181,173,0.2);color:var(--teal)}
+.nav-item i{width:16px;text-align:center;font-size:13px}
+.nav-section{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,0.25);padding:12px 20px 4px}
+.sidebar-footer{padding:16px 20px;border-top:1px solid rgba(255,255,255,0.1);flex-shrink:0}
+.sidebar-user{font-size:12px;color:rgba(255,255,255,0.5);margin-bottom:10px}
+.sidebar-user span{color:white;font-weight:600;display:block}
+.btn-logout{width:100%;padding:8px;background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.6);border:none;border-radius:8px;font-size:12px;cursor:pointer}
+.main{margin-left:var(--sidebar-w);flex:1;padding:32px}
+.page-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px}
+.page-header h2{font-family:'Playfair Display',serif;font-size:1.6rem}
+.btn{padding:9px 18px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;border:none;transition:0.2s;display:inline-flex;align-items:center;gap:6px}
+.btn-teal{background:var(--teal);color:white}
+.btn-teal:hover{background:#38a39c}
+.btn-outline{background:none;border:1.5px solid var(--border);color:var(--text-muted)}
+.btn-outline:hover{border-color:var(--teal);color:var(--teal)}
+.btn-sm{padding:6px 12px;font-size:12px}
+.btn-danger{background:#fee2e2;color:#991b1b;border:none}
+.btn-navy{background:var(--navy);color:white}
+.layout{display:grid;grid-template-columns:280px 1fr;gap:24px;align-items:start}
+.staff-grid{display:grid;gap:10px}
+.staff-card{background:white;border-radius:12px;padding:14px;box-shadow:0 1px 4px rgba(0,0,0,0.06);border:1.5px solid var(--border);cursor:pointer;transition:all 0.2s}
+.staff-card:hover,.staff-card.active{border-color:var(--teal)}
+.staff-card.active{background:#f0fafa}
+.staff-name{font-weight:700;font-size:14px;color:var(--navy)}
+.staff-role{font-size:12px;color:var(--text-muted);margin-top:2px}
+.staff-empid{font-size:11px;color:var(--teal);margin-top:3px;font-weight:600}
+.card{background:white;border-radius:12px;box-shadow:0 1px 4px rgba(0,0,0,0.06);overflow:hidden;margin-bottom:20px}
+.card-header{display:flex;justify-content:space-between;align-items:center;padding:18px 20px;border-bottom:1px solid var(--border)}
+.card-title{font-size:14px;font-weight:700}
+.card-body{padding:20px}
+table{width:100%;border-collapse:collapse}
+th{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-muted);padding:10px 16px;text-align:left;border-bottom:1px solid var(--border);background:#fafafa;white-space:nowrap}
+td{padding:12px 16px;font-size:13px;border-bottom:1px solid var(--border);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#fafff9}
+.form-group{margin-bottom:14px}
+.form-group label{display:block;font-size:12px;font-weight:600;color:var(--text);margin-bottom:5px;text-transform:uppercase;letter-spacing:0.5px}
+.form-group input,.form-group select,.form-group textarea{width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:'Inter',sans-serif;outline:none;transition:border-color 0.2s}
+.form-group input:focus,.form-group select:focus{border-color:var(--teal)}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.form-row-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px}
+.stat-box{background:white;border-radius:10px;padding:16px;box-shadow:0 1px 4px rgba(0,0,0,0.06);text-align:center}
+.stat-box-val{font-size:1.2rem;font-weight:700;color:var(--navy)}
+.stat-box-label{font-size:11px;color:var(--text-muted);margin-top:3px;text-transform:uppercase}
+.badge{padding:3px 9px;border-radius:20px;font-size:11px;font-weight:600}
+.badge-paid{background:#d1fae5;color:#065f46}
+.badge-pending{background:#fef3c7;color:#92400e}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:500;display:none;align-items:center;justify-content:center;padding:20px}
+.modal-overlay.open{display:flex}
+.modal{background:white;border-radius:16px;width:100%;max-width:760px;max-height:90vh;overflow-y:auto}
+.modal-header{padding:20px 24px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;background:white;z-index:1}
+.modal-title{font-family:'Playfair Display',serif;font-size:1.1rem}
+.modal-close{width:30px;height:30px;border-radius:8px;border:none;background:var(--gray);cursor:pointer;font-size:16px;color:var(--text-muted)}
+.modal-body{padding:24px}
+.modal-footer{padding:16px 24px;border-top:1px solid var(--border);display:flex;gap:8px;justify-content:flex-end;position:sticky;bottom:0;background:white}
+.section-title{font-size:13px;font-weight:700;color:var(--navy);margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);text-transform:uppercase;letter-spacing:0.5px}
+.line-row{display:grid;grid-template-columns:2fr 1fr 1fr auto;gap:8px;align-items:center;margin-bottom:8px}
+.line-row select,.line-row input{padding:8px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:'Inter',sans-serif;outline:none}
+.line-row select:focus,.line-row input:focus{border-color:var(--teal)}
+.add-line-btn{background:none;border:1.5px dashed var(--border);border-radius:8px;padding:8px 14px;font-size:12px;color:var(--text-muted);cursor:pointer;width:100%;margin-top:4px;transition:all 0.2s}
+.add-line-btn:hover{border-color:var(--teal);color:var(--teal)}
+.totals-box{background:#f8fafc;border-radius:10px;padding:16px;margin-top:16px}
+.total-row{display:flex;justify-content:space-between;padding:6px 0;font-size:13px}
+.total-row.net{font-weight:700;font-size:15px;color:var(--navy);border-top:1.5px solid var(--border);margin-top:8px;padding-top:12px}
+.leave-table{width:100%;border-collapse:collapse;margin-top:8px}
+.leave-table th{font-size:11px;font-weight:600;color:var(--text-muted);padding:8px;text-align:center;border-bottom:1px solid var(--border);background:#fafafa}
+.leave-table td{padding:8px;text-align:center;border-bottom:1px solid var(--border)}
+.leave-table input{width:70px;padding:5px 8px;border:1.5px solid var(--border);border-radius:6px;font-size:12px;text-align:center;outline:none}
+.leave-table input:focus{border-color:var(--teal)}
+.empty-state{text-align:center;padding:40px;color:var(--text-muted)}
+.empty-state i{font-size:32px;margin-bottom:10px;opacity:0.3;display:block}
+.toast{position:fixed;bottom:24px;right:24px;background:var(--navy);color:white;padding:12px 20px;border-radius:10px;font-size:13px;font-weight:500;z-index:9999;display:none}
+.toast.show{display:block}
+.toast.success{border-left:3px solid var(--teal)}
+.toast.error{border-left:3px solid #dc2626}
 </style>
 </head>
 <body>
@@ -44,9 +129,10 @@
     <button class="btn-logout" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Sign Out</button>
   </div>
 </aside>
+
 <main class="main">
   <div class="page-header">
-    <div><h2>Payroll</h2><p style="font-size:13px;color:var(--text-muted);margin-top:4px">Manage staff and salary records</p></div>
+    <div><h2>Payroll</h2><p style="font-size:13px;color:var(--text-muted);margin-top:4px">Staff management and payslips</p></div>
     <button class="btn btn-teal" onclick="openAddStaff()"><i class="fas fa-plus"></i> Add Staff</button>
   </div>
   <div class="layout">
@@ -75,67 +161,460 @@
             <div class="stats-row" style="margin-top:16px;margin-bottom:0">
               <div class="stat-box"><div class="stat-box-val" id="detail-base">—</div><div class="stat-box-label">Base Salary</div></div>
               <div class="stat-box"><div class="stat-box-val" id="detail-paid" style="color:var(--teal)">—</div><div class="stat-box-label">Total Paid</div></div>
-              <div class="stat-box"><div class="stat-box-val" id="detail-count">—</div><div class="stat-box-label">Records</div></div>
+              <div class="stat-box"><div class="stat-box-val" id="detail-count">—</div><div class="stat-box-label">Payslips</div></div>
             </div>
           </div>
         </div>
         <div class="card">
-          <div class="card-header"><span class="card-title">Salary Records</span><button class="btn btn-teal btn-sm" onclick="openAddSalary()"><i class="fas fa-plus"></i> Add</button></div>
-          <div style="overflow-x:auto"><table><thead><tr><th>Month</th><th>Base</th><th>Bonus</th><th>Deduction</th><th>Total</th><th>Status</th><th>Notes</th><th></th></tr></thead><tbody id="salary-tbody"></tbody></table></div>
+          <div class="card-header"><span class="card-title">Payslip History</span><button class="btn btn-teal btn-sm" onclick="openAddPayslip()"><i class="fas fa-plus"></i> New Payslip</button></div>
+          <div style="overflow-x:auto">
+            <table><thead><tr><th>Period</th><th>Earnings</th><th>Deductions</th><th>Net Pay</th><th>Currency</th><th>Status</th><th></th></tr></thead>
+            <tbody id="payslip-tbody"><tr><td colspan="7"><div class="empty-state"><i class="fas fa-file-invoice"></i><p>No payslips yet</p></div></td></tr></tbody>
+            </table>
+          </div>
         </div>
       </div>
     </div>
   </div>
 </main>
 
+<!-- Staff Modal -->
 <div class="modal-overlay" id="modal-staff">
   <div class="modal">
     <div class="modal-header"><span class="modal-title" id="staff-modal-title">Add Staff</span><button class="modal-close" onclick="closeModal('modal-staff')">×</button></div>
     <div class="modal-body">
       <input type="hidden" id="staff-id">
-      <div class="form-row"><div class="form-group"><label>Full Name *</label><input type="text" id="s-name" placeholder="Full name"></div><div class="form-group"><label>Employee ID</label><input type="text" id="s-empid" placeholder="EMP-001"></div></div>
-      <div class="form-row"><div class="form-group"><label>Role</label><input type="text" id="s-role" placeholder="e.g. Housekeeper"></div><div class="form-group"><label>Department</label><input type="text" id="s-dept" placeholder="Operations"></div></div>
-      <div class="form-row"><div class="form-group"><label>Base Salary (MVR)</label><input type="number" id="s-base" placeholder="3000"></div><div class="form-group"><label>Join Date</label><input type="date" id="s-join"></div></div>
+      <div class="form-row"><div class="form-group"><label>Full Name *</label><input type="text" id="s-name" placeholder="Full name"></div><div class="form-group"><label>Employee No.</label><input type="text" id="s-empid" placeholder="e.g. 0902"></div></div>
+      <div class="form-row"><div class="form-group"><label>Department</label><input type="text" id="s-dept" placeholder="e.g. Housekeeping"></div><div class="form-group"><label>Position</label><input type="text" id="s-role" placeholder="e.g. Mini Bar Attendant"></div></div>
+      <div class="form-row"><div class="form-group"><label>Hire Date</label><input type="date" id="s-join"></div><div class="form-group"><label>Base Salary</label><input type="number" id="s-base" placeholder="0.00"></div></div>
+      <div class="form-row"><div class="form-group"><label>Currency</label><select id="s-currency"><option value="MVR">MVR</option><option value="USD">USD</option></select></div><div class="form-group"><label>Bank Account</label><input type="text" id="s-bank" placeholder="Account number"></div></div>
       <div class="form-group"><label>Phone</label><input type="text" id="s-phone" placeholder="+960..."></div>
     </div>
     <div class="modal-footer"><button class="btn btn-outline" onclick="closeModal('modal-staff')">Cancel</button><button class="btn btn-teal" onclick="saveStaff()"><i class="fas fa-save"></i> Save</button></div>
   </div>
 </div>
 
-<div class="modal-overlay" id="modal-salary">
+<!-- Payslip Modal -->
+<div class="modal-overlay" id="modal-payslip">
   <div class="modal">
-    <div class="modal-header"><span class="modal-title">Add Salary Record</span><button class="modal-close" onclick="closeModal('modal-salary')">×</button></div>
+    <div class="modal-header"><span class="modal-title">New Payslip</span><button class="modal-close" onclick="closeModal('modal-payslip')">×</button></div>
     <div class="modal-body">
-      <div class="form-row"><div class="form-group"><label>Month *</label><input type="month" id="sal-month"></div><div class="form-group"><label>Status</label><select id="sal-status"><option value="paid">Paid</option><option value="pending">Pending</option></select></div></div>
-      <div class="form-row"><div class="form-group"><label>Base (MVR)</label><input type="number" id="sal-base"></div><div class="form-group"><label>Bonus (MVR)</label><input type="number" id="sal-bonus" value="0"></div></div>
-      <div class="form-row"><div class="form-group"><label>Deduction (MVR)</label><input type="number" id="sal-deduct" value="0"></div><div class="form-group"><label>Payment Date</label><input type="date" id="sal-date"></div></div>
-      <div class="form-group"><label>Notes</label><input type="text" id="sal-notes" placeholder="Any notes..."></div>
+
+      <!-- Header Info -->
+      <div class="section-title">Payslip Details</div>
+      <div class="form-row">
+        <div class="form-group"><label>Salary Period *</label><input type="month" id="ps-month"></div>
+        <div class="form-group"><label>Days Worked</label><input type="number" id="ps-days" placeholder="31"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Service Charge Days</label><input type="number" id="ps-sc-days" placeholder="0"></div>
+        <div class="form-group"><label>Status</label><select id="ps-status"><option value="paid">Paid</option><option value="pending">Pending</option></select></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Payment Date</label><input type="date" id="ps-date"></div>
+        <div class="form-group"><label>Currency</label><select id="ps-currency"><option value="USD">USD</option><option value="MVR">MVR</option></select></div>
+      </div>
+
+      <!-- Earnings -->
+      <div class="section-title" style="margin-top:20px">Earnings</div>
+      <div class="line-row" style="font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;margin-bottom:4px">
+        <span>Description</span><span>MVR</span><span>USD</span><span></span>
+      </div>
+      <div id="earnings-lines"></div>
+      <button class="add-line-btn" onclick="addLine('earnings')"><i class="fas fa-plus"></i> Add Earning</button>
+
+      <!-- Deductions -->
+      <div class="section-title" style="margin-top:20px">Deductions</div>
+      <div class="line-row" style="font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;margin-bottom:4px">
+        <span>Description</span><span>MVR</span><span>USD</span><span></span>
+      </div>
+      <div id="deduction-lines"></div>
+      <button class="add-line-btn" onclick="addLine('deductions')"><i class="fas fa-plus"></i> Add Deduction</button>
+
+      <!-- Totals -->
+      <div class="totals-box">
+        <div class="total-row"><span>Total Earnings (MVR)</span><span id="t-earn-mvr">0.00</span></div>
+        <div class="total-row"><span>Total Earnings (USD)</span><span id="t-earn-usd">0.00</span></div>
+        <div class="total-row"><span>Total Deductions (MVR)</span><span id="t-ded-mvr">0.00</span></div>
+        <div class="total-row"><span>Total Deductions (USD)</span><span id="t-ded-usd">0.00</span></div>
+        <div class="total-row net"><span>Net Pay (MVR)</span><span id="t-net-mvr">0.00</span></div>
+        <div class="total-row net"><span>Net Pay (USD)</span><span id="t-net-usd">0.00</span></div>
+      </div>
+
+      <!-- Leave (optional) -->
+      <div class="section-title" style="margin-top:20px">Leave Balance <span style="font-weight:400;font-size:11px;color:var(--text-muted)">(optional)</span></div>
+      <table class="leave-table">
+        <thead><tr><th>Leave Type</th><th>Opening</th><th>Earned</th><th>Utilized</th><th>Applied</th><th>Balance</th></tr></thead>
+        <tbody>
+          <tr><td style="font-size:12px;font-weight:600;text-align:left;padding-left:8px">Annual Leave</td><td><input type="number" id="l-al-op" step="0.01" value="0"></td><td><input type="number" id="l-al-ea" step="0.01" value="0"></td><td><input type="number" id="l-al-ut" step="0.01" value="0"></td><td><input type="number" id="l-al-ap" step="0.01" value="0"></td><td><input type="number" id="l-al-bl" step="0.01" value="0"></td></tr>
+          <tr><td style="font-size:12px;font-weight:600;text-align:left;padding-left:8px">Regular Day Off</td><td><input type="number" id="l-rd-op" step="0.01" value="0"></td><td><input type="number" id="l-rd-ea" step="0.01" value="0"></td><td><input type="number" id="l-rd-ut" step="0.01" value="0"></td><td><input type="number" id="l-rd-ap" step="0.01" value="0"></td><td><input type="number" id="l-rd-bl" step="0.01" value="0"></td></tr>
+          <tr><td style="font-size:12px;font-weight:600;text-align:left;padding-left:8px">Public Holidays</td><td><input type="number" id="l-ph-op" step="0.01" value="0"></td><td><input type="number" id="l-ph-ea" step="0.01" value="0"></td><td><input type="number" id="l-ph-ut" step="0.01" value="0"></td><td><input type="number" id="l-ph-ap" step="0.01" value="0"></td><td><input type="number" id="l-ph-bl" step="0.01" value="0"></td></tr>
+        </tbody>
+      </table>
+
+      <div class="form-group" style="margin-top:16px"><label>Notes</label><input type="text" id="ps-notes" placeholder="Any notes..."></div>
     </div>
-    <div class="modal-footer"><button class="btn btn-outline" onclick="closeModal('modal-salary')">Cancel</button><button class="btn btn-teal" onclick="saveSalary()"><i class="fas fa-save"></i> Save</button></div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modal-payslip')">Cancel</button>
+      <button class="btn btn-teal" onclick="savePayslip()"><i class="fas fa-save"></i> Save Payslip</button>
+    </div>
   </div>
 </div>
 
 <div class="toast" id="toast"></div>
 <script>
 const API='https://api.htmrentals.com';
-let token,tenantId,staffList=[],selectedStaff=null;
-function checkAuth(){token=localStorage.getItem('rc_token');tenantId=localStorage.getItem('rc_tenant_id');if(!token){window.location.href='index.html';return;}document.getElementById('sidebar-username').textContent=localStorage.getItem('rc_username')||'';document.getElementById('tenant-name').textContent=localStorage.getItem('rc_tenant_name')||'';const ws=localStorage.getItem('rc_website');if(ws)document.getElementById('view-site-link').href=ws.startsWith('http')?ws:'https://'+ws;}
+let token,staffList=[],selectedStaff=null;
+
+const EARNING_OPTIONS=['Basic Pay','Service Charge','Tips','Friday Amount','Overtime','Allowance','Bonus','Other'];
+const DEDUCTION_OPTIONS=['MRPS Mandatory Contribution','Tax','Advance Deduction','Loan Deduction','Other'];
+
+function checkAuth(){
+  token=localStorage.getItem('rc_token');
+  if(!token){window.location.href='index.html';return;}
+  document.getElementById('sidebar-username').textContent=localStorage.getItem('rc_username')||'';
+  document.getElementById('tenant-name').textContent=localStorage.getItem('rc_tenant_name')||'';
+  const ws=localStorage.getItem('rc_website');
+  if(ws)document.getElementById('view-site-link').href=ws.startsWith('http')?ws:'https://'+ws;
+}
 function logout(){localStorage.clear();window.location.href='index.html';}
 function hdrs(){return{'Authorization':`Bearer ${token}`,'Content-Type':'application/json'};}
-async function loadStaff(){try{const r=await fetch(`${API}/api/rental-connect/staff`,{headers:hdrs()});const d=await r.json();staffList=d.staff||[];renderStaff();}catch(e){showToast('Failed to load staff','error');}}
-function renderStaff(){const el=document.getElementById('staff-list');document.getElementById('staff-count').textContent=`${staffList.length} staff`;if(!staffList.length){el.innerHTML='<div class="empty-state"><i class="fas fa-users"></i><p>No staff yet</p></div>';return;}el.innerHTML=staffList.map(s=>`<div class="staff-card ${selectedStaff?.id===s.id?'active':''}" onclick="selectStaff(${s.id})"><div class="staff-name">${s.name}</div><div class="staff-role">${s.role||'—'}</div><div class="staff-empid">${s.employee_id||''}</div></div>`).join('');}
-function selectStaff(id){selectedStaff=staffList.find(s=>s.id===id);if(!selectedStaff)return;renderStaff();document.getElementById('no-staff-selected').style.display='none';document.getElementById('staff-detail').style.display='block';document.getElementById('detail-name').textContent=selectedStaff.name;document.getElementById('detail-role').textContent=selectedStaff.role||'—';document.getElementById('detail-empid').textContent=selectedStaff.employee_id||'';document.getElementById('detail-base').textContent=`MVR ${Number(selectedStaff.base_salary_mvr||0).toLocaleString()}`;loadSalaryRecords();}
-async function loadSalaryRecords(){try{const r=await fetch(`${API}/api/rental-connect/staff/${selectedStaff.id}/salary`,{headers:hdrs()});const d=await r.json();const recs=d.records||[];const totalPaid=recs.filter(r=>r.status==='paid').reduce((s,r)=>s+Number(r.total_salary_mvr||0),0);document.getElementById('detail-paid').textContent=`MVR ${totalPaid.toLocaleString()}`;document.getElementById('detail-count').textContent=recs.length;if(!recs.length){document.getElementById('salary-tbody').innerHTML='<tr><td colspan="8"><div class="empty-state"><i class="fas fa-file-invoice"></i><p>No records yet</p></div></td></tr>';return;}document.getElementById('salary-tbody').innerHTML=recs.map(r=>{const total=Number(r.base_salary_mvr||0)+Number(r.bonus_mvr||0)-Number(r.deduction_mvr||0);return`<tr><td style="font-weight:600">${r.salary_month?.slice(0,7)}</td><td>MVR ${Number(r.base_salary_mvr||0).toLocaleString()}</td><td style="color:#059669">${r.bonus_mvr>0?`+${Number(r.bonus_mvr).toLocaleString()}`:'—'}</td><td style="color:#dc2626">${r.deduction_mvr>0?`-${Number(r.deduction_mvr).toLocaleString()}`:'—'}</td><td style="font-weight:700;color:var(--navy)">MVR ${total.toLocaleString()}</td><td><span class="badge badge-${r.status}">${r.status}</span></td><td style="color:var(--text-muted);font-size:12px">${r.notes||'—'}</td><td><button class="btn btn-sm btn-danger" onclick="deleteSalary(${r.id})"><i class="fas fa-trash"></i></button></td></tr>`;}).join('');}catch(e){showToast('Failed to load records','error');}}
-function openAddStaff(){document.getElementById('staff-modal-title').textContent='Add Staff';document.getElementById('staff-id').value='';['s-name','s-empid','s-role','s-dept','s-base','s-join','s-phone'].forEach(id=>document.getElementById(id).value='');document.getElementById('modal-staff').classList.add('open');}
-function editStaff(){if(!selectedStaff)return;document.getElementById('staff-modal-title').textContent='Edit Staff';document.getElementById('staff-id').value=selectedStaff.id;document.getElementById('s-name').value=selectedStaff.name||'';document.getElementById('s-empid').value=selectedStaff.employee_id||'';document.getElementById('s-role').value=selectedStaff.role||'';document.getElementById('s-dept').value=selectedStaff.department||'';document.getElementById('s-base').value=selectedStaff.base_salary_mvr||'';document.getElementById('s-join').value=selectedStaff.join_date?selectedStaff.join_date.slice(0,10):'';document.getElementById('s-phone').value=selectedStaff.phone||'';document.getElementById('modal-staff').classList.add('open');}
-async function saveStaff(){const id=document.getElementById('staff-id').value;const name=document.getElementById('s-name').value.trim();if(!name){showToast('Name required','error');return;}const data={name,employee_id:document.getElementById('s-empid').value,role:document.getElementById('s-role').value,department:document.getElementById('s-dept').value,base_salary_mvr:parseFloat(document.getElementById('s-base').value)||0,join_date:document.getElementById('s-join').value||null,phone:document.getElementById('s-phone').value};try{const url=id?`${API}/api/rental-connect/staff/${id}`:`${API}/api/rental-connect/staff`;const r=await fetch(url,{method:id?'PUT':'POST',headers:hdrs(),body:JSON.stringify(data)});if(!r.ok)throw new Error();closeModal('modal-staff');showToast(id?'Staff updated':'Staff added','success');loadStaff();}catch(e){showToast('Failed to save','error');}}
-async function deleteStaff(){if(!selectedStaff||!confirm(`Delete ${selectedStaff.name}?`))return;try{const r=await fetch(`${API}/api/rental-connect/staff/${selectedStaff.id}`,{method:'DELETE',headers:hdrs()});if(!r.ok)throw new Error();selectedStaff=null;document.getElementById('no-staff-selected').style.display='block';document.getElementById('staff-detail').style.display='none';showToast('Deleted','success');loadStaff();}catch(e){showToast('Failed','error');}}
-function openAddSalary(){if(!selectedStaff)return;document.getElementById('sal-month').value=new Date().toISOString().slice(0,7);document.getElementById('sal-base').value=selectedStaff.base_salary_mvr||'';document.getElementById('sal-bonus').value='0';document.getElementById('sal-deduct').value='0';document.getElementById('sal-date').value=new Date().toISOString().slice(0,10);document.getElementById('sal-status').value='paid';document.getElementById('sal-notes').value='';document.getElementById('modal-salary').classList.add('open');}
-async function saveSalary(){const month=document.getElementById('sal-month').value;if(!month){showToast('Month required','error');return;}const base=parseFloat(document.getElementById('sal-base').value)||0;const bonus=parseFloat(document.getElementById('sal-bonus').value)||0;const deduct=parseFloat(document.getElementById('sal-deduct').value)||0;const data={staff_id:selectedStaff.id,salary_month:month+'-01',base_salary_mvr:base,bonus_mvr:bonus,deduction_mvr:deduct,total_salary_mvr:base+bonus-deduct,status:document.getElementById('sal-status').value,paid_date:document.getElementById('sal-date').value||null,notes:document.getElementById('sal-notes').value};try{const r=await fetch(`${API}/api/rental-connect/staff/${selectedStaff.id}/salary`,{method:'POST',headers:hdrs(),body:JSON.stringify(data)});if(!r.ok)throw new Error();closeModal('modal-salary');showToast('Record added','success');loadSalaryRecords();}catch(e){showToast('Failed','error');}}
-async function deleteSalary(id){if(!confirm('Delete this record?'))return;try{const r=await fetch(`${API}/api/rental-connect/salary/${id}`,{method:'DELETE',headers:hdrs()});if(!r.ok)throw new Error();showToast('Deleted','success');loadSalaryRecords();}catch(e){showToast('Failed','error');}}
+function fmt(n){return Number(n||0).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});}
+
+async function loadStaff(){
+  try{
+    const r=await fetch(`${API}/api/rental-connect/staff`,{headers:hdrs()});
+    const d=await r.json();
+    staffList=d.staff||[];
+    renderStaff();
+  }catch(e){showToast('Failed to load staff','error');}
+}
+
+function renderStaff(){
+  const el=document.getElementById('staff-list');
+  document.getElementById('staff-count').textContent=`${staffList.length} staff`;
+  if(!staffList.length){el.innerHTML='<div class="empty-state"><i class="fas fa-users"></i><p>No staff yet</p></div>';return;}
+  el.innerHTML=staffList.map(s=>`<div class="staff-card ${selectedStaff?.id===s.id?'active':''}" onclick="selectStaff(${s.id})">
+    <div class="staff-name">${s.name}</div>
+    <div class="staff-role">${s.role||'—'}</div>
+    <div class="staff-empid">${s.employee_id?'#'+s.employee_id:''}</div>
+  </div>`).join('');
+}
+
+function selectStaff(id){
+  selectedStaff=staffList.find(s=>s.id===id);
+  if(!selectedStaff)return;
+  renderStaff();
+  document.getElementById('no-staff-selected').style.display='none';
+  document.getElementById('staff-detail').style.display='block';
+  document.getElementById('detail-name').textContent=selectedStaff.name;
+  document.getElementById('detail-role').textContent=(selectedStaff.department||'')+(selectedStaff.role?(' — '+selectedStaff.role):'');
+  document.getElementById('detail-empid').textContent=selectedStaff.employee_id?'Employee #'+selectedStaff.employee_id:'';
+  document.getElementById('detail-base').textContent=`${selectedStaff.currency||'USD'} ${fmt(selectedStaff.base_salary_mvr)}`;
+  loadPayslips();
+}
+
+async function loadPayslips(){
+  try{
+    const r=await fetch(`${API}/api/rental-connect/staff/${selectedStaff.id}/salary`,{headers:hdrs()});
+    const d=await r.json();
+    const recs=d.records||[];
+    const totalPaid=recs.filter(r=>r.status==='paid').reduce((s,r)=>s+Number(r.total_salary_mvr||0),0);
+    document.getElementById('detail-paid').textContent=`${fmt(totalPaid)}`;
+    document.getElementById('detail-count').textContent=recs.length;
+    if(!recs.length){document.getElementById('payslip-tbody').innerHTML='<tr><td colspan="7"><div class="empty-state"><i class="fas fa-file-invoice"></i><p>No payslips yet</p></div></td></tr>';return;}
+    document.getElementById('payslip-tbody').innerHTML=recs.map(r=>`<tr>
+      <td style="font-weight:600">${r.salary_month?.slice(0,7)}</td>
+      <td>${fmt(r.total_earnings_mvr)} MVR / ${fmt(r.total_earnings_usd)} USD</td>
+      <td style="color:#dc2626">${fmt(r.total_deductions_mvr)} MVR / ${fmt(r.total_deductions_usd)} USD</td>
+      <td style="font-weight:700;color:var(--navy)">${fmt(r.net_pay_mvr)} MVR<br><small>${fmt(r.net_pay_usd)} USD</small></td>
+      <td>${r.currency||'—'}</td>
+      <td><span class="badge badge-${r.status}">${r.status}</span></td>
+      <td style="display:flex;gap:6px">
+        <button class="btn btn-outline btn-sm" onclick="printPayslip(${r.id})"><i class="fas fa-print"></i></button>
+        <button class="btn btn-sm btn-danger" onclick="deletePayslip(${r.id})"><i class="fas fa-trash"></i></button>
+      </td>
+    </tr>`).join('');
+  }catch(e){showToast('Failed to load payslips','error');}
+}
+
+function addLine(type){
+  const container=document.getElementById(type==='earnings'?'earnings-lines':'deduction-lines');
+  const options=type==='earnings'?EARNING_OPTIONS:DEDUCTION_OPTIONS;
+  const div=document.createElement('div');
+  div.className='line-row';
+  div.innerHTML=`<select onchange="updateTotals()"><option value="">Select or type...</option>${options.map(o=>`<option>${o}</option>`).join('')}<option value="__custom">Custom...</option></select>
+    <input type="number" placeholder="0.00" step="0.01" value="0" oninput="updateTotals()">
+    <input type="number" placeholder="0.00" step="0.01" value="0" oninput="updateTotals()">
+    <button onclick="this.parentElement.remove();updateTotals()" style="background:#fee2e2;border:none;border-radius:6px;padding:6px 8px;cursor:pointer;color:#991b1b"><i class="fas fa-times"></i></button>`;
+  div.querySelector('select').addEventListener('change',function(){
+    if(this.value==='__custom'){
+      const custom=prompt('Enter custom description:');
+      if(custom){const opt=document.createElement('option');opt.value=custom;opt.textContent=custom;opt.selected=true;this.appendChild(opt);}
+      else this.value='';
+    }
+  });
+  container.appendChild(div);
+}
+
+function updateTotals(){
+  let eMVR=0,eUSD=0,dMVR=0,dUSD=0;
+  document.querySelectorAll('#earnings-lines .line-row').forEach(row=>{
+    const inputs=row.querySelectorAll('input[type="number"]');
+    eMVR+=parseFloat(inputs[0]?.value||0);
+    eUSD+=parseFloat(inputs[1]?.value||0);
+  });
+  document.querySelectorAll('#deduction-lines .line-row').forEach(row=>{
+    const inputs=row.querySelectorAll('input[type="number"]');
+    dMVR+=parseFloat(inputs[0]?.value||0);
+    dUSD+=parseFloat(inputs[1]?.value||0);
+  });
+  document.getElementById('t-earn-mvr').textContent=fmt(eMVR);
+  document.getElementById('t-earn-usd').textContent=fmt(eUSD);
+  document.getElementById('t-ded-mvr').textContent=fmt(dMVR);
+  document.getElementById('t-ded-usd').textContent=fmt(dUSD);
+  document.getElementById('t-net-mvr').textContent=fmt(eMVR-dMVR);
+  document.getElementById('t-net-usd').textContent=fmt(eUSD-dUSD);
+}
+
+function openAddStaff(){
+  document.getElementById('staff-modal-title').textContent='Add Staff';
+  document.getElementById('staff-id').value='';
+  ['s-name','s-empid','s-dept','s-role','s-base','s-join','s-bank','s-phone'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('s-currency').value='USD';
+  document.getElementById('modal-staff').classList.add('open');
+}
+
+function editStaff(){
+  if(!selectedStaff)return;
+  document.getElementById('staff-modal-title').textContent='Edit Staff';
+  document.getElementById('staff-id').value=selectedStaff.id;
+  document.getElementById('s-name').value=selectedStaff.name||'';
+  document.getElementById('s-empid').value=selectedStaff.employee_id||'';
+  document.getElementById('s-dept').value=selectedStaff.department||'';
+  document.getElementById('s-role').value=selectedStaff.role||'';
+  document.getElementById('s-base').value=selectedStaff.base_salary_mvr||'';
+  document.getElementById('s-currency').value=selectedStaff.currency||'USD';
+  document.getElementById('s-join').value=selectedStaff.join_date?selectedStaff.join_date.slice(0,10):'';
+  document.getElementById('s-bank').value=selectedStaff.bank_account||'';
+  document.getElementById('s-phone').value=selectedStaff.phone||'';
+  document.getElementById('modal-staff').classList.add('open');
+}
+
+async function saveStaff(){
+  const id=document.getElementById('staff-id').value;
+  const name=document.getElementById('s-name').value.trim();
+  if(!name){showToast('Name required','error');return;}
+  const data={name,employee_id:document.getElementById('s-empid').value,role:document.getElementById('s-role').value,department:document.getElementById('s-dept').value,base_salary_mvr:parseFloat(document.getElementById('s-base').value)||0,currency:document.getElementById('s-currency').value,join_date:document.getElementById('s-join').value||null,bank_account:document.getElementById('s-bank').value,phone:document.getElementById('s-phone').value};
+  try{
+    const url=id?`${API}/api/rental-connect/staff/${id}`:`${API}/api/rental-connect/staff`;
+    const r=await fetch(url,{method:id?'PUT':'POST',headers:hdrs(),body:JSON.stringify(data)});
+    if(!r.ok)throw new Error();
+    closeModal('modal-staff');showToast(id?'Staff updated':'Staff added','success');loadStaff();
+  }catch(e){showToast('Failed to save','error');}
+}
+
+async function deleteStaff(){
+  if(!selectedStaff||!confirm(`Delete ${selectedStaff.name}?`))return;
+  try{
+    await fetch(`${API}/api/rental-connect/staff/${selectedStaff.id}`,{method:'DELETE',headers:hdrs()});
+    selectedStaff=null;
+    document.getElementById('no-staff-selected').style.display='block';
+    document.getElementById('staff-detail').style.display='none';
+    showToast('Deleted','success');loadStaff();
+  }catch(e){showToast('Failed','error');}
+}
+
+function openAddPayslip(){
+  if(!selectedStaff)return;
+  document.getElementById('ps-month').value=new Date().toISOString().slice(0,7);
+  document.getElementById('ps-days').value='';
+  document.getElementById('ps-sc-days').value='';
+  document.getElementById('ps-date').value=new Date().toISOString().slice(0,10);
+  document.getElementById('ps-status').value='paid';
+  document.getElementById('ps-currency').value=selectedStaff.currency||'USD';
+  document.getElementById('ps-notes').value='';
+  document.getElementById('earnings-lines').innerHTML='';
+  document.getElementById('deduction-lines').innerHTML='';
+  // Add default lines
+  addLine('earnings');
+  document.querySelector('#earnings-lines .line-row select').value='Basic Pay';
+  document.querySelector('#earnings-lines .line-row select').dispatchEvent(new Event('change'));
+  addLine('deductions');
+  document.querySelector('#deduction-lines .line-row select').value='MRPS Mandatory Contribution';
+  // Reset leave
+  ['al','rd','ph'].forEach(t=>['op','ea','ut','ap','bl'].forEach(f=>document.getElementById(`l-${t}-${f}`).value='0'));
+  updateTotals();
+  document.getElementById('modal-payslip').classList.add('open');
+}
+
+function getLines(containerId){
+  const lines=[];
+  document.querySelectorAll(`#${containerId} .line-row`).forEach(row=>{
+    const sel=row.querySelector('select');
+    const inputs=row.querySelectorAll('input[type="number"]');
+    const desc=sel?.value&&sel.value!=='__custom'?sel.value:(sel?.options[sel?.selectedIndex]?.text||'');
+    if(desc){lines.push({description:desc,amount_mvr:parseFloat(inputs[0]?.value||0),amount_usd:parseFloat(inputs[1]?.value||0)});}
+  });
+  return lines;
+}
+
+async function savePayslip(){
+  const month=document.getElementById('ps-month').value;
+  if(!month){showToast('Month required','error');return;}
+  const earnings=getLines('earnings-lines');
+  const deductions=getLines('deduction-lines');
+  const eMVR=earnings.reduce((s,l)=>s+l.amount_mvr,0);
+  const eUSD=earnings.reduce((s,l)=>s+l.amount_usd,0);
+  const dMVR=deductions.reduce((s,l)=>s+l.amount_mvr,0);
+  const dUSD=deductions.reduce((s,l)=>s+l.amount_usd,0);
+  const leaveData={
+    annual_leave:{opening:document.getElementById('l-al-op').value,earned:document.getElementById('l-al-ea').value,utilized:document.getElementById('l-al-ut').value,applied:document.getElementById('l-al-ap').value,balance:document.getElementById('l-al-bl').value},
+    regular_day_off:{opening:document.getElementById('l-rd-op').value,earned:document.getElementById('l-rd-ea').value,utilized:document.getElementById('l-rd-ut').value,applied:document.getElementById('l-rd-ap').value,balance:document.getElementById('l-rd-bl').value},
+    public_holidays:{opening:document.getElementById('l-ph-op').value,earned:document.getElementById('l-ph-ea').value,utilized:document.getElementById('l-ph-ut').value,applied:document.getElementById('l-ph-ap').value,balance:document.getElementById('l-ph-bl').value}
+  };
+  const hasLeave=Object.values(leaveData).some(l=>Object.values(l).some(v=>parseFloat(v)!==0));
+  const data={
+    salary_month:month+'-01',
+    days_worked:document.getElementById('ps-days').value||null,
+    service_charge_days:document.getElementById('ps-sc-days').value||null,
+    currency:document.getElementById('ps-currency').value,
+    status:document.getElementById('ps-status').value,
+    paid_date:document.getElementById('ps-date').value||null,
+    notes:document.getElementById('ps-notes').value,
+    earnings:JSON.stringify(earnings),
+    deductions:JSON.stringify(deductions),
+    total_earnings_mvr:eMVR,total_earnings_usd:eUSD,
+    total_deductions_mvr:dMVR,total_deductions_usd:dUSD,
+    net_pay_mvr:eMVR-dMVR,net_pay_usd:eUSD-dUSD,
+    total_salary_mvr:eMVR-dMVR,
+    leave_data:hasLeave?JSON.stringify(leaveData):null
+  };
+  try{
+    const r=await fetch(`${API}/api/rental-connect/staff/${selectedStaff.id}/salary`,{method:'POST',headers:hdrs(),body:JSON.stringify(data)});
+    if(!r.ok)throw new Error();
+    closeModal('modal-payslip');showToast('Payslip saved','success');loadPayslips();
+  }catch(e){showToast('Failed to save','error');}
+}
+
+async function printPayslip(id){
+  try{
+    const r=await fetch(`${API}/api/rental-connect/staff/payslip/${id}`,{headers:hdrs()});
+    const d=await r.json();
+    if(!d.record)throw new Error();
+    generatePayslipPDF(d.record,d.staff);
+  }catch(e){showToast('Failed to load payslip','error');}
+}
+
+function generatePayslipPDF(rec,staff){
+  const earnings=JSON.parse(rec.earnings||'[]');
+  const deductions=JSON.parse(rec.deductions||'[]');
+  const leave=rec.leave_data?JSON.parse(rec.leave_data):null;
+  const period=rec.salary_month?.slice(0,7);
+  const propName=localStorage.getItem('rc_tenant_name')||'Property';
+
+  const win=window.open('','_blank');
+  win.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Pay Slip - ${staff.name}</title>
+  <style>
+    body{font-family:Arial,sans-serif;font-size:12px;color:#000;padding:20px;max-width:750px;margin:0 auto}
+    h2{text-align:center;font-size:16px;margin:4px 0}
+    .subtitle{text-align:center;font-size:11px;color:#444;margin-bottom:16px}
+    .header-grid{display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-bottom:16px;border:1px solid #ccc;padding:10px}
+    .header-grid .row{display:flex;gap:4px;margin-bottom:3px;font-size:11px}
+    .header-grid .label{font-weight:bold;min-width:120px}
+    .main-table{width:100%;border-collapse:collapse;margin-bottom:8px}
+    .main-table th{background:#f0f0f0;border:1px solid #ccc;padding:6px 8px;text-align:left;font-size:11px}
+    .main-table td{border:1px solid #ccc;padding:6px 8px;font-size:11px}
+    .main-table .amount{text-align:right}
+    .totals-row{font-weight:bold;background:#f8f8f8}
+    .net-box{border:1px solid #ccc;padding:8px;margin:8px 0;font-size:11px}
+    .net-box .row{display:flex;justify-content:space-between;padding:3px 0}
+    .net-box .total{font-weight:bold;font-size:13px;border-top:1px solid #ccc;margin-top:4px;padding-top:6px}
+    .words{font-style:italic;font-size:11px;margin:8px 0;padding:6px;border:1px solid #eee;background:#fafafa}
+    .leave-table{width:100%;border-collapse:collapse;margin-top:8px}
+    .leave-table th,.leave-table td{border:1px solid #ccc;padding:5px 8px;text-align:center;font-size:11px}
+    .leave-table th{background:#f0f0f0;font-weight:bold}
+    .leave-table td:first-child{text-align:left;font-weight:bold}
+    @media print{body{padding:0}button{display:none}}
+  </style></head><body>
+  <h2>${propName}</h2>
+  <div class="subtitle">Pay Slip for the month of ${new Date(period+'-01').toLocaleString('en-US',{month:'long',year:'numeric'})}</div>
+  <div class="header-grid">
+    <div>
+      <div class="row"><span class="label">Employee No.</span><span>: ${staff.employee_id||'—'}</span></div>
+      <div class="row"><span class="label">Employee Name</span><span>: ${staff.name}</span></div>
+      <div class="row"><span class="label">Department</span><span>: ${staff.department||'—'}</span></div>
+      <div class="row"><span class="label">Position</span><span>: ${staff.role||'—'}</span></div>
+      <div class="row"><span class="label">Hire Date</span><span>: ${staff.join_date?staff.join_date.slice(0,10):'—'}</span></div>
+    </div>
+    <div>
+      <div class="row"><span class="label">Days Worked</span><span>: ${rec.days_worked||'—'}</span></div>
+      <div class="row"><span class="label">Salary Period</span><span>: ${period?period.slice(0,7).replace('-','/'):'—'}/01 - ${period?period.slice(0,7).replace('-','/'):'—'}/${new Date(period+'-01').toLocaleString('en-US',{month:'long'}).length}</span></div>
+      <div class="row"><span class="label">Service Charge Days</span><span>: ${rec.service_charge_days||'—'}</span></div>
+    </div>
+  </div>
+  <table class="main-table">
+    <thead><tr><th>EARNINGS</th><th class="amount">MVR</th><th class="amount">USD</th><th>DEDUCTIONS</th><th class="amount">MVR</th><th class="amount">USD</th></tr></thead>
+    <tbody>
+      ${Array.from({length:Math.max(earnings.length,deductions.length)}).map((_,i)=>{
+        const e=earnings[i]||{};const d=deductions[i]||{};
+        return `<tr>
+          <td>${e.description||''}</td><td class="amount">${e.amount_mvr?fmt(e.amount_mvr):''}</td><td class="amount">${e.amount_usd?fmt(e.amount_usd):''}</td>
+          <td>${d.description||''}</td><td class="amount">${d.amount_mvr?fmt(d.amount_mvr):''}</td><td class="amount">${d.amount_usd?fmt(d.amount_usd):''}
+        </td></tr>`;
+      }).join('')}
+      <tr class="totals-row"><td>TOTAL EARNINGS</td><td class="amount">${fmt(rec.total_earnings_mvr)}</td><td class="amount">${fmt(rec.total_earnings_usd)}</td><td>TOTAL DEDUCTIONS</td><td class="amount">${fmt(rec.total_deductions_mvr)}</td><td class="amount">${fmt(rec.total_deductions_usd)}</td></tr>
+    </tbody>
+  </table>
+  <div class="net-box">
+    ${staff.bank_account?`<div class="row"><span>TO BANK [${staff.bank_account}]</span><span>${fmt(rec.net_pay_usd)} USD / ${fmt(rec.net_pay_mvr)} MVR</span></div>`:''}
+    <div class="row total"><span>Total Amount</span><span>${fmt(rec.net_pay_usd)} USD / ${fmt(rec.net_pay_mvr)} MVR</span></div>
+  </div>
+  <div class="words"><strong>Amount In Words:</strong> ${rec.currency||'USD'} ${numberToWords(rec.currency==='MVR'?rec.net_pay_mvr:rec.net_pay_usd)}</div>
+  <div class="row" style="margin:8px 0;font-size:11px"><strong>Current Month Basic Salary:</strong> ${staff.currency||'USD'} ${fmt(staff.base_salary_mvr)}</div>
+  ${leave?`<table class="leave-table">
+    <thead><tr><th>Leave Name</th><th>Opening</th><th>Earned</th><th>Utilized</th><th>Applied</th><th>Balance</th></tr></thead>
+    <tbody>
+      <tr><td>Annual Leave</td><td>${leave.annual_leave?.opening||0}</td><td>${leave.annual_leave?.earned||0}</td><td>${leave.annual_leave?.utilized||0}</td><td>${leave.annual_leave?.applied||0}</td><td>${leave.annual_leave?.balance||0}</td></tr>
+      <tr><td>Regular Day Off</td><td>${leave.regular_day_off?.opening||0}</td><td>${leave.regular_day_off?.earned||0}</td><td>${leave.regular_day_off?.utilized||0}</td><td>${leave.regular_day_off?.applied||0}</td><td>${leave.regular_day_off?.balance||0}</td></tr>
+      <tr><td>Public Holidays</td><td>${leave.public_holidays?.opening||0}</td><td>${leave.public_holidays?.earned||0}</td><td>${leave.public_holidays?.utilized||0}</td><td>${leave.public_holidays?.applied||0}</td><td>${leave.public_holidays?.balance||0}</td></tr>
+    </tbody>
+  </table>`:''}
+  <script>
+  function numberToWords(n){
+    if(!n||isNaN(n))return 'Zero Only';
+    const ones=['','One','Two','Three','Four','Five','Six','Seven','Eight','Nine','Ten','Eleven','Twelve','Thirteen','Fourteen','Fifteen','Sixteen','Seventeen','Eighteen','Nineteen'];
+    const tens=['','','Twenty','Thirty','Forty','Fifty','Sixty','Seventy','Eighty','Ninety'];
+    function convert(n){if(n<20)return ones[n];if(n<100)return tens[Math.floor(n/10)]+(n%10?' '+ones[n%10]:'');if(n<1000)return ones[Math.floor(n/100)]+' Hundred'+(n%100?' '+convert(n%100):'');return convert(Math.floor(n/1000))+' Thousand'+(n%1000?' '+convert(n%1000):'');}
+    const parts=Number(n).toFixed(2).split('.');
+    const intPart=parseInt(parts[0]);const decPart=parseInt(parts[1]);
+    return convert(intPart)+(decPart?' and '+convert(decPart)+' Cents':'')+' Only';
+  }
+  window.onload=()=>window.print();
+  <\/script>
+  </body></html>`);
+  win.document.close();
+}
+
+function numberToWords(n){
+  if(!n||isNaN(n))return 'Zero Only';
+  const ones=['','One','Two','Three','Four','Five','Six','Seven','Eight','Nine','Ten','Eleven','Twelve','Thirteen','Fourteen','Fifteen','Sixteen','Seventeen','Eighteen','Nineteen'];
+  const tens=['','','Twenty','Thirty','Forty','Fifty','Sixty','Seventy','Eighty','Ninety'];
+  function convert(n){if(n<20)return ones[n];if(n<100)return tens[Math.floor(n/10)]+(n%10?' '+ones[n%10]:'');if(n<1000)return ones[Math.floor(n/100)]+' Hundred'+(n%100?' '+convert(n%100):'');return convert(Math.floor(n/1000))+' Thousand'+(n%1000?' '+convert(n%1000):'');}
+  const parts=Number(n).toFixed(2).split('.');
+  return convert(parseInt(parts[0]))+(parseInt(parts[1])?' and '+convert(parseInt(parts[1]))+' Cents':'')+' Only';
+}
+
+async function deletePayslip(id){
+  if(!confirm('Delete this payslip?'))return;
+  try{await fetch(`${API}/api/rental-connect/salary/${id}`,{method:'DELETE',headers:hdrs()});showToast('Deleted','success');loadPayslips();}
+  catch(e){showToast('Failed','error');}
+}
+
 function closeModal(id){document.getElementById(id).classList.remove('open');}
 function showToast(msg,type='success'){const t=document.getElementById('toast');t.textContent=msg;t.className=`toast show ${type}`;setTimeout(()=>t.classList.remove('show'),3000);}
-document.querySelectorAll('.modal-overlay').forEach(el=>{el.addEventListener('click',e=>{if(e.target===el)el.classList.remove('open');});});
+document.querySelectorAll('.modal-overlay').forEach(el=>el.addEventListener('click',e=>{if(e.target===el)el.classList.remove('open');}));
+
 checkAuth();loadStaff();
 </script>
 </body>

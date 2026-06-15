@@ -17,7 +17,7 @@
         .header h1 { font-family: 'Playfair Display', serif; font-size: 1.25rem; color: var(--navy); }
         .back-link { display: flex; align-items: center; gap: 6px; color: var(--ocean); text-decoration: none; font-size: 0.85rem; font-weight: 500; padding: 6px 14px; border: 1px solid var(--ocean); border-radius: 40px; transition: all 0.2s; }
         .back-link:hover { background: var(--ocean); color: white; }
-        .main { max-width: 1200px; margin: 0 auto; padding: 24px 16px; }
+        .main { max-width: 100%; margin-left: var(--sidebar-w) !important; padding: 32px; }
         .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 20px; }
         @media (max-width: 600px) { .stats-grid { grid-template-columns: repeat(3, 1fr); } }
         .stat-card { background: white; border-radius: var(--radius-md); padding: 16px; box-shadow: var(--shadow); border-left: 4px solid var(--gray-border); }

@@ -343,18 +343,33 @@ function addLine(type){
   const options=type==='earnings'?EARNING_OPTIONS:DEDUCTION_OPTIONS;
   const div=document.createElement('div');
   div.className='line-row';
-  div.innerHTML=`<select onchange="updateTotals()"><option value="">Select or type...</option>${options.map(o=>`<option>${o}</option>`).join('')}<option value="__custom">Custom...</option></select>
+  div.innerHTML=`<select onchange="onLineSelect(this,'${type}')"><option value="">Select or type...</option>${options.map(o=>`<option>${o}</option>`).join('')}<option value="__custom">Custom...</option></select>
     <input type="number" placeholder="0.00" step="0.01" value="0" oninput="updateTotals()">
     <input type="number" placeholder="0.00" step="0.01" value="0" oninput="updateTotals()">
     <button onclick="this.parentElement.remove();updateTotals()" style="background:#fee2e2;border:none;border-radius:6px;padding:6px 8px;cursor:pointer;color:#991b1b"><i class="fas fa-times"></i></button>`;
-  div.querySelector('select').addEventListener('change',function(){
-    if(this.value==='__custom'){
-      const custom=prompt('Enter custom description:');
-      if(custom){const opt=document.createElement('option');opt.value=custom;opt.textContent=custom;opt.selected=true;this.appendChild(opt);}
-      else this.value='';
-    }
-  });
   container.appendChild(div);
+}
+
+function onLineSelect(sel, type){
+  if(sel.value==='__custom'){
+    const custom=prompt('Enter custom description:');
+    if(custom){const opt=document.createElement('option');opt.value=custom;opt.textContent=custom;opt.selected=true;sel.appendChild(opt);}
+    else{sel.value='';}
+  }
+  // MRPS auto-calculate as % of basic salary
+  if(sel.value==='MRPS Mandatory Contribution'){
+    const row=sel.parentElement;
+    const pct=prompt('Enter MRPS % of basic salary (e.g. 7 for 7%):');
+    if(pct&&selectedStaff){
+      const base=parseFloat(selectedStaff.base_salary_mvr)||0;
+      const baseCurrency=selectedStaff.currency||'USD';
+      const amount=(base*(parseFloat(pct)/100)).toFixed(2);
+      const inputs=row.querySelectorAll('input[type="number"]');
+      if(baseCurrency==='MVR'){inputs[0].value=amount;inputs[1].value=0;}
+      else{inputs[0].value=0;inputs[1].value=amount;}
+    }
+  }
+  updateTotals();
 }
 
 function updateTotals(){

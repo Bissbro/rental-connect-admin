@@ -1,41 +1,45 @@
 # HTM Rentals + Rental Connect Status
 
-## HTM Rentals — Done
-- Telegram button fix
-- PDF invoice design match
-- Date blocking
-- tenant_id fixes (all 16 inserts)
+## Infrastructure
+- Backend: AWS Lightsail 13.212.34.47, Node.js/Express, PM2
+- RC Admin: Served from Lightsail at https://api.htmrentals.com/admin/
+- HTM Rentals frontend: GitHub Pages at htmrentals.com
+- DB: MySQL htm_rentals (htm_user)
+
+## Tenants
+- Tenant 1: bissbro (HTM Rentals)
+- Tenant 2: coral_admin (Coral Guesthouse) - password: i1love4AllaH3@#
 
 ## Rental Connect — Done
-- Full admin panel (20 pages)
-- All pages desktop-first layout
-- Organized sidebar with sections
+- Full admin panel served from Lightsail (no cache issues)
+- All pages desktop-first layout with organized sidebar
 - Bookings, Units, Invoices, Calendar, Settings
-- Leads, Experiences, Block Dates, Petty Cash
-- Staff Payroll, Reports, Finance, Minibar
-- Hero Slides, Promo Banners, Reviews
-- Invoice auto-creation on booking confirmation
-- Tenant-branded PDF invoices
-- Public API + Customer site template
+- Leads, Experiences, Block Dates, Petty Cash (rebuilt)
+- Staff Payroll (rebuilt with full payslip PDF generator)
+- Reports, Finance, Minibar, Hero Slides, Promo Banners, Reviews
+- Property type setting (apartment vs guesthouse)
+- Guesthouse: property rent, simplified expense categories
+- Finance summary updates after all save/delete operations
 - View Site link from settings
-- Coral Guesthouse public site (site-coral.html)
+- RC admin auto-creates invoice + revenue on booking confirmation
 
 ## Security — Done
-- All GET/POST/PUT/DELETE routes scoped by tenant_id
-- Analytics, hero images, promo banners, reviews, minibar
-- Finance, reports, contracts, expenses, revenue
-- Leads, bookings, settings all tenant scoped
-- No cross-tenant data leaks verified
+- All routes scoped by tenant_id
+- Verified: bookings, invoices, units, leads, experiences
+- Verified: petty cash, minibar, hero slides, promo banners, reviews
+- Verified: reports (revenue, expenses, cashflow, occupancy, bookings)
+- Verified: finance summary, per-unit cashflow
+- Partners and loans removed from RC (HTM-specific)
 
-## Rental Connect — Pending
+## Pending
 - Dashboard live stats
-- Change password (settings account tab)
-- OTA channel iCal links
-- Property type label (apartment vs guesthouse)
+- OTA channel iCal links in settings
 - Invoice number scoped per tenant
-- Coral Guesthouse onboarding with real data
+- Coral Guesthouse full onboarding with real data
+- DeepSeek guest chat widget (last)
 
-## Next Session
-- Test all pages as coral_admin with real data
-- Coral Guesthouse full setup
-- RC dashboard live stats
+## Key Files
+- Backend: ~/htm-rentals-backend/server.js
+- RC Admin: ~/rental-connect-admin/*.html
+- RC served at: https://api.htmrentals.com/admin/
+- Backups: ~/htm-rentals-backend/server.js.bak.*

@@ -576,6 +576,7 @@ function generatePayslipPDF(rec,staff,propName){
     </div>
     <div>
       <div class="row"><span class="label">Days Worked</span><span>: ${rec.days_worked||'—'}</span></div>
+      <div class="row"><span class="label">Payment Date</span><span>: ${rec.paid_date?rec.paid_date.slice(0,10):'—'}</span></div>
       <div class="row"><span class="label">Salary Period</span><span>: ${period?formatPeriod(period):'—'}</span></div>
       <div class="row"><span class="label">Service Charge Days</span><span>: ${rec.service_charge_days||'—'}</span></div>
     </div>
@@ -583,18 +584,26 @@ function generatePayslipPDF(rec,staff,propName){
   <table class="main-table">
     <thead><tr><th>EARNINGS</th><th class="amount">MVR</th><th class="amount">USD</th><th>DEDUCTIONS</th><th class="amount">MVR</th><th class="amount">USD</th></tr></thead>
     <tbody>
-      ${Array.from({length:Math.max(earnings.length,deductions.length)}).map((_,i)=>{
-        const e=earnings[i]||{};const d=deductions[i]||{};
-        return `<tr>
-          <td>${e.description||''}</td><td class="amount">${e.amount_mvr?fmt(e.amount_mvr):''}</td><td class="amount">${e.amount_usd?fmt(e.amount_usd):''}</td>
-          <td>${d.description||''}</td><td class="amount">${d.amount_mvr?fmt(d.amount_mvr):''}</td><td class="amount">${d.amount_usd?fmt(d.amount_usd):''}
-        </td></tr>`;
-      }).join('')}
+      ${(()=>{
+        const rows=Math.max(earnings.length,deductions.length);
+        if(rows===0)return '<tr><td colspan="6" style="text-align:center;color:#999;padding:12px">No entries</td></tr>';
+        return Array.from({length:rows}).map((_,i)=>{
+          const e=earnings[i]||{};const ded=deductions[i]||{};
+          return '<tr>'
+            +'<td>'+(e.description||'')+'</td>'
+            +'<td class="amount">'+(e.amount_mvr>0?fmt(e.amount_mvr):'')+'</td>'
+            +'<td class="amount">'+(e.amount_usd>0?fmt(e.amount_usd):'')+'</td>'
+            +'<td>'+(ded.description||'')+'</td>'
+            +'<td class="amount">'+(ded.amount_mvr>0?fmt(ded.amount_mvr):'')+'</td>'
+            +'<td class="amount">'+(ded.amount_usd>0?fmt(ded.amount_usd):'')+'</td>'
+            +'</tr>';
+        }).join('');
+      })()}
       <tr class="totals-row"><td>TOTAL EARNINGS</td><td class="amount">${fmt(rec.total_earnings_mvr)}</td><td class="amount">${fmt(rec.total_earnings_usd)}</td><td>TOTAL DEDUCTIONS</td><td class="amount">${fmt(rec.total_deductions_mvr)}</td><td class="amount">${fmt(rec.total_deductions_usd)}</td></tr>
     </tbody>
   </table>
   <div class="net-box">
-    ${staff.bank_account?`<div class="row"><span>TO BANK [${staff.bank_account}]</span><span>${fmt(rec.net_pay_usd)} USD / ${fmt(rec.net_pay_mvr)} MVR</span></div>`:''}
+    <div class="row"><span>TO BANK [${staff.bank_account||'—'}]</span><span>${fmt(rec.net_pay_usd)} USD / ${fmt(rec.net_pay_mvr)} MVR</span></div>
     <div class="row total"><span>Total Amount</span><span>${fmt(rec.net_pay_usd)} USD / ${fmt(rec.net_pay_mvr)} MVR</span></div>
   </div>
   <div class="words"><strong>Amount In Words:</strong> ${rec.currency||'USD'} ${toWords(rec.currency==='MVR'?rec.net_pay_mvr:rec.net_pay_usd)}</div>
@@ -632,7 +641,13 @@ function generatePayslipPDF(rec,staff,propName){
     const pts=Number(n).toFixed(2).split('.');
     return c(parseInt(pts[0]))+(parseInt(pts[1])?' and '+c(parseInt(pts[1]))+' Cents':'')+' Only';
   }
-  window.onload=()=>window.print();
+  window.onload=()=>{
+    const btn=document.createElement('button');
+    btn.textContent='Print / Save PDF';
+    btn.style='position:fixed;top:12px;right:12px;padding:10px 20px;background:#0A2540;color:white;border:none;border-radius:8px;font-size:13px;cursor:pointer;z-index:999;font-family:Arial';
+    btn.onclick=()=>window.print();
+    document.body.appendChild(btn);
+  };
   <\/script>
   </body></html>`);
   win.document.close();

@@ -308,7 +308,7 @@ input:focus, select:focus, textarea:focus { border-color:var(--teal); }
     let currentExpId = null;
 
     async function load() {
-        const res = await fetch(`${API}/admin/experiences`, { headers: hdrs() });
+        const res = await fetch(`${API}/rental-connect/experiences`, { headers: hdrs() });
         if (res.status === 401) { window.location.href = 'index.html'; return; }
         experiences = await res.json();
         render();
@@ -382,7 +382,7 @@ input:focus, select:focus, textarea:focus { border-color:var(--teal); }
             is_active: document.getElementById('exp-active').checked ? 1 : 0
         };
         if (!body.title) { showToast('Title is required'); return; }
-        const url = id ? `${API}/admin/experiences/${id}` : `${API}/admin/experiences`;
+        const url = id ? `${API}/rental-connect/experiences/${id}` : `${API}/rental-connect/experiences`;
         const method = id ? 'PUT' : 'POST';
         const res = await fetch(url, { method, headers: hdrs(), body: JSON.stringify(body) });
         const data = await res.json();
@@ -395,7 +395,7 @@ input:focus, select:focus, textarea:focus { border-color:var(--teal); }
 
     async function deleteExperience(id) {
         if (!confirm('Delete this experience?')) return;
-        await fetch(`${API}/admin/experiences/${id}`, { method: 'DELETE', headers: hdrs() });
+        await fetch(`${API}/rental-connect/experiences/${id}`, { method: 'DELETE', headers: hdrs() });
         showToast('Deleted');
         await load();
     }
@@ -428,7 +428,7 @@ input:focus, select:focus, textarea:focus { border-color:var(--teal); }
         if (!input.files[0] || !currentExpId) return;
         const formData = new FormData();
         formData.append('image', input.files[0]);
-        const res = await fetch(`${API}/admin/experiences/${currentExpId}/images`, {
+        const res = await fetch(`${API}/rental-connect/experiences/${currentExpId}/images`, {
             method: 'POST',
             headers: { 'Authorization': 'Bearer ' + token },
             body: formData
@@ -436,7 +436,7 @@ input:focus, select:focus, textarea:focus { border-color:var(--teal); }
         const data = await res.json();
         if (data.success) {
             showToast('Image uploaded!');
-            const expRes = await fetch(`${API}/admin/experiences`, { headers: hdrs() });
+            const expRes = await fetch(`${API}/rental-connect/experiences`, { headers: hdrs() });
             experiences = await expRes.json();
             renderCurrentImages(currentExpId);
         }
@@ -445,9 +445,9 @@ input:focus, select:focus, textarea:focus { border-color:var(--teal); }
 
     async function deleteImage(expId, imageId) {
         if (!confirm('Delete this image?')) return;
-        await fetch(`${API}/admin/experiences/${expId}/images/${imageId}`, { method: 'DELETE', headers: hdrs() });
+        await fetch(`${API}/rental-connect/experiences/${expId}/images/${imageId}`, { method: 'DELETE', headers: hdrs() });
         showToast('Image deleted');
-        const expRes = await fetch(`${API}/admin/experiences`, { headers: hdrs() });
+        const expRes = await fetch(`${API}/rental-connect/experiences`, { headers: hdrs() });
         experiences = await expRes.json();
         renderCurrentImages(expId);
     }

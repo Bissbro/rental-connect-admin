@@ -435,11 +435,7 @@ input:focus, select:focus, textarea:focus { border-color:var(--teal); }
         <button class="tab active" onclick="switchTab('revenue', this)"><i class="fas fa-arrow-down"></i> Revenue</button>
         <button class="tab" onclick="switchTab('monthly-exp', this)"><i class="fas fa-list-alt"></i> Monthly Exp</button>
         <button class="tab" onclick="switchTab('rent', this)"><i class="fas fa-home"></i> Rent</button>
-        <button class="tab" onclick="switchTab('renovation', this)"><i class="fas fa-hammer"></i> Renovation</button>
-        <button class="tab" onclick="switchTab('contracts', this)"><i class="fas fa-file-contract"></i> Contracts</button>
-        <button class="tab" onclick="switchTab('deposits', this)"><i class="fas fa-shield-alt"></i> Deposits</button>
         <button class="tab" onclick="switchTab('unit-summary', this)"><i class="fas fa-chart-bar"></i> Per Unit</button>
-        <button class="tab" onclick="switchTab('exchange', this)"><i class="fas fa-exchange-alt"></i> Exchange</button>
     </div>
 
     <!-- REVENUE TAB -->
@@ -927,7 +923,7 @@ input:focus, select:focus, textarea:focus { border-color:var(--teal); }
     }
 
     async function loadUnits() {
-        const res = await fetch(`${API}/admin/units`, { headers: authHeaders() });
+        const res = await fetch(`${API}/rental-connect/units`, { headers: authHeaders() });
         if (await handleAuthError(res)) return;
         const data = await res.json();
         if (data.success) {
@@ -986,16 +982,14 @@ input:focus, select:focus, textarea:focus { border-color:var(--teal); }
     function loadAll() {
         loadSummary();
         if (activeTab === 'revenue') loadRevenue();
-        else if (activeTab === 'contracts') loadContracts();
-        else if (activeTab === 'renovation') loadRenovation();
-        else if (activeTab === 'deposits') loadDeposits();
+
         else if (activeTab === 'unit-summary') loadUnitSummary();
         else if (activeTab === 'rent') loadRent();
         else if (activeTab === 'monthly-exp') loadMonthlyExpenses();
         else if (activeTab === 'exchange') {
-            loadExchanges();
+            // exchanges removed
             document.getElementById('exc-date').value = today();
-            fetch(`${API}/admin/settings`, { headers: authHeaders() })
+            fetch(`${API}/rental-connect/settings`, { headers: authHeaders() })
                 .then(r => r.json()).then(d => {
                     if (d.success && d.settings.exchange_rate)
                         document.getElementById('exc-rate').value = d.settings.exchange_rate;
@@ -1006,7 +1000,7 @@ input:focus, select:focus, textarea:focus { border-color:var(--teal); }
     // ==================== SUMMARY ====================
     async function loadSummary() {
         const month = getMonth();
-        const res = await fetch(`${API}/admin/finance/summary${month ? '?month='+month : ''}`, { headers: authHeaders() });
+        const res = await fetch(`${API}/rental-connect/finance/summary${month ? '?month='+month : ''}`, { headers: authHeaders() });
         if (await handleAuthError(res)) return;
         const data = await res.json();
         if (!data.success) return;
@@ -1063,7 +1057,7 @@ input:focus, select:focus, textarea:focus { border-color:var(--teal); }
     async function loadRevenue() {
         const month = getMonth();
         const unit = getUnitParam();
-        const url = `${API}/admin/revenue?${month ? 'month='+month : 'all=1'}${unit ? unit : ''}`;
+        const url = `${API}/rental-connect/revenue?${month ? 'month='+month : 'all=1'}${unit ? unit : ''}`;
         const res = await fetch(url, { headers: authHeaders() });
         if (await handleAuthError(res)) return;
         const data = await res.json();
@@ -1100,7 +1094,7 @@ input:focus, select:focus, textarea:focus { border-color:var(--teal); }
         document.getElementById('rev-currency').value = 'MVR';
         document.getElementById('rev-amount').value = '';
         // Auto-fill exchange rate from settings
-        fetch(`${API}/admin/settings`, { headers: authHeaders() })
+        fetch(`${API}/rental-connect/settings`, { headers: authHeaders() })
             .then(r => r.json()).then(d => {
                 if (d.success && d.settings.exchange_rate) {
                     document.getElementById('rev-exchange-rate').value = d.settings.exchange_rate;
@@ -1171,7 +1165,7 @@ input:focus, select:focus, textarea:focus { border-color:var(--teal); }
             booking_id: document.getElementById('rev-booking-id').value || null,
             notes: document.getElementById('rev-notes').value
         };
-        const url = id ? `${API}/admin/revenue/${id}` : `${API}/admin/revenue`;
+        const url = id ? `${API}/rental-connect/revenue/${id}` : `${API}/rental-connect/revenue`;
         const method = id ? 'PUT' : 'POST';
         const res = await fetch(url, { method, headers: authHeaders(), body: JSON.stringify(body) });
         const data = await res.json();
@@ -1182,7 +1176,7 @@ input:focus, select:focus, textarea:focus { border-color:var(--teal); }
     async function deleteRevenue() {
         if (!confirm('Delete this transaction?')) return;
         const id = document.getElementById('rev-id').value;
-        const res = await fetch(`${API}/admin/revenue/${id}`, { method: 'DELETE', headers: authHeaders() });
+        const res = await fetch(`${API}/rental-connect/revenue/${id}`, { method: 'DELETE', headers: authHeaders() });
         const data = await res.json();
         if (data.success) { closeModal('revenue-modal'); loadRevenue(); loadSummary(); }
     }
@@ -1191,7 +1185,7 @@ input:focus, select:focus, textarea:focus { border-color:var(--teal); }
     async function loadExpenses() {
         const month = getMonth();
         const unit = getUnitParam();
-        const res = await fetch(`${API}/admin/expenses?${month ? 'month='+month : 'all=1'}${unit ? unit : ''}`, { headers: authHeaders() });
+        const res = await fetch(`${API}/rental-connect/monthly-expenses?${month ? 'month='+month : ''}${unit ? unit : ''}`, { headers: authHeaders() });
         if (await handleAuthError(res)) return;
         const data = await res.json();
         const tbody = document.getElementById('expenses-table-body');
@@ -1271,7 +1265,7 @@ input:focus, select:focus, textarea:focus { border-color:var(--teal); }
             items
         };
         if (!body.total_amount_mvr) { alert('Please enter an amount'); return; }
-        const url = id ? `${API}/admin/expenses/${id}` : `${API}/admin/expenses`;
+        const url = id ? `${API}/rental-connect/monthly-expenses/${id}` : `${API}/rental-connect/monthly-expenses`;
         const method = id ? 'PUT' : 'POST';
         const res = await fetch(url, { method, headers: authHeaders(), body: JSON.stringify(body) });
         const data = await res.json();
@@ -1281,7 +1275,7 @@ input:focus, select:focus, textarea:focus { border-color:var(--teal); }
                 const unit = allUnits.find(u => u.id == body.unit_id);
                 const unitLabel = unit ? (unit.unit_number || unit.unit_name.slice(0,15)) : 'Unit';
                 const monthLabel = document.getElementById('exp-month').value;
-                await fetch(`${API}/admin/petty-cash`, {
+                await fetch(`${API}/rental-connect/petty-cash`, {
                     method: 'POST', headers: authHeaders(),
                     body: JSON.stringify({
                         transaction_date: body.expense_month,
@@ -1300,7 +1294,7 @@ input:focus, select:focus, textarea:focus { border-color:var(--teal); }
     async function deleteExpense() {
         if (!confirm('Delete this expense?')) return;
         const id = document.getElementById('exp-id').value;
-        const res = await fetch(`${API}/admin/expenses/${id}`, { method: 'DELETE', headers: authHeaders() });
+        const res = await fetch(`${API}/rental-connect/monthly-expenses/${id}`, { method: 'DELETE', headers: authHeaders() });
         const data = await res.json();
         if (data.success) { closeModal('expense-modal'); loadExpenses(); loadSummary(); }
     }
@@ -1574,7 +1568,7 @@ input:focus, select:focus, textarea:focus { border-color:var(--teal); }
         if (data.success) {
             document.getElementById('exc-amount').value = '';
             document.getElementById('exc-notes').value = '';
-            loadExchanges(); loadSummary(); loadRevenue();
+            // exchanges removed loadSummary(); loadRevenue();
         } else { alert('Failed: ' + data.error); }
     }
 
@@ -1624,7 +1618,7 @@ input:focus, select:focus, textarea:focus { border-color:var(--teal); }
             let allPayments = [];
             let setupHtml = '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;margin-bottom:16px;">';
             for (const unit of allUnits) {
-                const res = await fetch(API + '/admin/rent/' + unit.id, { headers: authHeaders() });
+                const res = await fetch(API + '/rental-connect/rent', { headers: authHeaders() });
                 const data = await res.json();
                 if (!data.success) continue;
                 const label = unit.unit_number || unit.unit_name.slice(0,15);
@@ -1678,7 +1672,7 @@ input:focus, select:focus, textarea:focus { border-color:var(--teal); }
             notes: document.getElementById('rent-notes').value
         };
         if (!body.full_rent) { alert('Please enter full rent amount'); return; }
-        var res = await fetch(API + '/admin/rent/payment', { method: 'POST', headers: authHeaders(), body: JSON.stringify(body) });
+        var res = await fetch(API + '/rental-connect/rent', { method: 'POST', headers: authHeaders(), body: JSON.stringify(body) });
         var data = await res.json();
         if (data.success) { closeModal('rent-modal'); loadRent(); loadSummary(); }
         else alert(data.error || 'Failed to save');
@@ -1686,7 +1680,7 @@ input:focus, select:focus, textarea:focus { border-color:var(--teal); }
 
     async function deleteRentPayment(id) {
         if (!confirm('Delete this rent payment?')) return;
-        var res = await fetch(API + '/admin/rent/payment/' + id, { method: 'DELETE', headers: authHeaders() });
+        var res = await fetch(API + '/rental-connect/rent/' + id, { method: 'DELETE', headers: authHeaders() });
         var data = await res.json();
         if (data.success) { loadRent(); loadSummary(); }
     }
@@ -1695,7 +1689,7 @@ input:focus, select:focus, textarea:focus { border-color:var(--teal); }
     async function loadMonthlyExpenses() {
         var month = getMonth();
         var unit = selectedUnitId !== 'all' ? '&unit_id=' + selectedUnitId : '';
-        var res = await fetch(`${API}/admin/monthly-expenses?${month ? 'month='+month : 'all=1'}${unit ? unit : ''}`, { headers: authHeaders() });
+        var res = await fetch(`${API}/rental-connect/monthly-expenses?${month ? 'month='+month : 'all=1'}${unit ? unit : ''}`, { headers: authHeaders() });
         var data = await res.json();
         var tbody = document.getElementById('monthly-exp-body');
         if (!tbody) return;

@@ -309,7 +309,7 @@ input:focus, select:focus, textarea:focus { border-color:var(--teal); }
     let selectedFile = null;
 
     async function load() {
-        const res = await fetch(`${API}/admin/hero-images`, { headers: hdrs() });
+        const res = await fetch(`${API}/rental-connect/hero-images`, { headers: hdrs() });
         if (res.status === 401) { window.location.href = 'index.html'; return; }
         const data = await res.json();
         slides = data.images || data;
@@ -411,7 +411,7 @@ input:focus, select:focus, textarea:focus { border-color:var(--teal); }
         if (selectedFile) {
             const formData = new FormData();
             formData.append('image', selectedFile);
-            const upRes = await fetch(`${API}/admin/upload-image`, { method: 'POST', headers: hdrs(), body: formData });
+            const upRes = await fetch(`${API}/rental-connect/upload-image`, { method: 'POST', headers: hdrs(), body: formData });
             const upData = await upRes.json();
             if (upData.url) imageUrl = upData.url;
             else { showToast('Image upload failed'); return; }
@@ -432,7 +432,7 @@ input:focus, select:focus, textarea:focus { border-color:var(--teal); }
             is_active: document.getElementById('slide-active').checked ? 1 : 0
         };
 
-        const url = id ? `${API}/admin/hero-images/${id}` : `${API}/admin/hero-images`;
+        const url = id ? `${API}/rental-connect/hero-images/${id}` : `${API}/rental-connect/hero-images`;
         const method = id ? 'PUT' : 'POST';
         const res = await fetch(url, { method, headers: hdrsJson(), body: JSON.stringify(body) });
         const data = await res.json();
@@ -445,7 +445,7 @@ input:focus, select:focus, textarea:focus { border-color:var(--teal); }
 
     async function deleteSlide(id) {
         if (!confirm('Delete this slide?')) return;
-        await fetch(`${API}/admin/hero-images/${id}`, { method: 'DELETE', headers: hdrs() });
+        await fetch(`${API}/rental-connect/hero-images/${id}`, { method: 'DELETE', headers: hdrs() });
         showToast('Deleted');
         load();
     }

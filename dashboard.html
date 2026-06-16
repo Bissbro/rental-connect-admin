@@ -233,9 +233,9 @@ async function loadDashboard() {
 
     try {
         const [bRes, uRes, iRes] = await Promise.all([
-            fetch(API + '/admin/bookings', { headers: hdrs() }),
-            fetch(API + '/admin/units', { headers: hdrs() }),
-            fetch(API + '/admin/invoices', { headers: hdrs() })
+            fetch(API + '/rental-connect/bookings', { headers: hdrs() }),
+            fetch(API + '/rental-connect/units', { headers: hdrs() }),
+            fetch(API + '/rental-connect/invoices', { headers: hdrs() })
         ]);
         const [bData, uData, iData] = await Promise.all([bRes.json(), uRes.json(), iRes.json()]);
 
@@ -272,7 +272,7 @@ async function loadDashboard() {
 
 async function loadBookings() {
     try {
-        const res = await fetch(API + '/admin/bookings', { headers: hdrs() });
+        const res = await fetch(API + '/rental-connect/bookings', { headers: hdrs() });
         const data = await res.json();
         const bookings = data.bookings || [];
         document.getElementById('all-bookings').innerHTML = bookings.length ? bookings.map(b => `
@@ -290,7 +290,7 @@ async function loadBookings() {
 
 async function loadUnits() {
     try {
-        const res = await fetch(API + '/admin/units', { headers: hdrs() });
+        const res = await fetch(API + '/rental-connect/units', { headers: hdrs() });
         const data = await res.json();
         const units = data.units || [];
         document.getElementById('units-list').innerHTML = units.length ? units.map(u => `
@@ -305,7 +305,7 @@ async function loadUnits() {
 
 async function loadInvoices() {
     try {
-        const res = await fetch(API + '/admin/invoices', { headers: hdrs() });
+        const res = await fetch(API + '/rental-connect/invoices', { headers: hdrs() });
         const data = await res.json();
         const invoices = data.invoices || [];
         const statusMap = { paid:'badge-green', sent:'badge-yellow', partially_paid:'badge-yellow', cancelled:'badge-red', draft:'badge-gray' };

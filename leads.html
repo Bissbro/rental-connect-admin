@@ -268,7 +268,7 @@ input:focus, select:focus, textarea:focus { border-color:var(--teal); }
 
     async function loadLeads() {
         try {
-            const res = await fetch(`${API}/admin/leads`, { headers: hdrs() });
+            const res = await fetch(`${API}/rental-connect/leads`, { headers: hdrs() });
             if (res.status === 401) { localStorage.removeItem('rc_token'); window.location.href = 'index.html'; return; }
             const data = await res.json();
             if (data.success) { allLeads = data.leads; updateStats(); applyFilters(); }
@@ -277,7 +277,7 @@ input:focus, select:focus, textarea:focus { border-color:var(--teal); }
 
     async function loadUnits() {
         try {
-            const res = await fetch(`${API}/admin/units`, { headers: hdrs() });
+            const res = await fetch(`${API}/rental-connect/units`, { headers: hdrs() });
             const data = await res.json();
             if (data.success) {
                 allUnits = data.units;
@@ -376,7 +376,7 @@ input:focus, select:focus, textarea:focus { border-color:var(--teal); }
     async function convertLead(id) {
         if (!confirm('Convert this lead to a pending booking?')) return;
         try {
-            const res = await fetch(`${API}/admin/leads/${id}/convert`, { method: 'PATCH', headers: hdrs() });
+            const res = await fetch(`${API}/rental-connect/leads/${id}/convert`, { method: 'PATCH', headers: hdrs() });
             const data = await res.json();
             if (data.success) { showToast('Lead converted to booking', 'success'); await loadLeads(); }
             else showToast(data.error||'Failed', 'error');
@@ -386,7 +386,7 @@ input:focus, select:focus, textarea:focus { border-color:var(--teal); }
     async function deleteLead(id) {
         if (!confirm('Delete this lead permanently?')) return;
         try {
-            const res = await fetch(`${API}/admin/leads/${id}`, { method: 'DELETE', headers: hdrs() });
+            const res = await fetch(`${API}/rental-connect/leads/${id}`, { method: 'DELETE', headers: hdrs() });
             if (res.ok) { showToast('Lead deleted', 'success'); await loadLeads(); }
             else showToast('Failed', 'error');
         } catch(e) { showToast('Error', 'error'); }

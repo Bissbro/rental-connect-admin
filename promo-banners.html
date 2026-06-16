@@ -259,7 +259,7 @@ input:focus, select:focus, textarea:focus { border-color:var(--teal); }
     let selectedFile = null;
 
     async function load() {
-        const res = await fetch(`${API}/admin/promo-banners`, { headers: hdrs() });
+        const res = await fetch(`${API}/rental-connect/promo-banners`, { headers: hdrs() });
         if (res.status === 401) { window.location.href = 'index.html'; return; }
         const banners = await res.json();
         render(banners);
@@ -318,14 +318,14 @@ input:focus, select:focus, textarea:focus { border-color:var(--teal); }
         formData.append('image', selectedFile);
         formData.append('link_url', document.getElementById('banner-link').value);
         formData.append('is_active', document.getElementById('banner-active').checked ? 1 : 0);
-        const res = await fetch(`${API}/admin/promo-banners`, { method: 'POST', headers: hdrs(), body: formData });
+        const res = await fetch(`${API}/rental-connect/promo-banners`, { method: 'POST', headers: hdrs(), body: formData });
         const data = await res.json();
         if (data.success) { showToast('Banner added!'); closeModal(); load(); }
         else showToast('Error: ' + (data.error || 'Failed'));
     }
 
     async function toggleBanner(id, current) {
-        const res = await fetch(`${API}/admin/promo-banners/${id}`, {
+        const res = await fetch(`${API}/rental-connect/promo-banners/${id}`, {
             method: 'PATCH',
             headers: { ...hdrs(), 'Content-Type': 'application/json' },
             body: JSON.stringify({ is_active: current ? 0 : 1 })
@@ -336,7 +336,7 @@ input:focus, select:focus, textarea:focus { border-color:var(--teal); }
 
     async function deleteBanner(id) {
         if (!confirm('Delete this banner?')) return;
-        await fetch(`${API}/admin/promo-banners/${id}`, { method: 'DELETE', headers: hdrs() });
+        await fetch(`${API}/rental-connect/promo-banners/${id}`, { method: 'DELETE', headers: hdrs() });
         showToast('Deleted');
         load();
     }

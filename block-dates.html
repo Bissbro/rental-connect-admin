@@ -315,7 +315,7 @@ input:focus, select:focus, textarea:focus { border-color:var(--teal); }
     function fmt(d) { const dt = new Date(d + 'T12:00:00'); return dt.toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' }); }
     function nights(a, b) { return Math.round((new Date(b) - new Date(a)) / 86400000) + 1; }
     async function loadUnits() {
-        const res = await fetch(`${API}/admin/units`, { headers: hdrs() });
+        const res = await fetch(`${API}/rental-connect/units`, { headers: hdrs() });
         const data = await res.json();
         if (data.success) {
             const units = data.units;
@@ -433,7 +433,7 @@ input:focus, select:focus, textarea:focus { border-color:var(--teal); }
         const lo = selEnd ? (selStart < selEnd ? selStart : selEnd) : selStart;
         const hi = selEnd ? (selStart < selEnd ? selEnd : selStart) : selStart;
         const reason = document.getElementById('block-reason').value.trim() || 'Manually blocked';
-        const res = await fetch(`${API}/admin/block-dates`, { method: 'POST', headers: hdrs(), body: JSON.stringify({ start_date: lo, end_date: hi, reason, unit_id: selectedUnitId }) });
+        const res = await fetch(`${API}/rental-connect/block-dates`, { method: 'POST', headers: hdrs(), body: JSON.stringify({ start_date: lo, end_date: hi, reason, unit_id: selectedUnitId }) });
         const data = await res.json();
         if (data.success) { showToast(`Blocked ${fmt(lo)} → ${fmt(hi)}`, 'success'); clearSelection(); await loadAvailability(); }
         else showToast(data.error || 'Failed', 'error');
@@ -445,7 +445,7 @@ input:focus, select:focus, textarea:focus { border-color:var(--teal); }
         while (d <= endD) { rangeDates.push(d.toISOString().split('T')[0]); d.setDate(d.getDate() + 1); }
         const ids = blockedDatesData.filter(b => rangeDates.includes(b.date) && !b.reason.startsWith('iCal:')).map(b => b.id);
         let ok = 0;
-        for (const id of ids) { const r = await fetch(`${API}/admin/unblock-date/${id}`, { method: 'DELETE', headers: hdrs() }); if (r.ok) ok++; }
+        for (const id of ids) { const r = await fetch(`${API}/rental-connect/block-dates/${id}`, { method: 'DELETE', headers: hdrs() }); if (r.ok) ok++; }
         if (ok > 0) { showToast('Unblocked successfully', 'success'); await loadAvailability(); }
         else showToast('Nothing to unblock', 'error');
     }

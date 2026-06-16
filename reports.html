@@ -312,7 +312,7 @@ function generate(){
     var params='';
     if(from)params+='from='+from+'&';
     if(to)params+='to='+to;
-    var url=API+'/admin/reports/'+currentTab+'?'+params;
+    var url=API+'/rental-connect/reports/'+currentTab+'?'+params;
     document.getElementById('report-content').innerHTML='<div class="loading-state"><i class="fas fa-spinner fa-spin" style="font-size:2rem;display:block;margin-bottom:12px;opacity:.3"></i>Loading...</div>';
     fetch(url,{headers:hdrs()})
     .then(function(r){

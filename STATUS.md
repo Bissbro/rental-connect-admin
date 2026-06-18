@@ -48,3 +48,17 @@ Fixed HTM admin Analytics, Partners, and Loans routes (bad tenant_id filters and
 - RC Admin: ~/rental-connect-admin/*.html
 - HTM Public Site: ~/htm-rentals/*.html
 - Backups: ~/htm-rentals-backend/server.js.bak.*
+
+## Session 2 Fixes (Jun 18)
+
+### HTM Admin Reorganized
+Admin dashboard restructured into 7 clear sections: Operations, Property & Inventory, Content & Marketing, Shop, Finance & Partners, Insights, System. Leads removed from bookings list (backend /api/admin/bookings now excludes booking_status='lead').
+
+### Client Error Logger
+Built full client-errors.html admin page with deduped errors (occurrence_count, first_seen, last_seen via ON DUPLICATE KEY UPDATE), filters by page/status/search, resolve/delete actions, 30-second auto-refresh. Linked from admin.html under Insights section.
+
+### Image Auto-Compression
+Installed sharp npm package in htm-rentals-backend. Added compressUploadedImage() helper (max 1920x1080, quality 82, mozjpeg). Hooked into all 3 upload routes. Existing 6.2MB hero image compressed to 428KB. Added 30-day cache headers to /uploads static server.
+
+### Experience Cards
+Reduced card width from 44vw to 38vw so third card peeks on mobile.

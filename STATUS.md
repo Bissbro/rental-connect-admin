@@ -86,3 +86,27 @@ Reduced card width from 44vw to 38vw so third card peeks on mobile.
 ## Known Follow-ups
 - Switch shop-checkout.html TEST_MODE back to false before accepting real shop payments.
 - Verify GET /api/admin/orders returns tracking_number field correctly (SELECT * should already include it, not explicitly re-checked).
+
+## Next Session Starter Prompt
+
+Continuing work on HTM Rentals / Rental Connect (RC) multi-tenant SaaS PMS on AWS Lightsail (13.212.34.47). Read this STATUS.md in full first via SSH before doing anything else.
+
+Key things to know without re-discovering them:
+- SSH: ssh -i ~/LightsailDefaultKey-ap-southeast-1.pem bitnami@13.212.34.47
+- After any .bashrc env var change, PM2 needs full delete+start, NOT just restart: `pm2 delete htm-rentals && pm2 start ~/htm-rentals-backend/server.js --name htm-rentals && pm2 save` (pm2 restart does not reload shell env vars).
+- Backend: ~/htm-rentals-backend/server.js (single large file, ~6700+ lines). Always `node --check` before restarting PM2. Always backup before major edits: `cp server.js server.js.bak.$(date +%Y%m%d%H%M)`.
+- HTM Rentals public site: ~/htm-rentals/*.html, deployed via GitHub Pages (push to git for changes to go live, ~30-60s deploy time).
+- RC Admin (multi-tenant): ~/rental-connect-admin/*.html, served directly from Lightsail at api.htmrentals.com/admin/.
+- IMPORTANT ARCHITECTURE DECISION: HTM stays on its own legacy admin/DB (htm_rentals) - NOT migrated to RC admin. RC admin is exclusively for new tenants (Coral Guesthouse is the first paying customer, rc_tenant_2). rc_tenant_1 exists but is dormant/unused. Do not conflate these two systems.
+- Shop checkout is currently in Stripe TEST MODE - shop-checkout.html has `const TEST_MODE = true;` hardcoded. Must flip to false before accepting real customer payments.
+- When editing server.js with python3 -c one-liners, exact whitespace/string matching is fragile - verify with grep/sed -n before AND after edits, since silent "MISS" failures have happened repeatedly.
+- Bash history expansion (the `!` character) breaks inline python3 -c scripts containing things like `if (!req.file)` - use `set +H` first, or write to a temp .py file via heredoc and run that instead.
+
+Open items not yet started/finished:
+- Switch shop back to live Stripe mode when ready for real customers.
+- Verify tracking_number field returns correctly from GET /api/admin/orders (SELECT * should include it but not explicitly re-checked after the ALTER TABLE).
+- Larger paused discussion: forking the polished HTM Rentals public site as the dynamic, API-driven template for all future RC tenants (replacing the placeholder site-coral.html). Agreed direction, zero code written.
+- 8 unaudited units-table pool.query() calls without tenant_id filter were identified in an earlier session but individually low-risk (all are single-row lookups by primary key) - left as-is, not a priority.
+- Build a simple admin UI page for client_errors viewing was already done (client-errors.html exists in HTM admin under Insights section) - this is DONE, not open.
+
+Ask the user what to work on next - don't assume based on this list alone, the user's priorities may have shifted.

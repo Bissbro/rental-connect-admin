@@ -62,3 +62,27 @@ Installed sharp npm package in htm-rentals-backend. Added compressUploadedImage(
 
 ### Experience Cards
 Reduced card width from 44vw to 38vw so third card peeks on mobile.
+
+## Session 3 Fixes (Jun 19)
+
+### Shop Order Email System Built
+- Added sendOrderEmail() function — sends order confirmation immediately after Stripe payment succeeds, branded as "HTM Shop", includes order number, shipping address, itemized subtotal + shipping cost breakdown, total.
+- Added sendShippedEmail() function — sends a second email when admin marks order status as "shipped", includes tracking number if provided (graceful fallback message if shipping method has no tracking).
+- Added tracking_number column to orders table.
+- Added tracking number input field next to status dropdown in orders.html admin; wired into PUT /api/admin/orders/:id route, which now triggers sendShippedEmail only on the pending->shipped transition (not on every save).
+- Both emails send from shop@htmrentals.com (separate from bookings@htmrentals.com), display name "HTM" for consistent cross-product branding.
+
+### Email Sender Setup
+- Added shop@htmrentals.com as a Namecheap email forwarder -> htmrentalss@gmail.com (incoming), matching existing bookings@ setup.
+- Added shop@htmrentals.com as a verified Brevo sender (outgoing), DKIM/DMARC inherited from domain-level htmrentals.com config.
+- Changed booking confirmation email sender display name from SMTP_FROM_NAME env var to hardcoded "HTM" for brand consistency.
+
+### Stripe Test Mode for Shop
+- Added STRIPE_SECRET_KEY_TEST env var and stripeTest client alongside existing live stripe client in /api/shop/create-payment-intent (test_mode flag in request body switches client).
+- Root cause of initial test failures: PM2 process was started before STRIPE_SECRET_KEY_TEST was added to .bashrc, so it wasn't in the running process's env — fixed via pm2 delete + pm2 start (not just restart, which doesn't reload shell env).
+- shop-checkout.html currently hardcoded to TEST_MODE = true (intentional, while testing) — uses pk_test publishable key; remember to flip back to false (live) before going live with real customers.
+- Verified full end-to-end: cart -> details -> delivery -> Stripe test payment (4242 4242 4242 4242) -> order created in DB with stripe_status='succeeded' -> confirmation email received.
+
+## Known Follow-ups
+- Switch shop-checkout.html TEST_MODE back to false before accepting real shop payments.
+- Verify GET /api/admin/orders returns tracking_number field correctly (SELECT * should already include it, not explicitly re-checked).

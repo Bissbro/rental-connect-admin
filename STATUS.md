@@ -110,3 +110,30 @@ Open items not yet started/finished:
 - Build a simple admin UI page for client_errors viewing was already done (client-errors.html exists in HTM admin under Insights section) - this is DONE, not open.
 
 Ask the user what to work on next - don't assume based on this list alone, the user's priorities may have shifted.
+
+## Session 4 Fixes (Jun 20)
+
+### Invoice PDF Bugs Fixed
+- BOOKING CONFIRMED badge was invisible on unpaid invoice PDFs - missing roundedRect fill behind white text (accidentally dropped during earlier paid-stamp edits). Restored from backup comparison and re-added fill line.
+- Booking invoice item descriptions simplified across 6 locations in server.js - removed redundant "- X Nights (date to date)" suffix since check-in/out/nights already shown in the dedicated booking details box on the PDF. Now just shows unit name, with qty correctly representing nights.
+
+### Custom Invoice Feature Built
+New presentational-only invoice builder, doesn't touch revenue or existing invoice records:
+- New custom_invoices DB table (reference_number CSTM-XXX auto-increment, customer_name/phone, included_invoice_ids JSON, line_items JSON snapshot, payment_status enum paid/pending/half, paid_amount/pending_amount).
+- Backend routes: GET/POST /api/admin/custom-invoices, DELETE /:id, GET /:id/pdf.
+- Frontend: removed old "New Booking Invoice" pills (redundant since bookings auto-invoice on confirm already), replaced with new "Custom Invoice" pill + dedicated Custom tab.
+- Modal lets admin multi-select existing booking invoices + minibar invoices, combines into one summary invoice with line items (booking lines show unit+dates+nights, minibar lines show "Minibar Charges - [Unit] (invoice#)"), customer name/phone, currency, and payment status (paid / pending / half-paid with manual paid+pending amount entry).
+- PDF generator rewritten to match exact branded HTM invoice template (header, FROM/BILL TO columns, navy line-item table, PAID stamp or pending/half badges, bank payment details section, footer) - initial version used generic PDFKit defaults, corrected after user feedback.
+- Small print at bottom lists original invoice numbers included, for traceability.
+
+### Date Display Fixes
+- Raw ISO timestamps (e.g. 2026-06-24T00:00:00.000Z) were leaking into custom invoice line descriptions and into the regular invoice admin cards/table - fixed with fmtDateShort() helper using toLocaleDateString.
+- Added fmtCreatedLocal() helper and new "Created [local date+time]" row on invoice cards, addressing user request to see local creation timestamp at a glance without opening the PDF.
+
+## Known Follow-ups (carried over + new)
+- Switch shop-checkout.html TEST_MODE back to false before accepting real shop payments. (carried over, still pending)
+- Custom invoice feature only built for HTM tenant (uses tenant_id from requireAuth, pool not req.db) - not yet ported to RC multi-tenant routes; low priority since RC tenants don't have this need yet.
+- Minor: old "Create Booking Invoice" modal HTML/JS (booking-invoice-modal, createBookingInvoice function, bi- prefixed fields) still exists in invoices.html but is now unreachable dead code since both buttons that opened it were removed/repointed. Harmless, could be cleaned up later.
+
+## IMPORTANT REPORTED ISSUE (Jun 20 session)
+User reported a significant Claude mobile app UI/display bug during this session: tool-call command blocks were rendering 2-4 times each with slightly different wrapper text per duplicate (e.g. "Run on server:" then "Run on server (waiting for paste):"), with the duplicate count escalating as the conversation grew longer. Plain text responses did NOT duplicate, only command/code blocks. Issue reportedly started ~1 week before this session after 2+ months of normal use. User submitted feedback via thumbs-down. Not an HTM/RC codebase issue - noting here in case it recurs and affects future session efficiency/token usage.

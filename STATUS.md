@@ -166,3 +166,51 @@ User noticed Airbnb iCal feed always contained a "Not available" block on whatev
 
 ## Next: Shop Improvements
 Starting work on improving the HTM Shop (products.html, orders.html, shop.html, shop-checkout.html). Shop currently in Stripe TEST MODE (shop-checkout.html TEST_MODE=true) - remember to flip to live before real customers. Order confirmation + shipped/tracking emails already built (session 3). Specific improvement areas to be defined in next session.
+
+## Session 6 Fixes (Jun 22)
+
+### CRITICAL: sendOrderEmail/sendShippedEmail Functions Were Accidentally Deleted
+Discovered both email functions (built in session 3) and their trigger calls had been completely wiped from server.js sometime during session 4's invoice PDF rewrite work, due to a line-number-based sed delete that removed a much larger code block than intended (file dropped ~37KB between two same-day backups: 202606200723 vs 202606201256). This caused shop order confirmation emails and shipped/tracking emails to silently stop sending for roughly 2 days with no error - the routes themselves worked fine, just missing the email functionality and one route had duplicated into two competing handlers (Express used the first/broken one, the second/correct one with the email trigger was dead code).
+
+Restored both functions plus correct PUT /api/admin/orders/:id route (with tracking_number + sendShippedEmail trigger) from the server.js.bak.202606200723 backup. Removed the duplicate broken /api/orders POST route that lacked the email trigger - now only one correct route exists with sendOrderEmail() properly wired in.
+
+LESSON LEARNED: line-number-based sed deletes are fragile when making multiple edits in sequence within the same session, since earlier edits shift all subsequent line numbers. Always re-grep/re-view immediately before each line-number-based delete, and ideally verify function counts (grep -c "functionName") before AND after major structural edits, not just node --check (which only catches syntax errors, not silently-deleted-but-still-valid-JS situations like this one).
+
+### Shop Checkout Improvements (Hulhumale/Male free delivery)
+- Fixed Hulhumale delivery option never setting currency to MVR (only domestic/international were handled) - caused Stripe/USD to show instead of bank slip upload when currency was already USD from previous session/localStorage.
+- Renamed "Hulhumale - Free Delivery" to "Male / Hulhumale - Free Delivery" per business requirement (free delivery covers both islands plus vessels docked at either harbour).
+- Added optional "Vessel Name" field to the Hulhumale/Male delivery fields, included in shipping_address as "Vessel: [name] - [address]" when provided.
+- Fixed reverse-direction currency bug: switching delivery type from International back to Domestic/Hulhumale did not reset currency back to MVR because updateTotals() was called BEFORE the currency reassignment in onDeliveryTypeChange() - moved currency assignment earlier in the function.
+- Updated bank transfer slip section to show real BML/MIB logos (uploaded via Experiences admin as image attachments, URLs extracted from experience_images table) with copy-to-clipboard buttons next to each account number, replacing old placeholder fake account info.
+- Removed misleading "Stripe" trust badge from the slip/bank-transfer payment view (Stripe badge makes no sense when paying via bank transfer, not card).
+- Removed USD bank account section entirely from slip view per user request, since slip payment is now MVR-only (international/USD orders always go through Stripe, never slip) - simplified bank labels from "BML - MVR Account" to just "BML" since currency ambiguity no longer exists in this context.
+
+## Known Follow-ups / Not Yet Done
+- Maldives Post logo (also uploaded to Experiences, 3rd of three logo uploads) was never actually implemented anywhere in the checkout UI - was discussed for the shipping-service tier cards (currently shows a plain red text "Maldives Post" badge, no actual logo image) but not built.
+- User reported "payslip not landing in telegram" - NOT YET INVESTIGATED this session, need to check the staff payslip PDF Telegram delivery flow next session.
+- Switch shop-checkout.html TEST_MODE back to false before accepting real shop payments (carried over from session 3, still pending).
+- Verify the sendOrderEmail/sendShippedEmail restoration actually works end-to-end with a fresh test order (was fixed and restarted but not live-tested with an actual order in this session due to time).
+
+## Next Session Starter Prompt
+
+Continuing work on HTM Rentals / Rental Connect (RC) multi-tenant SaaS PMS on AWS Lightsail (13.212.34.47). Read this STATUS.md in full first via SSH before doing anything else.
+
+Key things to know without re-discovering them:
+- SSH: ssh -i ~/LightsailDefaultKey-ap-southeast-1.pem bitnami@13.212.34.47
+- After any .bashrc env var change, PM2 needs full delete+start, NOT just restart: `pm2 delete htm-rentals && pm2 start ~/htm-rentals-backend/server.js --name htm-rentals && pm2 save`.
+- Backend: ~/htm-rentals-backend/server.js (single large file, ~6000+ lines). ALWAYS `node --check` before restarting PM2, but be aware node --check only catches syntax errors, NOT silently-deleted-but-valid code (see Session 6 critical incident above). After any line-number-based sed delete/insert, immediately re-grep for the function/route names you just touched to confirm they still exist and are not duplicated, before moving to the next edit.
+- Prefer string-matching python3 replace over line-number sed when possible, since line numbers shift after every edit within the same session - this caused the Session 6 incident.
+- Always backup before major edits: `cp server.js server.js.bak.$(date +%Y%m%d%H%M)`. Keep recent backups, they have already saved this project once.
+- HTM Rentals public site: ~/htm-rentals/*.html, deployed via GitHub Pages (push to git, ~30-60s deploy time).
+- RC Admin (multi-tenant): ~/rental-connect-admin/*.html, served directly from Lightsail at api.htmrentals.com/admin/.
+- ARCHITECTURE: HTM stays on its own legacy admin/DB (htm_rentals) - NOT migrated to RC admin. RC admin is exclusively for new tenants (Coral Guesthouse, rc_tenant_2). rc_tenant_1 exists but is dormant/unused.
+- Shop checkout is currently in Stripe TEST MODE - shop-checkout.html has `const TEST_MODE = true;`. Must flip to false before accepting real customer payments.
+- Bash history expansion (the `!` character) breaks inline python3 -c scripts - use `set +H` first or a temp .py file via heredoc.
+
+Immediate priorities for this session:
+1. Investigate "payslip not landing in telegram" - reported but not yet looked at.
+2. Live-test the just-restored sendOrderEmail/sendShippedEmail functions with an actual test order to confirm the fix actually works end-to-end (was restored + restarted but not verified with a real order before running out of session time).
+3. Implement Maldives Post logo on shipping-service tier cards in shop-checkout.html (logo already uploaded, URL needs to be looked up again via experience_images table - was id 13, filename 1782126985233-753642898.png as of session 6, but re-verify).
+4. Ask user what else needs attention in the shop improvement pass - this was an ongoing multi-session effort (started session 6, "let's improve the shop").
+
+Ask the user what to work on next - don't assume based on this list alone.

@@ -137,3 +137,32 @@ New presentational-only invoice builder, doesn't touch revenue or existing invoi
 
 ## IMPORTANT REPORTED ISSUE (Jun 20 session)
 User reported a significant Claude mobile app UI/display bug during this session: tool-call command blocks were rendering 2-4 times each with slightly different wrapper text per duplicate (e.g. "Run on server:" then "Run on server (waiting for paste):"), with the duplicate count escalating as the conversation grew longer. Plain text responses did NOT duplicate, only command/code blocks. Issue reportedly started ~1 week before this session after 2+ months of normal use. User submitted feedback via thumbs-down. Not an HTM/RC codebase issue - noting here in case it recurs and affects future session efficiency/token usage.
+
+## Session 5 Fixes (Jun 21)
+
+### Bookings Page Sort Options Added
+Added "Sort By" dropdown to bookings.html admin page with three options: Most Recent (default, by created_at desc), Check-in Date (asc), Check-in Date Latest First (desc). Client-side sort applied after existing filters, defaults reset correctly via Clear button.
+
+### Parent/Child Unit Block Date Sync - Major Bug Found & Fixed
+Discovered the manual "Block Dates" admin page had zero propagation logic between linked parent/child units (A-701 parent, A-701-01/A-701-02 children, unit IDs 4/5/6). Existing syncLinkedUnits() function only ran on booking creation/update flows, never on manual blocks.
+
+Fixed by:
+- Adding new global getLinkedUnitIds(unitId) helper function (returns [5,6] for unit 4, [4] for units 5/6).
+- Rewrote POST /api/admin/block-dates to loop over unit_id plus its linked IDs, blocking all of them together.
+- Rewrote DELETE /api/admin/unblock-date/:id to look up the unit_id+date+reason first, then delete matching entries across all linked units (previously only deleted by raw row ID, couldn't cascade).
+
+### Historical Data Backfill - 81 Missing Sync Entries Found
+After the code fix, discovered the underlying booking data itself had a massive historical gap — nearly all confirmed bookings on units 4/5/6 (created via direct SQL/seeding during earlier sessions, recognizable by midnight 00:00:00 created_at timestamps) never had their cross-unit unit_availability sync rows created at all, since they bypassed the API route's syncLinkedUnits() call entirely. Wrote a one-time backfill script (not saved - run and deleted) that iterated all confirmed bookings on units 4/5/6 and inserted any missing linked-unit availability rows. Backfilled 81 missing entries total across many bookings spanning April-July 2026. Calendars for A-701/A-701-01/A-701-02 now show fully consistent cross-blocking.
+
+### Confirmed Business Logic (documented for future reference)
+A-701 (parent, full 2BR apartment, MVR 1300/night) and A-701-01/A-701-02 (individual bedrooms, MVR 750/night each) share physical space with three valid states:
+1. Parent booked whole -> blocks parent + both children
+2. One child booked individually -> blocks that child + parent (since full apartment can't be sold), other child stays open
+3. Both children booked individually -> blocks both children + parent (equivalent end state to #1)
+This is working as designed - what looked like a propagation bug was partly correct behavior (case 2, single child blocks only block parent not the sibling) once we found and fixed the real historical data gap.
+
+### Airbnb "Always Blocks Today" - Not A Bug, Diagnosed
+User noticed Airbnb iCal feed always contained a "Not available" block on whatever the current date was, shifting daily. Fetched the raw iCal feed directly and confirmed: Airbnb's own export was sending DTSTART exactly matching today + DTSTART exactly matching today+1year - both artifacts of Airbnb's own "Same day advance notice" cutoff setting (was set to 9:00 AM, meaning Airbnb auto-blocks today once 9am passes if same-day booking cutoff reached). Not a bug in our sync code - our icalSync.js correctly imports whatever Airbnb's feed contains. User changed the Airbnb listing setting from "Same day, 9:00 AM cutoff" to "Same day, 11:00 PM cutoff" to minimize this artifact's daily window. No code changes needed/made for this item.
+
+## Next: Shop Improvements
+Starting work on improving the HTM Shop (products.html, orders.html, shop.html, shop-checkout.html). Shop currently in Stripe TEST MODE (shop-checkout.html TEST_MODE=true) - remember to flip to live before real customers. Order confirmation + shipped/tracking emails already built (session 3). Specific improvement areas to be defined in next session.

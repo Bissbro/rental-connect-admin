@@ -228,3 +228,25 @@ Previous notes said "HTM and RC admin are separate systems, do not conflate them
 - Genuine per-tenant DB isolation (req.db pattern, separate database per tenant) ONLY exists for actual paying RC tenants - confirmed working correctly for Coral Guesthouse (rc_tenant_2, verified independently isolated, has its own real booking/unit data, untouched by HTM operations).
 - rc_tenant_1 was a stale, unused snapshot copy of old htm_rentals data (frozen at booking id 74, never kept in sync, zero code references) - confirmed safe and deleted Jun 27.
 - Practical implication: there is no access control boundary between HTM and RC admin at the login/app level - only Coral (and future real tenants) get genuine data isolation via their own rc_tenant_X database. HTM intentionally never got this treatment and was never meant to - "no use case for HTM in RC going forward" was confirmed as the deliberate direction.
+
+## Session 7 (Jun 27) - Major: Restored real multi-tenant DB isolation for RC
+Root cause investigation revealed the entire per-tenant database routing system (getTenantPool, req.db, masterPool/rc_master) was fully built June 16-20 but got silently destroyed by the same bad sed delete documented in Session 6 (only the email functions were noticed missing and restored at the time - this was collateral damage that went unnoticed for a week). In its absence, RC's /api/rental-connect/* routes had been "fixed" to use the shared htm_rentals pool with tenant_id columns instead - meaning RC tenants had ZERO real isolation from HTM and from each other the whole time, just security-by-obscurity (no UI ever showed mixed data because no second real RC tenant had been tested end-to-end until tonight).
+
+Restored:
+- masterPool (rc_master) + getTenantPool()/tenantPools cache, reinserted after the main pool definition.
+- requireAuth now sets req.db = getTenantPool(req.user.db) when the JWT carries a db field.
+- All 21 /api/rental-connect/* routes converted from pool.query (htm_rentals, tenant_id filtered) to req.db.query (tenant's own isolated database, no tenant_id needed since the column doesn't exist in rc_tenant_X schemas).
+- generateTenantInvoicePDF and the payslip PDF route updated to accept/resolve a db connection instead of always using pool.
+- Split login into two separate endpoints: /api/admin/login (HTM only, admin_users table, no rc_master lookup) and new /api/rental-connect/login (RC tenants only, rc_master.tenant_users). Previously both frontends called the same /api/admin/login, which checked rc_master first - meaning any RC tenant's credentials would also work on HTM's legacy login form and vice versa.
+- Updated rental-connect-admin/index.html to call the new /api/rental-connect/login endpoint.
+- Deleted duplicate user records that existed in the wrong system: removed bissbro from rc_master.tenant_users (was pointing at the now-deleted rc_tenant_1), removed coral_admin from htm_rentals.admin_users (was a stray duplicate letting Coral's credentials work on HTM's own legacy login, pulling real HTM data through the unscoped pool).
+- Dropped rc_tenant_1 database - confirmed dead/unused snapshot of old htm_rentals data, frozen since booking id 74, zero code references anywhere.
+
+Verified end-to-end: bissbro -> HTM legacy admin only, sees only htm_rentals data. coral_admin -> RC admin only, sees only rc_tenant_2 data (1 unit, 1 test booking - correctly isolated, not 85 HTM bookings). Cross-login in either direction now correctly fails with "Invalid credentials."
+
+## Corrected Architecture (supersedes all earlier session notes on this topic)
+- ONE Express app (server.js), ONE PM2 process, serves both HTM legacy routes AND /api/rental-connect/* routes.
+- HTM: admin_users table (htm_rentals db) + pool (direct htm_rentals connection). No tenant isolation needed or used - HTM is not multi-tenant, it's the original single-tenant app.
+- RC tenants: rc_master.tenant_users table (login only) + getTenantPool(db_name) -> each tenant's own physical database (rc_tenant_2 for Coral, future tenants get their own rc_tenant_N). Real isolation - a query literally cannot reach another tenant's data regardless of any forgotten WHERE clause, because it's a different MySQL database connection entirely.
+- Login endpoints are now separate and non-overlapping: /api/admin/login (HTM) vs /api/rental-connect/login (RC). Never let these merge again - that was the root cause of the cross-login bug found and fixed tonight.
+- When provisioning a future RC tenant: create their rc_tenant_N database (same schema as rc_tenant_2), add a row to rc_master.tenant_users with that db_name, do NOT add anything to htm_rentals.admin_users.

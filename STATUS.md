@@ -218,3 +218,13 @@ Ask the user what to work on next - don't assume based on this list alone.
 ## Session 7 Note (Jun 27)
 - Dropped rc_tenant_1 database. Confirmed dormant/unused (no code references, frozen snapshot of old htm_rentals data, stale since max booking id 74 vs htm_rentals' 96). No live functionality affected. HTM Rentals continues to operate exclusively via its own legacy admin/DB (htm_rentals) — RC admin is now exclusively for actual paying tenants (Coral Guesthouse, rc_tenant_2). rc_tenant_1 no longer exists.
 - Fixed /api/admin/analytics/overview: removed stray "AND tenant_id = ?" filter referencing a column that doesn't exist on analytics_sessions (HTM's legacy analytics tables were never given tenant_id columns). Route now works for HTM admin.
+
+## Architecture Clarification (Jun 27) - IMPORTANT, supersedes earlier wording
+Previous notes said "HTM and RC admin are separate systems, do not conflate them" - this was incomplete and caused confusion in a later session. The real picture:
+
+- There is only ONE Express app (htm-rentals-backend/server.js) and ONE PM2 process. It serves both HTM's legacy routes (tenant_id=1, htm_rentals DB) AND the /api/rental-connect/* routes, all from the SAME database connection (pool -> htm_rentals).
+- The RC admin frontend (/admin/, rental-connect-admin/*.html) is served as static files directly from this same server.js (see `app.use('/admin', express.static(...))`). There is no separate backend for RC.
+- HTM's login (bissbro) works in /admin/ and pulls REAL htm_rentals data through /api/rental-connect/* routes - this is expected, not a bug. These routes were added to server.js reusing tenant_id=1 (HTM), they do not provide isolation for HTM.
+- Genuine per-tenant DB isolation (req.db pattern, separate database per tenant) ONLY exists for actual paying RC tenants - confirmed working correctly for Coral Guesthouse (rc_tenant_2, verified independently isolated, has its own real booking/unit data, untouched by HTM operations).
+- rc_tenant_1 was a stale, unused snapshot copy of old htm_rentals data (frozen at booking id 74, never kept in sync, zero code references) - confirmed safe and deleted Jun 27.
+- Practical implication: there is no access control boundary between HTM and RC admin at the login/app level - only Coral (and future real tenants) get genuine data isolation via their own rc_tenant_X database. HTM intentionally never got this treatment and was never meant to - "no use case for HTM in RC going forward" was confirmed as the deliberate direction.

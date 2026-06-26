@@ -214,3 +214,7 @@ Immediate priorities for this session:
 4. Ask user what else needs attention in the shop improvement pass - this was an ongoing multi-session effort (started session 6, "let's improve the shop").
 
 Ask the user what to work on next - don't assume based on this list alone.
+
+## Session 7 Note (Jun 27)
+- Dropped rc_tenant_1 database. Confirmed dormant/unused (no code references, frozen snapshot of old htm_rentals data, stale since max booking id 74 vs htm_rentals' 96). No live functionality affected. HTM Rentals continues to operate exclusively via its own legacy admin/DB (htm_rentals) — RC admin is now exclusively for actual paying tenants (Coral Guesthouse, rc_tenant_2). rc_tenant_1 no longer exists.
+- Fixed /api/admin/analytics/overview: removed stray "AND tenant_id = ?" filter referencing a column that doesn't exist on analytics_sessions (HTM's legacy analytics tables were never given tenant_id columns). Route now works for HTM admin.

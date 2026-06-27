@@ -86,6 +86,7 @@ async function login() {
             localStorage.setItem('rc_tenant_id', data.tenant_id);
             localStorage.setItem('rc_plan', data.plan || 'guesthouse');
             localStorage.setItem('rc_tenant_name', data.tenant_name || '');
+            localStorage.setItem('rc_features', JSON.stringify(data.features || []));
             window.location.href = 'dashboard.html';
         } else {
             errEl.textContent = data.error || 'Invalid credentials.';

@@ -1,28 +1,44 @@
 (function() {
-  const plan = localStorage.getItem('rc_plan') || 'guesthouse';
+  let features = [];
+  try {
+    features = JSON.parse(localStorage.getItem('rc_features') || '[]');
+  } catch(e) { features = []; }
 
-  // Pages only visible to guesthouse tier
-  const guesthouseOnly = ['minibar.html', 'staff-payroll.html'];
+  const pageToFeature = {
+    'bookings.html': 'bookings',
+    'leads.html': 'leads',
+    'block-dates.html': 'block_dates',
+    'calendar.html': 'calendar',
+    'units.html': 'units',
+    'minibar.html': 'minibar',
+    'hero-slides.html': 'hero_slides',
+    'promo-banners.html': 'promo_banners',
+    'promotion.html': 'promotion',
+    'reviews.html': 'reviews',
+    'experiences.html': 'experiences',
+    'invoice.html': 'invoice',
+    'finance.html': 'finance',
+    'reports.html': 'reports',
+    'petty-cash.html': 'petty_cash',
+    'staff-payroll.html': 'staff_payroll',
+    'dashboard.html': 'dashboard',
+    'settings.html': 'settings'
+  };
 
-  // Pages visible to rental_business AND guesthouse (hidden for homestay)
-  const businessAndUp = ['leads.html', 'petty-cash.html', 'promotion.html', 'hero-slides.html', 'promo-banners.html', 'reviews.html', 'experiences.html'];
+  document.querySelectorAll('a.nav-item').forEach(a => {
+    const href = a.getAttribute('href');
+    const featureKey = pageToFeature[href];
+    // view-site-link has no static href match (uses '#'), always shown if 'view_site' is in features
+    if (a.id === 'view-site-link') {
+      if (!features.includes('view_site')) a.style.display = 'none';
+      return;
+    }
+    if (featureKey && !features.includes(featureKey)) {
+      a.style.display = 'none';
+    }
+  });
 
-  let toHide = [];
-  if (plan === 'homestay') {
-    toHide = guesthouseOnly.concat(businessAndUp);
-  } else if (plan === 'rental_business') {
-    toHide = guesthouseOnly;
-  }
-
-  function hideNavLink(href) {
-    document.querySelectorAll('a.nav-item').forEach(a => {
-      if (a.getAttribute('href') === href) a.style.display = 'none';
-    });
-  }
-
-  toHide.forEach(hideNavLink);
-
-  // After hiding items, hide any section header followed by zero visible items before the next section
+  // Hide any section header left with zero visible items before the next section
   const nav = document.querySelector('.sidebar-nav');
   if (nav) {
     const children = Array.from(nav.children);

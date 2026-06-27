@@ -326,3 +326,27 @@ NEXT PRIORITY: Phase 2 - tier-gating logic in the actual RC tenant admin UI (ren
 Phase 1 AND Phase 2 are now both complete and verified working end-to-end.
 
 NEXT: no further phases currently scoped as urgent. Future work (lower priority, build only when actually needed): Experience Provider tier dedicated UI/tables; HTM website "Partnered Properties" + "Experiences" showcase sections (needs real opted-in tenants first); RC Master Admin nice-to-haves (edit/deactivate tenant, reset password) - not built, current flow only supports create + list.
+
+## Phase 2.5 COMPLETE (Jun 28) - Dynamic per-tenant feature system + full Master Admin CRUD
+Replaced the fixed plan-based gating (homestay/rental_business/guesthouse hardcoded hide-lists) with a fully dynamic, database-driven feature system, since RC admin itself is still being actively built and a hardcoded approach would require editing gating logic + UI every time a new feature/page is added.
+
+### Schema (rc_master)
+- New table `features`: id, key_name, label, page_url, category, sort_order, is_core. Seeded with all 19 current RC admin sections (dashboard, bookings, leads, block_dates, calendar, units, minibar, hero_slides, promo_banners, promotion, reviews, view_site, experiences, invoice, finance, reports, petty_cash, staff_payroll, settings). is_core=1 for dashboard/settings - these are always enabled for every tenant regardless of selection, never shown as toggleable.
+- New table `tenant_features`: tenant_id + feature_id join table (many-to-many), FK cascade delete on both sides.
+- tenants.plan enum retained as a label/preset hint only - actual gating now driven entirely by tenant_features, not by plan.
+
+### Backend (server.js)
+- `/api/rental-connect/login` now joins tenant_features + features, returns a `features` array of key_names (plus core features always appended) in both the JWT and the JSON response.
+- New routes: `GET /api/rc-master/features` (list all), `GET /api/rc-master/tenants/:id/features` (get one tenant's current feature_ids), `PUT /api/rc-master/tenants/:id/features` (replace a tenant's feature set), `DELETE /api/rc-master/tenants/:id` (cascades tenant_features + tenant_users deletion, then drops the tenant's actual database via a root-equivalent connection).
+
+### Frontend
+- `tier-gate.js` rewritten: reads `rc_features` (JSON array) from localStorage instead of a plan string. Maps each nav-item's href to a feature key via a lookup table, hides any link whose feature isn't in the tenant's array. Generic "hide empty section header" logic unchanged/still works correctly with the new dynamic source.
+- `index.html` (RC tenant login) now stores `rc_features` in localStorage on login.
+- `rc-master.html` fully rebuilt: dynamic checklist (grouped by category, core features shown as always-on/disabled checkboxes) replaces the old single plan dropdown for onboarding. Plan dropdown still present as a quick-preset button (applies a sensible default checklist per plan, fully editable before submitting) rather than the sole source of truth. Added "Edit Features" button per tenant in the list (opens a modal, pre-fills their current features, saves via PUT). Added "Delete" button per tenant with a typed-name confirmation prompt (case-sensitive, must match exactly) before calling the delete endpoint.
+
+### Build note: heredoc/paste reliability on mobile SSH
+Attempting to transfer rc-master.html via a single base64-encoded line (to avoid quote/backtick escaping issues) caused silent corruption when pasted through the mobile terminal app - resulted in a mismatched-quote syntax error despite base64 containing no special characters, so the failure was almost certainly a long-single-line paste/buffer issue on the mobile client, not a base64/encoding bug. Resolved by reverting to plain multi-line heredocs (same method that worked reliably all session for other files), split into 3 sequential chunks for manageability, and rewriting template-literal-heavy JS into plain string concatenation to minimize fragile characters (backticks, nested escaped quotes) in any single paste. LESSON: avoid extremely long single-line pastes (e.g. base64 blobs) over mobile SSH - prefer normal multi-line heredocs, chunked if the file is large, and validate with `node --check` immediately after each chunk.
+
+Live-tested full CRUD cycle end-to-end: created a test tenant with a custom partial feature set (test2 - Dashboard/Bookings/Block Dates/Units/View Site/Settings only), confirmed correct sidebar gating on actual tenant login, used Edit Features to confirm modal pre-fills correctly, used Delete with correct typed confirmation - verified tenant row, tenant_features rows, and actual rc_tenant_N database were all cleanly removed afterward with no orphaned data.
+
+RC Master Admin is now a complete, working tenant management system: create, configure features per-tenant (fully custom, not just fixed tiers), edit later, and delete - all without any manual SSH/SQL work.

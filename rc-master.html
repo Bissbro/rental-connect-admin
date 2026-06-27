@@ -4,71 +4,156 @@
 <meta charset="utf-8">
 <title>RC Master Admin</title>
 <style>
-  body { font-family: -apple-system, sans-serif; background: #0A2540; color: #1C1C1E; margin: 0; }
-  .wrap { max-width: 720px; margin: 0 auto; padding: 24px; }
-  .card { background: white; border-radius: 10px; padding: 20px; margin-bottom: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.15); }
-  h1 { color: white; font-size: 22px; }
-  h2 { font-size: 16px; margin-top: 0; }
-  input, select { width: 100%; padding: 10px; margin: 6px 0 12px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; }
-  button { background: #40B5AD; color: white; border: none; padding: 10px 16px; border-radius: 6px; cursor: pointer; font-size: 14px; }
-  button:hover { opacity: 0.9; }
+  :root {
+    --navy: #0A2540; --gold: #B8975A; --teal: #40B5AD; --warm: #FAFAF8; --charcoal: #1C1C1E;
+    --border: #E2E8F0; --gray: #6C757D; --danger: #C0392B;
+  }
+  * { box-sizing: border-box; }
+  body { font-family: -apple-system, 'Segoe UI', sans-serif; background: var(--warm); color: var(--charcoal); margin: 0; }
+  .topbar { background: var(--navy); color: white; padding: 16px 32px; display: flex; justify-content: space-between; align-items: center; }
+  .topbar h1 { font-size: 18px; margin: 0; font-weight: 600; letter-spacing: 0.3px; }
+  .topbar .sub { font-size: 12px; color: rgba(255,255,255,0.5); margin-top: 2px; }
+  .topbar button { background: rgba(255,255,255,0.1); color: white; border: none; padding: 8px 14px; border-radius: 6px; cursor: pointer; font-size: 13px; }
+  .topbar button:hover { background: rgba(255,255,255,0.18); }
+
+  .wrap { max-width: 1100px; margin: 0 auto; padding: 28px 32px; }
+  .login-wrap { max-width: 360px; margin: 80px auto; }
+
+  .card { background: white; border: 1px solid var(--border); border-radius: 10px; padding: 22px; margin-bottom: 20px; }
+  .card h2 { font-size: 15px; margin: 0 0 16px; color: var(--navy); }
+
+  input, select { width: 100%; padding: 9px 10px; margin-bottom: 12px; border: 1px solid var(--border); border-radius: 6px; font-size: 13px; }
+  label.field-label { font-size: 12px; color: var(--gray); display: block; margin-bottom: 4px; font-weight: 600; }
+
+  button.primary { background: var(--teal); color: white; border: none; padding: 10px 18px; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 600; }
+  button.primary:hover { opacity: 0.9; }
+  button.secondary { background: white; color: var(--navy); border: 1px solid var(--border); padding: 8px 14px; border-radius: 6px; cursor: pointer; font-size: 12px; }
+  button.danger { background: white; color: var(--danger); border: 1px solid var(--danger); padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; }
+  button.danger:hover { background: var(--danger); color: white; }
+
   table { width: 100%; border-collapse: collapse; font-size: 13px; }
-  td, th { padding: 8px; border-bottom: 1px solid #eee; text-align: left; }
-  .err { color: #CC0000; font-size: 13px; margin-top: 4px; }
-  .ok { color: #2a9d3f; font-size: 13px; margin-top: 4px; }
-  .badge { background: #B8975A; color: white; padding: 2px 8px; border-radius: 10px; font-size: 11px; }
-  #app { display: none; }
+  th { text-align: left; padding: 10px 12px; color: var(--gray); font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 2px solid var(--border); }
+  td { padding: 12px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+  .badge { background: var(--gold); color: white; padding: 3px 9px; border-radius: 10px; font-size: 11px; font-weight: 600; }
+  .status-active { color: #2a9d3f; font-weight: 600; font-size: 12px; }
+  .status-trial { color: var(--gold); font-weight: 600; font-size: 12px; }
+  .status-suspended { color: var(--danger); font-weight: 600; font-size: 12px; }
+
+  .feature-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 4px 24px; }
+  .feature-category { grid-column: 1 / -1; font-size: 11px; color: var(--teal); text-transform: uppercase; letter-spacing: 0.5px; font-weight: 700; margin-top: 12px; margin-bottom: 2px; }
+  .feature-row { display: flex; align-items: center; gap: 8px; padding: 4px 0; font-size: 13px; }
+  .feature-row input { width: auto; margin: 0; }
+
+  .err { color: var(--danger); font-size: 13px; margin-top: 6px; }
+  .ok { color: #2a9d3f; font-size: 13px; margin-top: 6px; }
+
+  .modal-backdrop { display: none; position: fixed; top:0; left:0; right:0; bottom:0; background: rgba(0,0,0,0.5); z-index: 200; align-items: center; justify-content: center; }
+  .modal-backdrop.show { display: flex; }
+  .modal { background: white; border-radius: 10px; padding: 24px; width: 480px; max-height: 80vh; overflow-y: auto; }
+  .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 18px; }
+
+  .actions-cell { display: flex; gap: 8px; }
 </style>
 </head>
 <body>
-<div class="wrap">
-  <h1>RC Master Admin</h1>
 
-  <div id="login-card" class="card">
-    <h2>Login</h2>
-    <input id="username" placeholder="Username">
-    <input id="password" type="password" placeholder="Password">
-    <button onclick="login()">Log In</button>
+<div id="login-screen" class="login-wrap">
+  <div class="card">
+    <h2>RC Master Admin</h2>
+    <label class="field-label">Username</label>
+    <input id="username">
+    <label class="field-label">Password</label>
+    <input id="password" type="password">
+    <button class="primary" style="width:100%" onclick="login()">Log In</button>
     <div id="login-err" class="err"></div>
   </div>
+</div>
 
-  <div id="app">
+<div id="app" style="display:none">
+  <div class="topbar">
+    <div>
+      <h1>RC Master Admin</h1>
+      <div class="sub">Tenant management &amp; provisioning</div>
+    </div>
+    <button onclick="logout()">Sign Out</button>
+  </div>
+
+  <div class="wrap">
+
     <div class="card">
       <h2>Onboard New Tenant</h2>
-      <input id="t-name" placeholder="Business Name (e.g. Sunset Villa)">
-      <input id="t-slug" placeholder="Slug (e.g. sunset-villa, lowercase no spaces)">
-      <select id="t-plan">
-        <option value="homestay">Homestay</option>
-        <option value="rental_business">Rental Business</option>
-        <option value="guesthouse">Guesthouse</option>
-        <option value="experience_provider">Experience Provider</option>
-      </select>
-      <input id="t-username" placeholder="Admin Username (e.g. sunset_admin)">
-      <input id="t-password" placeholder="Admin Password">
-      <button onclick="createTenant()">Create Tenant</button>
+      <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 0 20px;">
+        <div>
+          <label class="field-label">Business Name</label>
+          <input id="t-name" placeholder="e.g. Sunset Villa">
+        </div>
+        <div>
+          <label class="field-label">Slug</label>
+          <input id="t-slug" placeholder="e.g. sunset-villa">
+        </div>
+        <div>
+          <label class="field-label">Admin Username</label>
+          <input id="t-username" placeholder="e.g. sunset_admin">
+        </div>
+        <div>
+          <label class="field-label">Admin Password</label>
+          <input id="t-password" placeholder="Set a password">
+        </div>
+        <div>
+          <label class="field-label">Plan Preset</label>
+          <select id="t-plan" onchange="applyPreset('t-plan', 'create-features')">
+            <option value="homestay">Homestay</option>
+            <option value="rental_business">Rental Business</option>
+            <option value="guesthouse" selected>Guesthouse</option>
+            <option value="experience_provider">Experience Provider</option>
+          </select>
+        </div>
+      </div>
+
+      <label class="field-label" style="margin-top:8px">Features</label>
+      <div id="create-features" class="feature-grid"></div>
+
+      <div style="margin-top:16px">
+        <button class="primary" onclick="createTenant()">Create Tenant</button>
+      </div>
       <div id="create-err" class="err"></div>
       <div id="create-ok" class="ok"></div>
     </div>
 
     <div class="card">
       <h2>Existing Tenants</h2>
-      <table id="tenant-table">
-        <thead><tr><th>Name</th><th>Plan</th><th>Status</th><th>Username</th><th>DB</th></tr></thead>
-        <tbody></tbody>
+      <table>
+        <thead><tr><th>Name</th><th>Plan</th><th>Status</th><th>Username</th><th>Database</th><th>Actions</th></tr></thead>
+        <tbody id="tenant-tbody"></tbody>
       </table>
+    </div>
+
+  </div>
+</div>
+
+<div class="modal-backdrop" id="edit-modal">
+  <div class="modal">
+    <h2 id="edit-modal-title" style="font-size:15px; color:var(--navy); margin-top:0;">Edit Features</h2>
+    <div id="edit-features" class="feature-grid"></div>
+    <div id="edit-err" class="err"></div>
+    <div class="modal-actions">
+      <button class="secondary" onclick="closeEditModal()">Cancel</button>
+      <button class="primary" onclick="saveFeatures()">Save</button>
     </div>
   </div>
 </div>
 
 <script>
 const API = 'https://api.htmrentals.com/api';
+let ALL_FEATURES = [];
+let editingTenantId = null;
 
 function getToken() { return sessionStorage.getItem('rcmaster_token'); }
 
 function showApp() {
-  document.getElementById('login-card').style.display = 'none';
+  document.getElementById('login-screen').style.display = 'none';
   document.getElementById('app').style.display = 'block';
-  loadTenants();
+  loadFeatures().then(() => { loadTenants(); });
 }
 
 async function login() {
@@ -92,17 +177,85 @@ async function login() {
   } catch(e) { errEl.textContent = 'Login failed'; }
 }
 
+function logout() {
+  sessionStorage.removeItem('rcmaster_token');
+  location.reload();
+}
+
+async function loadFeatures() {
+  try {
+    const res = await fetch(API + '/rc-master/features', { headers: { 'Authorization': 'Bearer ' + getToken() } });
+    const data = await res.json();
+    ALL_FEATURES = data.features || [];
+    renderFeatureGrid('create-features', []);
+    applyPreset('t-plan', 'create-features');
+  } catch(e) { console.error(e); }
+}
+
+function renderFeatureGrid(containerId, checkedIds) {
+  const container = document.getElementById(containerId);
+  container.innerHTML = '';
+  let lastCategory = null;
+  ALL_FEATURES.forEach(f => {
+    if (f.category !== lastCategory) {
+      const catDiv = document.createElement('div');
+      catDiv.className = 'feature-category';
+      catDiv.textContent = f.category;
+      container.appendChild(catDiv);
+      lastCategory = f.category;
+    }
+    const row = document.createElement('label');
+    row.className = 'feature-row';
+    const checked = checkedIds.includes(f.id) || f.is_core ? 'checked' : '';
+    const disabled = f.is_core ? 'disabled' : '';
+    row.innerHTML = '<input type="checkbox" value="' + f.id + '" ' + checked + ' ' + disabled + '> ' + f.label + (f.is_core ? ' <span style="color:var(--gray);font-size:11px">(always on)</span>' : '');
+    container.appendChild(row);
+  });
+}
+
+const PRESETS = {
+  homestay: ['bookings','block_dates','calendar','units','view_site','invoice','finance','reports'],
+  rental_business: ['bookings','leads','block_dates','calendar','units','view_site','hero_slides','promo_banners','promotion','invoice','finance','reports','petty_cash'],
+  guesthouse: null,
+  experience_provider: ['bookings','calendar','experiences','view_site','invoice','finance','reports']
+};
+
+function applyPreset(selectId, gridId) {
+  const plan = document.getElementById(selectId).value;
+  let keys = PRESETS[plan];
+  let ids;
+  if (keys === null) {
+    ids = ALL_FEATURES.map(function(f) { return f.id; });
+  } else {
+    ids = ALL_FEATURES.filter(function(f) { return keys.includes(f.key_name); }).map(function(f) { return f.id; });
+  }
+  renderFeatureGrid(gridId, ids);
+}
+
+function getCheckedIds(containerId) {
+  return Array.from(document.querySelectorAll('#' + containerId + ' input[type=checkbox]'))
+    .filter(function(c) { return c.checked; })
+    .map(function(c) { return parseInt(c.value, 10); });
+}
+
 async function loadTenants() {
   try {
-    const res = await fetch(API + '/rc-master/tenants', {
-      headers: { 'Authorization': 'Bearer ' + getToken() }
-    });
+    const res = await fetch(API + '/rc-master/tenants', { headers: { 'Authorization': 'Bearer ' + getToken() } });
     const data = await res.json();
-    const tbody = document.querySelector('#tenant-table tbody');
+    const tbody = document.getElementById('tenant-tbody');
     tbody.innerHTML = '';
-    (data.tenants || []).forEach(t => {
+    (data.tenants || []).forEach(function(t) {
       const tr = document.createElement('tr');
-      tr.innerHTML = `<td>${t.name}</td><td><span class="badge">${t.plan}</span></td><td>${t.status}</td><td>${t.username}</td><td>${t.db_name}</td>`;
+      const safeName = t.name.split("'").join("\\'");
+      tr.innerHTML = '<td>' + t.name + '</td>' +
+        '<td><span class="badge">' + t.plan + '</span></td>' +
+        '<td><span class="status-' + t.status + '">' + t.status + '</span></td>' +
+        '<td>' + (t.username || '-') + '</td>' +
+        '<td style="color:#6C757D;font-size:12px">' + t.db_name + '</td>' +
+        '<td class="actions-cell">' +
+        '<button class="secondary" onclick="openEditModal(' + t.id + ", '" + safeName + "')\">Edit Features</button>" +
+        '<button class="danger" onclick="deleteTenant(' + t.id + ", '" + safeName + "')\">Delete</button>" +
+        '</td>';
       tbody.appendChild(tr);
     });
   } catch(e) { console.error(e); }
@@ -131,6 +284,12 @@ async function createTenant() {
     });
     const data = await res.json();
     if (data.success) {
+      const featureIds = getCheckedIds('create-features');
+      await fetch(API + '/rc-master/tenants/' + data.tenant.id + '/features', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + getToken() },
+        body: JSON.stringify({ feature_ids: featureIds })
+      });
       okEl.textContent = 'Tenant created: ' + data.tenant.db_name;
       document.getElementById('t-name').value = '';
       document.getElementById('t-slug').value = '';
@@ -141,6 +300,65 @@ async function createTenant() {
       errEl.textContent = data.error || 'Failed to create tenant';
     }
   } catch(e) { errEl.textContent = 'Request failed'; }
+}
+
+async function openEditModal(tenantId, tenantName) {
+  editingTenantId = tenantId;
+  document.getElementById('edit-modal-title').textContent = 'Edit Features - ' + tenantName;
+  document.getElementById('edit-err').textContent = '';
+  try {
+    const res = await fetch(API + '/rc-master/tenants/' + tenantId + '/features', { headers: { 'Authorization': 'Bearer ' + getToken() } });
+    const data = await res.json();
+    renderFeatureGrid('edit-features', data.feature_ids || []);
+    document.getElementById('edit-modal').classList.add('show');
+  } catch(e) {
+    document.getElementById('edit-err').textContent = 'Failed to load current features';
+  }
+}
+
+function closeEditModal() {
+  document.getElementById('edit-modal').classList.remove('show');
+  editingTenantId = null;
+}
+
+async function saveFeatures() {
+  const errEl = document.getElementById('edit-err');
+  errEl.textContent = '';
+  const featureIds = getCheckedIds('edit-features');
+  try {
+    const res = await fetch(API + '/rc-master/tenants/' + editingTenantId + '/features', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + getToken() },
+      body: JSON.stringify({ feature_ids: featureIds })
+    });
+    const data = await res.json();
+    if (data.success) {
+      closeEditModal();
+      loadTenants();
+    } else {
+      errEl.textContent = data.error || 'Failed to save';
+    }
+  } catch(e) { errEl.textContent = 'Request failed'; }
+}
+
+async function deleteTenant(tenantId, tenantName) {
+  const confirmText = prompt('This will permanently delete "' + tenantName + '" and all its data. Type the tenant name exactly to confirm:');
+  if (confirmText !== tenantName) {
+    if (confirmText !== null) alert('Name did not match - cancelled.');
+    return;
+  }
+  try {
+    const res = await fetch(API + '/rc-master/tenants/' + tenantId, {
+      method: 'DELETE',
+      headers: { 'Authorization': 'Bearer ' + getToken() }
+    });
+    const data = await res.json();
+    if (data.success) {
+      loadTenants();
+    } else {
+      alert(data.error || 'Failed to delete tenant');
+    }
+  } catch(e) { alert('Request failed'); }
 }
 
 if (getToken()) showApp();

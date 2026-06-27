@@ -285,3 +285,19 @@ Decided on the SAFE architecture after explicitly discussing and rejecting a ris
 - Updated tenants.plan enum from generic ('starter','pro') to actual tier names: ('homestay','rental_business','guesthouse','experience_provider'). Coral Guesthouse set to 'guesthouse' (correct tier for its feature set).
 - NEXT: tenant_users table has no tier field yet - tier lives on `tenants` table via the `plan` column (correct - tier belongs to the tenant/business, not the individual login). Login route needs to look up and return the tenant's plan so RC admin frontend can gate UI sections accordingly. This wiring not yet done - login response currently only returns tenant_id/db, not plan.
 - RC Master Admin build (auth: hardcoded single super-admin user via env vars, NOT in admin_users or tenant_users; route /api/rc-master/login; separate requireSuperAdmin middleware) - decided on approach, not yet built. Next session: build login route + middleware, then onboarding form/route (create DB, clone schema from rc_tenant_2, bcrypt hash, insert into both tenants and tenant_users tables with chosen plan).
+
+## Phase 1 COMPLETE (Jun 27/28) - RC Master Admin onboarding automation working end-to-end
+Built and verified the RC Master Admin onboarding system:
+- New route /api/rc-master/login: hardcoded super-admin credentials (username bissbro) via env vars, separate from admin_users/tenant_users entirely. Issues JWT with role:'superadmin'.
+- New requireSuperAdmin middleware checks for that role claim - fully separate from requireAuth/HTM/RC tenant auth, no overlap risk.
+- New route /api/rc-master/tenants (GET - list all tenants, POST - onboard a new tenant). POST takes {name, slug, plan, username, password}, automates: CREATE DATABASE rc_tenant_N, clone schema from rc_tenant_2 (reference tenant), bcrypt hash password, insert into both rc_master.tenants and rc_master.tenant_users.
+
+CRITICAL FIX during this build: htm_user (the app's MySQL user) only had explicit GRANT ALL on 4 hardcoded databases (rc_master, htm_rentals, rc_tenant_1, rc_tenant_2) - no privilege to use newly-created databases. Onboarding could CREATE DATABASE rc_tenant_3 but then got "Access denied... to database 'rc_tenant_3'" on every subsequent query. Fixed permanently with a wildcard grant: `GRANT ALL PRIVILEGES ON \`rc_tenant_%\`.* TO 'htm_user'@'localhost';` (via root - root has NO password, uses unix socket auth, access via plain `sudo mysql` with no -u/-p flags, NOT via debian.cnf which is obsolete on this MariaDB version). This wildcard grant means ALL future rc_tenant_N databases will automatically work without needing this fix repeated.
+
+Verified full flow end-to-end with a test tenant (created, confirmed schema cloned correctly - 20 tables matching Coral's, confirmed login via /api/rental-connect/login returns correct token with db:rc_tenant_3, then cleaned up/deleted the test tenant after verification).
+
+tenants.plan enum already set to real tier names from earlier prep (homestay, rental_business, guesthouse, experience_provider) - onboarding form/API accepts plan directly.
+
+NEXT (not yet built): 
+- RC Master Admin frontend UI (currently only tested via curl/API directly - no actual HTML page yet for onboarding form or tenant list).
+- Tier-gating logic in RC tenant admin UI (hide/show sidebar sections based on the tenant's plan - currently plan is stored but nothing reads it to actually gate any features yet).

@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>RC Master Admin</title>
+<style>
+  body { font-family: -apple-system, sans-serif; background: #0A2540; color: #1C1C1E; margin: 0; }
+  .wrap { max-width: 720px; margin: 0 auto; padding: 24px; }
+  .card { background: white; border-radius: 10px; padding: 20px; margin-bottom: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.15); }
+  h1 { color: white; font-size: 22px; }
+  h2 { font-size: 16px; margin-top: 0; }
+  input, select { width: 100%; padding: 10px; margin: 6px 0 12px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; }
+  button { background: #40B5AD; color: white; border: none; padding: 10px 16px; border-radius: 6px; cursor: pointer; font-size: 14px; }
+  button:hover { opacity: 0.9; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  td, th { padding: 8px; border-bottom: 1px solid #eee; text-align: left; }
+  .err { color: #CC0000; font-size: 13px; margin-top: 4px; }
+  .ok { color: #2a9d3f; font-size: 13px; margin-top: 4px; }
+  .badge { background: #B8975A; color: white; padding: 2px 8px; border-radius: 10px; font-size: 11px; }
+  #app { display: none; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>RC Master Admin</h1>
+
+  <div id="login-card" class="card">
+    <h2>Login</h2>
+    <input id="username" placeholder="Username">
+    <input id="password" type="password" placeholder="Password">
+    <button onclick="login()">Log In</button>
+    <div id="login-err" class="err"></div>
+  </div>
+
+  <div id="app">
+    <div class="card">
+      <h2>Onboard New Tenant</h2>
+      <input id="t-name" placeholder="Business Name (e.g. Sunset Villa)">
+      <input id="t-slug" placeholder="Slug (e.g. sunset-villa, lowercase no spaces)">
+      <select id="t-plan">
+        <option value="homestay">Homestay</option>
+        <option value="rental_business">Rental Business</option>
+        <option value="guesthouse">Guesthouse</option>
+        <option value="experience_provider">Experience Provider</option>
+      </select>
+      <input id="t-username" placeholder="Admin Username (e.g. sunset_admin)">
+      <input id="t-password" placeholder="Admin Password">
+      <button onclick="createTenant()">Create Tenant</button>
+      <div id="create-err" class="err"></div>
+      <div id="create-ok" class="ok"></div>
+    </div>
+
+    <div class="card">
+      <h2>Existing Tenants</h2>
+      <table id="tenant-table">
+        <thead><tr><th>Name</th><th>Plan</th><th>Status</th><th>Username</th><th>DB</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+const API = 'https://api.htmrentals.com/api';
+
+function getToken() { return sessionStorage.getItem('rcmaster_token'); }
+
+function showApp() {
+  document.getElementById('login-card').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  loadTenants();
+}
+
+async function login() {
+  const username = document.getElementById('username').value.trim();
+  const password = document.getElementById('password').value;
+  const errEl = document.getElementById('login-err');
+  errEl.textContent = '';
+  try {
+    const res = await fetch(API + '/rc-master/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, password })
+    });
+    const data = await res.json();
+    if (data.success) {
+      sessionStorage.setItem('rcmaster_token', data.token);
+      showApp();
+    } else {
+      errEl.textContent = data.error || 'Invalid credentials';
+    }
+  } catch(e) { errEl.textContent = 'Login failed'; }
+}
+
+async function loadTenants() {
+  try {
+    const res = await fetch(API + '/rc-master/tenants', {
+      headers: { 'Authorization': 'Bearer ' + getToken() }
+    });
+    const data = await res.json();
+    const tbody = document.querySelector('#tenant-table tbody');
+    tbody.innerHTML = '';
+    (data.tenants || []).forEach(t => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td>${t.name}</td><td><span class="badge">${t.plan}</span></td><td>${t.status}</td><td>${t.username}</td><td>${t.db_name}</td>`;
+      tbody.appendChild(tr);
+    });
+  } catch(e) { console.error(e); }
+}
+
+async function createTenant() {
+  const name = document.getElementById('t-name').value.trim();
+  const slug = document.getElementById('t-slug').value.trim();
+  const plan = document.getElementById('t-plan').value;
+  const username = document.getElementById('t-username').value.trim();
+  const password = document.getElementById('t-password').value;
+  const errEl = document.getElementById('create-err');
+  const okEl = document.getElementById('create-ok');
+  errEl.textContent = ''; okEl.textContent = '';
+
+  if (!name || !slug || !username || !password) {
+    errEl.textContent = 'All fields required';
+    return;
+  }
+
+  try {
+    const res = await fetch(API + '/rc-master/tenants', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + getToken() },
+      body: JSON.stringify({ name, slug, plan, username, password })
+    });
+    const data = await res.json();
+    if (data.success) {
+      okEl.textContent = 'Tenant created: ' + data.tenant.db_name;
+      document.getElementById('t-name').value = '';
+      document.getElementById('t-slug').value = '';
+      document.getElementById('t-username').value = '';
+      document.getElementById('t-password').value = '';
+      loadTenants();
+    } else {
+      errEl.textContent = data.error || 'Failed to create tenant';
+    }
+  } catch(e) { errEl.textContent = 'Request failed'; }
+}
+
+if (getToken()) showApp();
+</script>
+</body>
+</html>

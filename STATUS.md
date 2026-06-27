@@ -301,3 +301,12 @@ tenants.plan enum already set to real tier names from earlier prep (homestay, re
 NEXT (not yet built): 
 - RC Master Admin frontend UI (currently only tested via curl/API directly - no actual HTML page yet for onboarding form or tenant list).
 - Tier-gating logic in RC tenant admin UI (hide/show sidebar sections based on the tenant's plan - currently plan is stored but nothing reads it to actually gate any features yet).
+
+## Phase 1 FULLY COMPLETE (Jun 27/28) - Frontend built and live-tested
+Built rc-master.html - a self-contained single-page UI (login + onboarding form + tenant list table), served at https://api.htmrentals.com/admin/rc-master.html via the existing static file route. Not linked anywhere public - access by direct URL only, login gated by the super-admin credentials.
+
+Live-tested successfully with a real onboarding: created tenant "Sun Siyam" (slug, plan: homestay, username: iruveli) - confirmed working end-to-end through the actual UI, not just curl. Tenant list correctly displays both Sun Siyam (rc_tenant_3, homestay, trial) and Coral Guesthouse (rc_tenant_2, guesthouse, active).
+
+Phase 1 (RC Master Admin onboarding automation) is now COMPLETE - both backend (routes, DB permissions fix) and frontend (UI) working live. Onboarding a new RC tenant is now: open rc-master.html, fill in 5 fields, click Create Tenant. No more manual SSH/SQL required.
+
+NEXT PRIORITY: Phase 2 - tier-gating logic in the actual RC tenant admin UI (rental-connect-admin's other pages - dashboard, sidebar, etc.) so a 'homestay' tenant like Sun Siyam doesn't see Payroll/Petty Cash/Minibar/Promotions sections meant for 'guesthouse' tier tenants. Currently tenants.plan is stored and returned correctly in login response (confirmed: /api/rental-connect/login returns tenant_id/db, but NOT yet plan - need to verify/add plan to that login response so the tenant-facing frontend can actually read and act on it).

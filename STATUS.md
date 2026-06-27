@@ -310,3 +310,19 @@ Live-tested successfully with a real onboarding: created tenant "Sun Siyam" (slu
 Phase 1 (RC Master Admin onboarding automation) is now COMPLETE - both backend (routes, DB permissions fix) and frontend (UI) working live. Onboarding a new RC tenant is now: open rc-master.html, fill in 5 fields, click Create Tenant. No more manual SSH/SQL required.
 
 NEXT PRIORITY: Phase 2 - tier-gating logic in the actual RC tenant admin UI (rental-connect-admin's other pages - dashboard, sidebar, etc.) so a 'homestay' tenant like Sun Siyam doesn't see Payroll/Petty Cash/Minibar/Promotions sections meant for 'guesthouse' tier tenants. Currently tenants.plan is stored and returned correctly in login response (confirmed: /api/rental-connect/login returns tenant_id/db, but NOT yet plan - need to verify/add plan to that login response so the tenant-facing frontend can actually read and act on it).
+
+## Phase 2 COMPLETE (Jun 28) - Tier-gating in RC tenant admin UI
+- /api/rental-connect/login now joins tenants table and returns plan + tenant_name in addition to existing fields. JWT also now carries plan claim.
+- index.html (RC tenant login) now stores rc_plan and rc_tenant_name in localStorage alongside existing rc_token/rc_username/rc_tenant_id.
+- New shared file: rental-connect-admin/tier-gate.js - reads rc_plan from localStorage, hides nav-item links not relevant to that tier, and generically hides any nav-section header left with zero visible items underneath (no hardcoded per-section logic needed - works automatically for any future hide-list changes).
+- Tier hide-lists (defined in tier-gate.js):
+  - homestay: hides minibar, staff-payroll (guesthouse-only) AND leads, petty-cash, promotion, hero-slides, promo-banners, reviews, experiences (business-and-up)
+  - rental_business: hides only minibar, staff-payroll (guesthouse-only)
+  - guesthouse / experience_provider: nothing hidden (full feature set) - experience_provider not yet differentiated with its own UI, deferred until a real activity-provider tenant is ready (per earlier planning notes)
+  - Finance/Reports/Invoices/Settings/Bookings/Block Dates/Calendar/Units/View Site intentionally NOT gated - considered useful at every tier including homestay (a single-room owner still wants revenue visibility)
+- Script included via a single <script src="tier-gate.js"> line added to all 18 RC admin HTML pages (block-dates, bookings, calendar, dashboard, experiences, finance, hero-slides, invoice, leads, minibar, petty-cash, promo-banners, promotion, reports, reviews, settings, staff-payroll, units).
+- Live-tested with a temporary homestay-tier test tenant created via rc-master.html: confirmed correct sections hidden (Leads, Minibar, Promotions, Petty Cash, Payroll, Hero Slides, Promo Banners, Reviews, Experiences all hidden + Experiences section header correctly disappears when empty), confirmed Dashboard/Bookings/Block Dates/Calendar/Units/View Site/Invoices/Finance/Reports/Settings all remain visible. Test tenant deleted after verification.
+
+Phase 1 AND Phase 2 are now both complete and verified working end-to-end.
+
+NEXT: no further phases currently scoped as urgent. Future work (lower priority, build only when actually needed): Experience Provider tier dedicated UI/tables; HTM website "Partnered Properties" + "Experiences" showcase sections (needs real opted-in tenants first); RC Master Admin nice-to-haves (edit/deactivate tenant, reset password) - not built, current flow only supports create + list.

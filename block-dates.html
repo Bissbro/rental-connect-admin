@@ -340,7 +340,7 @@ input:focus, select:focus, textarea:focus { border-color:var(--teal); }
     }
     async function loadAvailability() {
         if (!selectedUnitId) return;
-        const res = await fetch(`${API}/bookings/availability?unit_id=${selectedUnitId}&show_all=1`, { headers: hdrs() });
+        const res = await fetch(`${API}/rental-connect/bookings/availability?unit_id=${selectedUnitId}&show_all=1`, { headers: hdrs() });
         const data = await res.json();
         if (!data.success) return;
         bookedDates = [];

@@ -379,3 +379,31 @@ Result: confirmed clean. All remaining pool.query + tenant_id occurrences (hero_
 Verified zero stray pool.query calls anywhere in the /api/rental-connect/* and /api/public/* route block (lines 6257-6800) - entire block correctly uses req.db/tdb/getTenantPool throughout.
 
 CONCLUSION: the only real bug found was the 3 public website routes (info/units/bookings) documented in the previous entry. No other instances of this bug class exist in the current codebase as of this audit.
+
+## Major fix batch (Jun 28) - RC admin had many entire features non-functional
+Following the public-website routes bug, did a UI-by-UI check of every RC admin page and found the majority of pages were either calling /api/rental-connect/* routes that didn't exist at all, or calling old HTM-only /api/admin/* routes. Root cause across all of these: RC admin's frontend was built expecting a complete rental-connect API that was never actually finished on the backend - most of tonight's earlier work only covered Bookings/Invoices/Staff/Settings.
+
+### Routes built from scratch (didn't exist before tonight):
+- Minibar (GET/POST/PUT/DELETE), Promotion Gallery, Reviews, Petty Cash - basic CRUD, req.db-based
+- Hero Images, Image Upload, Promo Banners - had to match RC's actual schema (cta_text not youtube_url/media_type/button_text on hero_images; image_url not image_filename on promo_banners - RC schema diverged from HTM's, copy-pasting HTM logic doesn't work, always verify actual columns with DESCRIBE first)
+- Reports: revenue, expenses, cashflow, occupancy, arrivals, bookings (6 report types) - adapted from HTM versions, removed tenant_id filtering, removed currency_exchanges/partners dependencies (not in RC schema)
+- Finance Summary, Revenue CRUD, Monthly Expenses CRUD - finance.html needed a specific nested response shape (summary.revenue.*, summary.cash_flow.*, summary.unit_profits[]) not just flat fields - always check exact frontend consumption code, not just guess a reasonable shape
+- Bookings Availability (tenant-scoped) + Block Dates CRUD - CRITICAL finding: the original /api/bookings/availability route had ZERO tenant scoping at all (raw unit_id lookup against shared pool) - a real latent cross-tenant leak risk (didn't manifest only because no live ID collision existed yet between htm_rentals and rc_tenant_2). Fixed with dedicated tenant-scoped route.
+- Units full CRUD (POST/PUT/DELETE) - units.html could only ever read units for RC tenants, never create/edit/delete - rate_mvr/rate_usd and original_price_mvr/usd are tracked directly as columns on rc_tenant schemas (no separate unit_rates table like HTM uses)
+
+### Schema mismatches found (RC tenant schema often differs from HTM's, despite similar-looking tables):
+- reviews.comment doesn't exist - real column is review_text, also no country column
+- hero_images has no youtube_url/media_type/button_text/button_link - has cta_text instead (simpler, image-only)
+- promo_banners stores image_url directly (full URL) not image_filename (bare filename + prefix)
+- units.amenities and units.gallery_images have a CHECK(json_valid(...)) constraint on rc_tenant schemas - must store as JSON array string, NOT comma-separated like HTM's htm_rentals.units (which has no such constraint) - this caused an update to silently fail with a SQL constraint error, and a fix attempt briefly (accidentally) modified HTM's own /api/admin/units route to also use JSON format, which would have broken HTM - caught and reverted immediately. LESSON: when fixing an RC-specific bug, always grep/verify which exact route (line number, surrounding code) you're patching - HTM and RC routes can look very similar and string-replace can match the wrong one if not scoped precisely.
+- htm_rentals has no unit_availability/block_dates distinction issue (HTM stores one row per blocked date in unit_availability); RC schema uses block_dates with start_date/end_date RANGES (one row per range, not per day) - completely different blocking model, required building a date-range-to-individual-dates expansion in the GET route for frontend compatibility.
+- units.html sends BOTH rate_mvr/rate_usd (simple per-night rate fields) AND original_price_mvr/usd (separate "original/discount price" fields) - the route's fallback logic needs `(original_price_mvr || rate_mvr) || null` not an undefined-check, since the frontend always sends original_price as explicit null (not omitted) when that field is empty, which defeats a !== undefined check.
+
+### Other concrete fixes:
+- staff-payroll.html had its closing </body> auto-guard/tier-gate script insertion accidentally land INSIDE a JS template literal building printable payslip HTML (which itself contains a literal </body></html> string) - browser's HTML parser terminated the real script block early on the literal </script> text, causing raw JS to render as visible page text. Removed the erroneous duplicate tags from inside the print template; confirmed via automated check that no other of the 18 files had the same duplication.
+- /api/rental-connect/units GET was missing `success: true` in its response - block-dates.html (and likely others) checked `if (data.success)` before populating, so the unit dropdown silently never populated despite the data being correct.
+
+### Calendar enhancement
+- calendar.html had a `blockedDates` variable and `.cal-event.blocked` CSS class already present but never wired to an actual fetch call - blocked dates were planned but never connected. Added fetch to bookings/availability endpoint and rendering logic (🚫 marker) to calendar day cells.
+
+This was a large fix batch - RC admin went from "looks complete in the UI but most buttons silently do nothing for a real tenant" to actually functional end-to-end for a guesthouse-tier tenant (Coral). Recommend a final full pass logging in as Coral and clicking through every single page/action before considering RC admin genuinely done, since this session found this many gaps through fairly cursory testing - more may exist.

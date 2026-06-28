@@ -370,7 +370,7 @@ input:focus, select:focus, textarea:focus { border-color:var(--teal); }
             container.innerHTML = '<div class="loading">Loading promotion images...</div>';
             
             try {
-                const res = await fetch(`${API_BASE_URL}/admin/promotion-gallery`, { headers: authHeaders() });
+                const res = await fetch(`${API_BASE_URL}/rental-connect/promotion-gallery`, { headers: authHeaders() });
                 if (handleAuthError(res)) return;
                 const data = await res.json();
                 
@@ -495,10 +495,10 @@ input:focus, select:focus, textarea:focus { border-color:var(--teal); }
             try {
                 let url, method;
                 if (id) {
-                    url = `${API_BASE_URL}/admin/promotion-gallery/${id}`;
+                    url = `${API_BASE_URL}/rental-connect/promotion-gallery/${id}`;
                     method = 'PUT';
                 } else {
-                    url = `${API_BASE_URL}/admin/promotion-gallery`;
+                    url = `${API_BASE_URL}/rental-connect/promotion-gallery`;
                     method = 'POST';
                 }
                 
@@ -526,7 +526,7 @@ input:focus, select:focus, textarea:focus { border-color:var(--teal); }
             if (!id || !confirm('Delete this promotion image permanently?')) return;
             
             try {
-                const res = await fetch(`${API_BASE_URL}/admin/promotion-gallery/${id}`, {
+                const res = await fetch(`${API_BASE_URL}/rental-connect/promotion-gallery/${id}`, {
                     method: 'DELETE',
                     headers: authHeaders()
                 });

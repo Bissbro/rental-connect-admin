@@ -385,7 +385,7 @@ input:focus, select:focus, textarea:focus { border-color:var(--teal); }
             container.innerHTML = '<div class="loading">Loading minibar items...</div>';
             
             try {
-                const res = await fetch(`${API_BASE_URL}/admin/minibar`, { headers: authHeaders() });
+                const res = await fetch(`${API_BASE_URL}/rental-connect/minibar`, { headers: authHeaders() });
                 if (handleAuthError(res)) return;
                 const data = await res.json();
                 
@@ -493,10 +493,10 @@ input:focus, select:focus, textarea:focus { border-color:var(--teal); }
             try {
                 let url, method;
                 if (id) {
-                    url = `${API_BASE_URL}/admin/minibar/${id}`;
+                    url = `${API_BASE_URL}/rental-connect/minibar/${id}`;
                     method = 'PUT';
                 } else {
-                    url = `${API_BASE_URL}/admin/minibar`;
+                    url = `${API_BASE_URL}/rental-connect/minibar`;
                     method = 'POST';
                 }
                 
@@ -526,7 +526,7 @@ input:focus, select:focus, textarea:focus { border-color:var(--teal); }
             if (!confirm('Delete this minibar item permanently?')) return;
             
             try {
-                const res = await fetch(`${API_BASE_URL}/admin/minibar/${id}`, {
+                const res = await fetch(`${API_BASE_URL}/rental-connect/minibar/${id}`, {
                     method: 'DELETE',
                     headers: authHeaders()
                 });

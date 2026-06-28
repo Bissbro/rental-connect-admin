@@ -245,7 +245,7 @@ function fmt(n) { return 'MVR ' + Number(n || 0).toLocaleString('en-US', { minim
 
 async function loadUnits() {
   try {
-    const r = await fetch(`${API}/api/admin/units`, { headers: hdrs() });
+    const r = await fetch(`${API}/api/rental-connect/units`, { headers: hdrs() });
     const d = await r.json();
     units = d.units || [];
     const sel1 = document.getElementById('filter-unit');
@@ -266,7 +266,7 @@ async function loadTransactions() {
     const unit = document.getElementById('filter-unit').value;
     const from = document.getElementById('filter-from').value;
     const to = document.getElementById('filter-to').value;
-    let url = `${API}/api/admin/petty-cash?`;
+    let url = `${API}/api/rental-connect/petty-cash?`;
     if (type) url += `type=${type}&`;
     if (unit) url += `unit_id=${unit}&`;
     if (from) url += `from=${from}&`;
@@ -320,7 +320,7 @@ async function saveTransaction() {
     description: document.getElementById('txn-desc').value,
   };
   try {
-    const r = await fetch(`${API}/api/admin/petty-cash`, { method: 'POST', headers: hdrs(), body: JSON.stringify(data) });
+    const r = await fetch(`${API}/api/rental-connect/petty-cash`, { method: 'POST', headers: hdrs(), body: JSON.stringify(data) });
     if (!r.ok) throw new Error();
     closeModal();
     showToast('Saved', 'success');
@@ -331,7 +331,7 @@ async function saveTransaction() {
 async function deleteTransaction(id) {
   if (!confirm('Delete this transaction?')) return;
   try {
-    await fetch(`${API}/api/admin/petty-cash/${id}`, { method: 'DELETE', headers: hdrs() });
+    await fetch(`${API}/api/rental-connect/petty-cash/${id}`, { method: 'DELETE', headers: hdrs() });
     showToast('Deleted', 'success');
     loadTransactions();
   } catch(e) { showToast('Failed', 'error'); }

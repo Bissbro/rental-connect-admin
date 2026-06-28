@@ -508,7 +508,7 @@ async function saveUnit() {
     amenities: Array.from(document.querySelectorAll('#amenities-selector .amenity-item.checked')).map(el => el.dataset.label).filter(Boolean),
   };
   try {
-    const url = id ? `${API}/api/admin/units/${id}` : `${API}/api/admin/units`;
+    const url = id ? `${API}/api/rental-connect/units/${id}` : `${API}/api/rental-connect/units`;
     const method = id ? 'PUT' : 'POST';
     const r = await fetch(url, { method, headers: hdrs(), body: JSON.stringify(data) });
     const d = await r.json();
@@ -521,7 +521,7 @@ async function deleteUnit(id) {
   const u = allUnits.find(x => x.id == id);
   if (!confirm(`Delete ${u?.unit_number || 'this unit'}? Cannot be undone.`)) return;
   try {
-    const r = await fetch(`${API}/api/admin/units/${id}`, { method:'DELETE', headers: { Authorization:`Bearer ${token}` } });
+    const r = await fetch(`${API}/api/rental-connect/units/${id}`, { method:'DELETE', headers: { Authorization:`Bearer ${token}` } });
     const d = await r.json();
     if (d.success) { showToast('Unit deleted'); loadUnits(); }
   } catch(e) { showToast('Error deleting unit'); }

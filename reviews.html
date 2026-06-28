@@ -334,8 +334,8 @@ let reviews = [], units = [], currentRating = 5;
 async function load() {
     try {
         const [rRes, uRes] = await Promise.all([
-            fetch(API+'/admin/reviews', {headers:hdrs()}),
-            fetch(API+'/admin/units', {headers:hdrs()})
+            fetch(API+'/rental-connect/reviews', {headers:hdrs()}),
+            fetch(API+'/rental-connect/units', {headers:hdrs()})
         ]);
         if (rRes.status === 401) { window.location.href = 'index.html'; return; }
         const rData = await rRes.json();
@@ -446,7 +446,7 @@ async function saveReview() {
         is_verified: document.getElementById('rev-verified').checked ? 1 : 0,
                 platform: document.getElementById('rev-platform').value || 'direct'
     };
-    const url = id ? API+'/admin/reviews/'+id : API+'/admin/reviews';
+    const url = id ? API+'/rental-connect/reviews/'+id : API+'/rental-connect/reviews';
     const method = id ? 'PUT' : 'POST';
     const res = await fetch(url, {method, headers:hdrs(), body:JSON.stringify(body)});
     const data = await res.json();
@@ -461,7 +461,7 @@ async function saveReview() {
 
 async function deleteReview(id) {
     if (!confirm('Delete this review?')) return;
-    await fetch(API+'/admin/reviews/'+id, {method:'DELETE', headers:hdrs()});
+    await fetch(API+'/rental-connect/reviews/'+id, {method:'DELETE', headers:hdrs()});
     showToast('Deleted');
     await load();
 }

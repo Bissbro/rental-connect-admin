@@ -223,14 +223,17 @@ function logout() { localStorage.clear(); window.location.href = 'index.html'; }
 
 async function loadData() {
   try {
-    const [uRes, bRes] = await Promise.all([
+    const [uRes, bRes, avRes] = await Promise.all([
       fetch(`${API}/api/rental-connect/units`, { headers: { Authorization: `Bearer ${token}` } }),
-      fetch(`${API}/api/rental-connect/bookings`, { headers: { Authorization: `Bearer ${token}` } })
+      fetch(`${API}/api/rental-connect/bookings`, { headers: { Authorization: `Bearer ${token}` } }),
+      fetch(`${API}/api/rental-connect/bookings/availability?show_all=1`, { headers: { Authorization: `Bearer ${token}` } })
     ]);
     const uData = await uRes.json();
     const bData = await bRes.json();
+    const avData = await avRes.json();
     units = (uData.units || []).filter(u => !u.parent_unit_id);
     bookings = (bData.bookings || []).filter(b => b.booking_status !== 'cancelled');
+    blockedDates = avData.blocked_dates || [];
 
     // Build unit tabs
     const tabsEl = document.getElementById('unit-tabs');
@@ -324,6 +327,14 @@ function renderCalendar() {
     });
 
     if (dayEvents.length > 3) html += `<div style="font-size:10px;color:var(--text-muted);padding:2px 4px">+${dayEvents.length-3} more</div>`;
+
+    const dayBlocked = blockedDates.filter(bd => {
+      if (selectedUnit !== 'all' && bd.unit_id != selectedUnit) return false;
+      return bd.blocked_date === dateStr;
+    });
+    dayBlocked.slice(0, 2).forEach(bd => {
+      html += `<div class="cal-event blocked" onmouseenter="showTooltip(event,'Blocked: ${bd.reason||''}')" onmouseleave="hideTooltip()">\ud83d\udeab ${bd.reason || 'Blocked'}</div>`;
+    });
 
     d.innerHTML = html;
     grid.appendChild(d);

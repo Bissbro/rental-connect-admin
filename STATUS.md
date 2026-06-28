@@ -357,3 +357,16 @@ Bug: JWT_EXPIRES_IN is 8h (hardcoded in server.js), so tokens did correctly expi
 Fix: new auth-guard.js - globally patches window.fetch so any 401 response anywhere clears localStorage and redirects to index.html. Added via <script src="auth-guard.js"></script> immediately before the existing tier-gate.js include, across all 18 RC admin pages.
 
 Not yet live-tested against a real 8h expiry (impractical to wait for in-session) - logic verified correct by code review and consistent with the same working pattern already used elsewhere (e.g. Master Admin's own 401 handling). Worth a real-world confirmation next time a session naturally expires.
+
+## Critical fix (Jun 28) - Public tenant website API was using wrong database entirely
+Discovered RC tenants DO have a real public-facing website system already built: customer_site_template.html is a reusable template (single TENANT_ID constant to change per deployment), deployed per-tenant as e.g. site-coral.html, hosted via GitHub Pages. Calls 3 public (no-login) API routes: GET /api/public/:tenantId/info, GET /api/public/:tenantId/units, POST /api/public/:tenantId/bookings.
+
+BUG FOUND: all 3 routes were still using the old abandoned shared-pool architecture (pool.query against htm_rentals with tenant_id filtering) instead of the proper getTenantPool/req.db pattern used everywhere else. Concretely broken in two ways:
+1. /info queried `SELECT ... FROM tenants WHERE id = ?` against `pool` (htm_rentals) - but the `tenants` table lives in `rc_master`, not `htm_rentals` at all. This call would have failed outright (table doesn't exist) for any real tenant.
+2. /units and /bookings queried `units`/`bookings` from htm_rentals filtered by tenant_id - but htm_rentals only ever contains tenant_id=1 (HTM's own data) per earlier audit this session. Coral's real units/bookings live entirely in rc_tenant_2, a separate database pool never touches. Coral's public site would have shown zero units / failed to create bookings, completely silently, despite Coral admin's own settings (website field) correctly pointing to the deployed site-coral.html.
+
+FIX: added a shared `resolveTenant(tenantId)` helper that looks up the tenant's db_name from rc_master.tenants (via masterPool), then all 3 routes use `getTenantPool(tenant.db_name)` for their actual data queries - same correct pattern as every other RC route fixed earlier this session.
+
+Verified fixed: curl tested both GET endpoints live against tenant 2 (Coral) - /info now correctly returns Coral's real settings (property name, branding colors, contact info, the actual GitHub Pages site URL), /units now correctly returns Coral's real unit data from rc_tenant_2 instead of empty/broken results.
+
+IMPORTANT TAKEAWAY: any future new route, especially ones written before tonight's tenant-isolation fix existed as a known pattern, should be checked for this exact bug class (pool vs req.db/getTenantPool) - this was found by manually verifying "is it only 3 routes or more" rather than trusting an assumption, and turned up a real, previously-unnoticed production bug affecting Coral's actual public website.

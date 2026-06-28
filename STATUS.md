@@ -370,3 +370,12 @@ FIX: added a shared `resolveTenant(tenantId)` helper that looks up the tenant's 
 Verified fixed: curl tested both GET endpoints live against tenant 2 (Coral) - /info now correctly returns Coral's real settings (property name, branding colors, contact info, the actual GitHub Pages site URL), /units now correctly returns Coral's real unit data from rc_tenant_2 instead of empty/broken results.
 
 IMPORTANT TAKEAWAY: any future new route, especially ones written before tonight's tenant-isolation fix existed as a known pattern, should be checked for this exact bug class (pool vs req.db/getTenantPool) - this was found by manually verifying "is it only 3 routes or more" rather than trusting an assumption, and turned up a real, previously-unnoticed production bug affecting Coral's actual public website.
+
+## Full architecture audit (Jun 28) - confirmed clean
+Following the public-website routes bug, did a full audit of every pool.query usage with tenant_id, and every /api/rental-connect/* and /api/public/* route definition, to check for any other instance of the same bug class (RC tenant route incorrectly using shared pool/tenant_id instead of req.db/getTenantPool).
+
+Result: confirmed clean. All remaining pool.query + tenant_id occurrences (hero_images, promotion_gallery, bookings, minibar_items, settings, custom_invoices, promo_banners, staff_salary_log, company_loans, reviews, partners, etc.) belong to HTM's own legacy /api/admin/* routes (lines ~1300-5900), which correctly and intentionally use the shared pool with tenant_id=1 - HTM was never meant to have per-tenant DB isolation, this is by design, not a bug.
+
+Verified zero stray pool.query calls anywhere in the /api/rental-connect/* and /api/public/* route block (lines 6257-6800) - entire block correctly uses req.db/tdb/getTenantPool throughout.
+
+CONCLUSION: the only real bug found was the 3 public website routes (info/units/bookings) documented in the previous entry. No other instances of this bug class exist in the current codebase as of this audit.

@@ -664,7 +664,8 @@ function generatePayslipPDF(rec,staff,propName){
     document.body.appendChild(btn);
   };
   <\/script>
-  <script src="tier-gate.js"></script>
+  <script src="auth-guard.js"></script>
+<script src="tier-gate.js"></script>
 </body></html>`);
   win.document.close();
 }
@@ -701,6 +702,7 @@ document.querySelectorAll('.modal-overlay').forEach(el=>el.addEventListener('cli
 
 checkAuth();loadStaff();
 </script>
+<script src="auth-guard.js"></script>
 <script src="tier-gate.js"></script>
 </body>
 </html>

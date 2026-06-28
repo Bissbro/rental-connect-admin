@@ -350,3 +350,10 @@ Attempting to transfer rc-master.html via a single base64-encoded line (to avoid
 Live-tested full CRUD cycle end-to-end: created a test tenant with a custom partial feature set (test2 - Dashboard/Bookings/Block Dates/Units/View Site/Settings only), confirmed correct sidebar gating on actual tenant login, used Edit Features to confirm modal pre-fills correctly, used Delete with correct typed confirmation - verified tenant row, tenant_features rows, and actual rc_tenant_N database were all cleanly removed afterward with no orphaned data.
 
 RC Master Admin is now a complete, working tenant management system: create, configure features per-tenant (fully custom, not just fixed tiers), edit later, and delete - all without any manual SSH/SQL work.
+
+## Session fix (Jun 28) - RC admin sessions never redirected to login on token expiry
+Bug: JWT_EXPIRES_IN is 8h (hardcoded in server.js), so tokens did correctly expire server-side, but no RC admin frontend page ever checked for or handled a 401 response - meaning after expiry, pages would just silently fail/show broken or empty data instead of redirecting to login.
+
+Fix: new auth-guard.js - globally patches window.fetch so any 401 response anywhere clears localStorage and redirects to index.html. Added via <script src="auth-guard.js"></script> immediately before the existing tier-gate.js include, across all 18 RC admin pages.
+
+Not yet live-tested against a real 8h expiry (impractical to wait for in-session) - logic verified correct by code review and consistent with the same working pattern already used elsewhere (e.g. Master Admin's own 401 handling). Worth a real-world confirmation next time a session naturally expires.

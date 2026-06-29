@@ -51,6 +51,21 @@ body { font-family:'Inter',sans-serif; color:var(--charcoal); background:var(--w
 .success-msg i { font-size:42px; color:var(--teal); margin-bottom:14px; display:block; }
 .success-msg h3 { font-family:'Playfair Display',serif; font-size:1.3rem; color:var(--navy); margin-bottom:8px; }
 .map-box { background:var(--gray); border-radius:16px; height:220px; display:flex; align-items:center; justify-content:center; color:var(--text-muted); }
+.calendar-widget { background:white; border:1px solid #eee; border-radius:16px; padding:18px; }
+.cal-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
+.cal-nav { background:var(--gray); border:none; width:32px; height:32px; border-radius:50%; cursor:pointer; color:var(--navy); }
+.cal-month-label { font-weight:700; color:var(--navy); font-size:15px; }
+.cal-legend { display:flex; gap:16px; font-size:12px; color:var(--text-muted); margin-bottom:12px; }
+.cal-dot { display:inline-block; width:10px; height:10px; border-radius:50%; margin-right:4px; vertical-align:middle; }
+.cal-dot.available { background:var(--teal); }
+.cal-dot.blocked { background:#ddd; }
+.cal-grid { display:grid; grid-template-columns:repeat(7,1fr); gap:4px; text-align:center; }
+.cal-dow { font-size:11px; color:var(--text-muted); font-weight:600; padding-bottom:6px; }
+.cal-day { padding:8px 0; font-size:13px; border-radius:6px; cursor:pointer; }
+.cal-day.blocked { background:#f1f1f1; color:#bbb; cursor:not-allowed; text-decoration:line-through; }
+.cal-day.past { color:#ddd; cursor:not-allowed; }
+.cal-day.empty { visibility:hidden; }
+.cal-day.selected { background:var(--navy); color:white; }
 </style>
 </head>
 <body>
@@ -82,9 +97,17 @@ body { font-family:'Inter',sans-serif; color:var(--charcoal); background:var(--w
     <div class="amenities-grid" id="amenities-grid"></div>
 
     <div class="section-h">Availability</div>
-    <div class="calendar-placeholder" id="calendar-placeholder">
-      <i class="fas fa-calendar-alt" style="font-size:28px;margin-bottom:8px;display:block;color:var(--teal)"></i>
-      Live availability calendar coming soon — select your dates below and we'll confirm instantly.
+    <div class="calendar-widget" id="calendar-widget">
+      <div class="cal-header">
+        <button class="cal-nav" onclick="changeMonth(-1)"><i class="fas fa-chevron-left"></i></button>
+        <div class="cal-month-label" id="cal-month-label">—</div>
+        <button class="cal-nav" onclick="changeMonth(1)"><i class="fas fa-chevron-right"></i></button>
+      </div>
+      <div class="cal-legend">
+        <span><span class="cal-dot available"></span> Available</span>
+        <span><span class="cal-dot blocked"></span> Booked</span>
+      </div>
+      <div class="cal-grid" id="cal-grid"></div>
     </div>
 
     <div class="section-h" id="booking">Book This Unit</div>
@@ -216,6 +239,7 @@ function renderUnit(u, unitId) {
   document.getElementById('book-now-btn').href = '#booking';
   window.currentUnitPrice = priceUsd || 0;
   window.currentUnitId = unitId;
+  loadCalendar(unitId);
 }
 
 function renderGallery() {
@@ -240,6 +264,80 @@ function updateGalleryImage() {
 }
 function nextImage() { currentImageIndex = (currentImageIndex + 1) % galleryImages.length; updateGalleryImage(); }
 function prevImage() { currentImageIndex = (currentImageIndex - 1 + galleryImages.length) % galleryImages.length; updateGalleryImage(); }
+
+let blockedRanges = [];
+let calMonth = new Date();
+calMonth.setDate(1);
+let selectedCheckin = null;
+let selectedCheckout = null;
+
+async function loadCalendar(unitId) {
+  try {
+    const r = await fetch(`${API}/api/public/${TENANT_ID}/units/${unitId}/availability`);
+    const d = await r.json();
+    blockedRanges = (d.blocked_ranges || []).map(rg => ({
+      start: new Date(rg.start).setHours(0,0,0,0),
+      end: new Date(rg.end).setHours(0,0,0,0)
+    }));
+    renderCalendar();
+  } catch(e) { console.error('Failed to load availability', e); }
+}
+
+function isDateBlocked(dateMs) {
+  return blockedRanges.some(r => dateMs >= r.start && dateMs < r.end);
+}
+
+function changeMonth(delta) {
+  calMonth.setMonth(calMonth.getMonth() + delta);
+  renderCalendar();
+}
+
+function renderCalendar() {
+  const grid = document.getElementById('cal-grid');
+  const label = document.getElementById('cal-month-label');
+  const year = calMonth.getFullYear();
+  const month = calMonth.getMonth();
+  label.textContent = calMonth.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+
+  const today = new Date(); today.setHours(0,0,0,0);
+  const firstDay = new Date(year, month, 1);
+  const startOffset = firstDay.getDay();
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+  let html = ['Su','Mo','Tu','We','Th','Fr','Sa'].map(d => `<div class="cal-dow">${d}</div>`).join('');
+  for (let i = 0; i < startOffset; i++) html += `<div class="cal-day empty"></div>`;
+
+  for (let day = 1; day <= daysInMonth; day++) {
+    const dateObj = new Date(year, month, day);
+    const dateMs = dateObj.setHours(0,0,0,0);
+    const isPast = dateMs < today.getTime();
+    const isBlocked = isDateBlocked(dateMs);
+    const isSelected = (selectedCheckin && dateMs === selectedCheckin) || (selectedCheckout && dateMs === selectedCheckout);
+    const cls = isPast ? 'past' : (isBlocked ? 'blocked' : (isSelected ? 'selected' : ''));
+    const iso = new Date(dateMs).toISOString().split('T')[0];
+    html += `<div class="cal-day ${cls}" ${(!isPast && !isBlocked) ? `onclick="pickDate('${iso}', ${dateMs})"` : ''}>${day}</div>`;
+  }
+  grid.innerHTML = html;
+}
+
+function pickDate(iso, dateMs) {
+  if (!selectedCheckin || (selectedCheckout)) {
+    selectedCheckin = dateMs;
+    selectedCheckout = null;
+    document.getElementById('b-checkin').value = iso;
+    document.getElementById('b-checkout').value = '';
+  } else if (dateMs > selectedCheckin) {
+    selectedCheckout = dateMs;
+    document.getElementById('b-checkout').value = iso;
+    calcPrice();
+  } else {
+    selectedCheckin = dateMs;
+    selectedCheckout = null;
+    document.getElementById('b-checkin').value = iso;
+    document.getElementById('b-checkout').value = '';
+  }
+  renderCalendar();
+}
 
 function calcPrice() {
   const ci = document.getElementById('b-checkin').value;

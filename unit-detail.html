@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title id="page-title">Unit Details</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+:root { --navy:#0A2540; --gold:#B8975A; --teal:#40B5AD; --warm-white:#FAFAF8; --charcoal:#1C1C1E; --text-muted:#6b7280; --gray:#F3F4F1; }
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:'Inter',sans-serif; color:var(--charcoal); background:var(--warm-white); }
+.topbar { padding:16px 24px; display:flex; align-items:center; gap:12px; background:white; box-shadow:0 1px 4px rgba(0,0,0,0.06); position:sticky; top:0; z-index:50; }
+.back-link { color:var(--navy); font-size:14px; font-weight:600; text-decoration:none; display:flex; align-items:center; gap:6px; }
+.gallery-container { position:relative; width:100%; aspect-ratio:4/3; max-height:480px; overflow:hidden; background:var(--gray); }
+.gallery-slide { position:absolute; inset:0; opacity:0; transition:opacity .3s ease; }
+.gallery-slide.active { opacity:1; }
+.gallery-slide img { width:100%; height:100%; object-fit:cover; }
+.gallery-nav { position:absolute; top:50%; transform:translateY(-50%); background:rgba(255,255,255,0.85); border:none; width:36px; height:36px; border-radius:50%; cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:14px; color:var(--navy); z-index:10; }
+.gallery-nav.prev { left:16px; } .gallery-nav.next { right:16px; }
+.gallery-counter { position:absolute; bottom:16px; right:16px; background:rgba(0,0,0,0.6); color:white; padding:4px 12px; border-radius:20px; font-size:12px; font-weight:500; z-index:10; }
+.content { max-width:800px; margin:0 auto; padding:28px 20px 100px; }
+.unit-type { font-size:12px; letter-spacing:2px; text-transform:uppercase; color:var(--gold); font-weight:700; margin-bottom:6px; }
+.unit-title { font-family:'Playfair Display',serif; font-size:2rem; color:var(--navy); margin-bottom:14px; }
+.unit-specs { display:flex; gap:20px; flex-wrap:wrap; margin-bottom:24px; padding-bottom:24px; border-bottom:1px solid #eee; }
+.spec-item { display:flex; align-items:center; gap:8px; font-size:14px; color:var(--text-muted); }
+.spec-item i { color:var(--teal); }
+.section-h { font-size:11px; font-weight:800; color:var(--navy); text-transform:uppercase; letter-spacing:2px; margin-bottom:12px; margin-top:28px; }
+.unit-desc { font-size:15px; line-height:1.7; color:var(--charcoal); }
+.amenities-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:10px; }
+.amenity-pill { background:var(--gray); border-radius:10px; padding:12px 14px; font-size:13px; display:flex; align-items:center; gap:8px; }
+.amenity-pill i { color:var(--teal); width:16px; }
+.price-bar { position:fixed; bottom:0; left:0; right:0; background:white; box-shadow:0 -2px 12px rgba(0,0,0,0.08); padding:14px 20px; display:flex; align-items:center; justify-content:space-between; z-index:60; }
+.price-bar-amount { font-family:'Playfair Display',serif; font-size:1.3rem; color:var(--navy); font-weight:700; }
+.price-bar-amount span { font-size:12px; color:var(--text-muted); font-weight:400; }
+.btn-book-now { background:var(--navy); color:white; padding:12px 26px; border-radius:8px; font-weight:600; font-size:14px; border:none; cursor:pointer; text-decoration:none; }
+.offer-badge { background:var(--gold); color:white; font-size:11px; font-weight:700; padding:4px 10px; border-radius:6px; display:inline-block; margin-bottom:10px; }
+.loading-state, .error-state { text-align:center; padding:80px 20px; color:var(--text-muted); }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <a href="javascript:history.back()" class="back-link"><i class="fas fa-arrow-left"></i> Back</a>
+</div>
+
+<div id="loading" class="loading-state"><i class="fas fa-circle-notch fa-spin"></i> Loading unit...</div>
+<div id="error" class="error-state" style="display:none">Unit not found.</div>
+
+<div id="unit-content" style="display:none">
+
+  <div class="gallery-container" id="gallery-container">
+    <div class="gallery-counter" id="gallery-counter">1 / 1</div>
+  </div>
+
+  <div class="content">
+    <div id="offer-badge"></div>
+    <div class="unit-type" id="unit-type"></div>
+    <h1 class="unit-title" id="unit-title"></h1>
+
+    <div class="unit-specs" id="unit-specs"></div>
+
+    <div class="section-h">Description</div>
+    <p class="unit-desc" id="unit-description"></p>
+
+    <div class="section-h">Amenities</div>
+    <div class="amenities-grid" id="amenities-grid"></div>
+  </div>
+
+  <div class="price-bar">
+    <div class="price-bar-amount" id="price-bar-amount">—</div>
+    <a href="#" class="btn-book-now" id="book-now-btn">Book This Unit</a>
+  </div>
+
+</div>
+
+<script>
+const TENANT_ID = 2; // change per deployment, matches site-coral.html
+const API = 'https://api.htmrentals.com';
+
+const amenityIcons = {
+  wifi: 'fa-wifi', 'air condition': 'fa-snowflake', ac: 'fa-snowflake', tv: 'fa-tv',
+  kitchen: 'fa-utensils', parking: 'fa-parking', security: 'fa-shield-alt',
+  washer: 'fa-tshirt', dryer: 'fa-tshirt', pool: 'fa-water', balcony: 'fa-door-open',
+  breakfast: 'fa-mug-hot', default: 'fa-check-circle'
+};
+function iconFor(name) {
+  const key = Object.keys(amenityIcons).find(k => name.toLowerCase().includes(k));
+  return amenityIcons[key || 'default'];
+}
+
+let galleryImages = [];
+let currentImageIndex = 0;
+
+function getUnitId() {
+  const params = new URLSearchParams(window.location.search);
+  return params.get('id');
+}
+
+async function loadUnit() {
+  const unitId = getUnitId();
+  if (!unitId) {
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('error').style.display = 'block';
+    return;
+  }
+  try {
+    const r = await fetch(`${API}/api/public/${TENANT_ID}/units/${unitId}`);
+    const d = await r.json();
+    if (!d.success) throw new Error('not found');
+    renderUnit(d.unit, unitId);
+  } catch(e) {
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('error').style.display = 'block';
+  }
+}
+
+function renderUnit(u, unitId) {
+  document.getElementById('loading').style.display = 'none';
+  document.getElementById('unit-content').style.display = 'block';
+  document.getElementById('page-title').textContent = u.name;
+  document.getElementById('unit-type').textContent = u.unit_type_label || 'Apartment';
+  document.getElementById('unit-title').textContent = u.name;
+
+  if (u.offer_label) {
+    document.getElementById('offer-badge').innerHTML = `<span class="offer-badge">${u.offer_label}</span>`;
+  }
+
+  document.getElementById('unit-specs').innerHTML = `
+    <div class="spec-item"><i class="fas fa-bed"></i> ${u.bedrooms || 1} Bedroom${(u.bedrooms||1)>1?'s':''}</div>
+    <div class="spec-item"><i class="fas fa-bath"></i> ${u.bathrooms || 1} Bathroom${(u.bathrooms||1)>1?'s':''}</div>
+    <div class="spec-item"><i class="fas fa-users"></i> Up to ${u.max_guests || 2} guests</div>
+    ${u.size_sqft ? `<div class="spec-item"><i class="fas fa-ruler-combined"></i> ${u.size_sqft} sqft</div>` : ''}
+  `;
+
+  const desc = (u.description && u.description !== '[]') ? u.description : 'No description available yet for this unit.';
+  document.getElementById('unit-description').textContent = desc;
+
+  const amenities = (u.amenities && u.amenities.length) ? u.amenities : [];
+  const amenitiesGrid = document.getElementById('amenities-grid');
+  if (!amenities.length) {
+    amenitiesGrid.innerHTML = '<p style="color:var(--text-muted);font-size:13px">No amenities listed yet.</p>';
+  } else {
+    amenitiesGrid.innerHTML = amenities.map(a => `
+      <div class="amenity-pill"><i class="fas ${iconFor(String(a))}"></i> ${a}</div>
+    `).join('');
+  }
+
+  galleryImages = (u.gallery_images && u.gallery_images.length) ? u.gallery_images : (u.featured_image ? [u.featured_image] : []);
+  renderGallery();
+
+  const priceUsd = u.base_price_usd ? parseFloat(u.base_price_usd) : null;
+  document.getElementById('price-bar-amount').innerHTML = priceUsd
+    ? `$${priceUsd.toLocaleString()}<span> / night</span>`
+    : `<span>Price on request</span>`;
+
+  document.getElementById('book-now-btn').href = `index.html?unit=${unitId}#book`;
+}
+
+function renderGallery() {
+  const container = document.getElementById('gallery-container');
+  const counter = document.getElementById('gallery-counter');
+  if (!galleryImages.length) {
+    container.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--text-muted)"><i class="fas fa-image" style="font-size:32px"></i></div>';
+    return;
+  }
+  container.innerHTML = galleryImages.map((img, i) => `
+    <div class="gallery-slide ${i===0?'active':''}"><img src="${img}" loading="lazy"></div>
+  `).join('') + (galleryImages.length > 1 ? `
+    <button class="gallery-nav prev" onclick="prevImage()"><i class="fas fa-chevron-left"></i></button>
+    <button class="gallery-nav next" onclick="nextImage()"><i class="fas fa-chevron-right"></i></button>
+  ` : '') + `<div class="gallery-counter" id="gallery-counter">1 / ${galleryImages.length}</div>`;
+}
+
+function updateGalleryImage() {
+  document.querySelectorAll('.gallery-slide').forEach((s, i) => s.classList.toggle('active', i === currentImageIndex));
+  const counter = document.getElementById('gallery-counter');
+  if (counter) counter.textContent = `${currentImageIndex + 1} / ${galleryImages.length}`;
+}
+function nextImage() { currentImageIndex = (currentImageIndex + 1) % galleryImages.length; updateGalleryImage(); }
+function prevImage() { currentImageIndex = (currentImageIndex - 1 + galleryImages.length) % galleryImages.length; updateGalleryImage(); }
+
+loadUnit();
+</script>
+</body>
+</html>

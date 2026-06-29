@@ -407,3 +407,24 @@ Following the public-website routes bug, did a UI-by-UI check of every RC admin 
 - calendar.html had a `blockedDates` variable and `.cal-event.blocked` CSS class already present but never wired to an actual fetch call - blocked dates were planned but never connected. Added fetch to bookings/availability endpoint and rendering logic (🚫 marker) to calendar day cells.
 
 This was a large fix batch - RC admin went from "looks complete in the UI but most buttons silently do nothing for a real tenant" to actually functional end-to-end for a guesthouse-tier tenant (Coral). Recommend a final full pass logging in as Coral and clicking through every single page/action before considering RC admin genuinely done, since this session found this many gaps through fairly cursory testing - more may exist.
+
+## Infrastructure decision needed: server upgrade for custom domains + guest site hosting (Jun 28)
+Discussed building proper custom-domain support for RC tenants (host guest-facing websites + handle SSL on Lightsail directly, Host-header-based tenant routing, NOT GitHub Pages per-tenant repos - decided against that approach since it doesn't scale cleanly, requires a new repo per tenant indefinitely).
+
+Current instance specs confirmed: htm-rentals-backend on Lightsail, 512MB RAM / 2 vCPUs / 20GB SSD, Singapore region (ap-southeast-1a), running on a Bitnami Node.js blueprint that is being DEPRECATED (no updates after May 19 2026, no new instances on this blueprint after Nov 19 2026 - existing instances keep running fine, but worth tracking for long-term planning).
+
+This instance is already tight on memory (confirmed earlier this session - only 17MB free before swap was added). Adding Nginx + Certbot (SSL automation for custom domains) + actually hosting guest-facing tenant websites (currently on GitHub Pages, NOT this server) would meaningfully increase load beyond what 512MB can reasonably handle.
+
+Lightsail does NOT support in-place resize for this instance - upgrading requires: (1) create a snapshot of current instance, (2) launch a new larger instance from that snapshot, (3) reattach/repoint the static IP to the new instance so DNS doesn't need to change, (4) test thoroughly, (5) only then decommission the old instance.
+
+DECISION NEEDED before starting custom-domain/guest-site-hosting work: what size to upgrade to. Not yet decided. This should be treated as its own dedicated session/task - a full server migration, done carefully, not a quick mid-session change.
+
+ALSO WORTH DECIDING: whether to migrate off the deprecated Bitnami blueprint at the same time (cleaner long-term, but means rebuilding Node/MySQL/PM2 setup from scratch rather than carrying it over via snapshot) vs. just resizing within the same Bitnami blueprint for now (faster, snapshot carries everything over, defer the blueprint-migration decision to later).
+
+## Build sequencing (revised, Jun 28 late session)
+Given the infrastructure question, suggested order for next sessions:
+1. Guest-facing booking flow (unit detail page, public availability calendar, instant-confirmed booking + auto-invoice + email, currency toggle) - can be built on the CURRENT instance, using the existing GitHub Pages + TENANT_ID template pattern, no new infra needed. This delivers the actual core "guests can see availability and book instantly" value proposition discussed tonight as RC's key differentiator.
+2. Server upgrade (snapshot -> new larger instance) - dedicated session, decide target size first.
+3. Custom domain infrastructure (Nginx, Certbot, Host-header tenant routing, migrate guest sites off GitHub Pages onto the upgraded Lightsail instance) - build only after step 2 is done, since this is the heavier-load feature that justified the upgrade in the first place.
+
+Rationale: don't block the core booking-flow value (item 1) on an infrastructure decision/migration (items 2-3) that doesn't need to happen first - ship the differentiator, then invest in the custom-domain premium feature once there's a solid server foundation under it.

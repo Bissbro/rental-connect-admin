@@ -162,6 +162,17 @@ footer p span { color: var(--teal); }
   section { padding: 60px 20px; }
   .booking-card { padding: 24px; }
 }
+.promo-card { position: relative; border-radius: 16px; overflow: hidden; min-height: 220px; display: flex; flex-direction: column; justify-content: flex-end; padding: 24px; color: white; background-size: cover; background-position: center; box-shadow: 0 2px 16px rgba(0,0,0,0.1); }
+.promo-card::before { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.75) 100%); }
+.promo-content { position: relative; z-index: 1; }
+.promo-title { font-family: 'Playfair Display', serif; font-size: 22px; margin-bottom: 6px; }
+.promo-desc { font-size: 14px; opacity: 0.85; margin-bottom: 12px; }
+.promo-link { display: inline-block; font-size: 13px; font-weight: 600; color: var(--gold); text-decoration: none; }
+.review-card { background: white; border-radius: 16px; padding: 24px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
+.review-stars { color: var(--gold); font-size: 14px; margin-bottom: 10px; }
+.review-text { font-size: 14px; color: var(--text-muted); line-height: 1.6; margin-bottom: 14px; }
+.review-author { font-weight: 600; font-size: 14px; }
+.review-platform { font-size: 12px; color: var(--text-muted); text-transform: capitalize; }
 </style>
 </head>
 <body>
@@ -218,6 +229,13 @@ footer p span { color: var(--teal); }
   </div>
 </section>
 
+<!-- Promo Banners -->
+<section id="promos" style="display:none" data-section="promos">
+  <div class="section-inner">
+    <div id="promo-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:24px"></div>
+  </div>
+</section>
+
 <!-- Amenities -->
 <section class="amenities-section" id="amenities">
   <div class="section-inner">
@@ -236,6 +254,16 @@ footer p span { color: var(--teal); }
       <div class="amenity-card"><div class="amenity-icon"><i class="fas fa-concierge-bell"></i></div><div class="amenity-name">Concierge Service</div></div>
       <div class="amenity-card"><div class="amenity-icon"><i class="fas fa-tshirt"></i></div><div class="amenity-name">Washer & Dryer</div></div>
     </div>
+  </div>
+</section>
+
+<!-- Reviews -->
+<section id="reviews" style="display:none;background:var(--gray)" data-section="reviews">
+  <div class="section-inner">
+    <div class="section-label">Guest Feedback</div>
+    <h2 class="section-title">What Guests Say</h2>
+    <div class="gold-line"></div>
+    <div id="reviews-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:24px;margin-top:32px"></div>
   </div>
 </section>
 
@@ -483,8 +511,66 @@ async function submitBooking() {
   }
 }
 
+async function loadHero() {
+  try {
+    const r = await fetch(`${API}/api/public/${TENANT_ID}/hero-images`);
+    const d = await r.json();
+    const images = d.hero_images || [];
+    if (!images.length) return;
+    const h = images[0];
+    const heroSection = document.getElementById('home');
+    if (h.image_url) {
+      heroSection.style.backgroundImage = `linear-gradient(180deg, rgba(10,37,64,0.55), rgba(10,37,64,0.85)), url('${h.image_url}')`;
+      heroSection.style.backgroundSize = 'cover';
+      heroSection.style.backgroundPosition = 'center';
+    }
+    if (h.title) document.getElementById('hero-title').innerHTML = h.title;
+    if (h.subtitle) document.getElementById('hero-subtitle').textContent = h.subtitle;
+  } catch(e) { console.error('Failed to load hero images', e); }
+}
+
+async function loadPromos() {
+  try {
+    const r = await fetch(`${API}/api/public/${TENANT_ID}/promo-banners`);
+    const d = await r.json();
+    const promos = d.promo_banners || [];
+    if (!promos.length) return;
+    document.getElementById('promo-grid').innerHTML = promos.map(p => `
+      <div class="promo-card" style="background-image:url('${p.image_url || ''}')">
+        <div class="promo-content">
+          <div class="promo-title">${p.title || ''}</div>
+          ${p.description ? `<div class="promo-desc">${p.description}</div>` : ''}
+          ${p.link_url ? `<a href="${p.link_url}" class="promo-link">Learn More <i class="fas fa-arrow-right"></i></a>` : ''}
+        </div>
+      </div>
+    `).join('');
+    document.querySelector('[data-section="promos"]').style.display = 'block';
+  } catch(e) { console.error('Failed to load promo banners', e); }
+}
+
+async function loadReviews() {
+  try {
+    const r = await fetch(`${API}/api/public/${TENANT_ID}/reviews`);
+    const d = await r.json();
+    const reviews = d.reviews || [];
+    if (!reviews.length) return;
+    document.getElementById('reviews-grid').innerHTML = reviews.map(rv => `
+      <div class="review-card">
+        <div class="review-stars">${'<i class="fas fa-star"></i>'.repeat(rv.rating || 5)}</div>
+        <div class="review-text">"${rv.review_text || ''}"</div>
+        <div class="review-author">${rv.guest_name || 'Guest'}</div>
+        <div class="review-platform">via ${rv.platform || 'Direct'}</div>
+      </div>
+    `).join('');
+    document.querySelector('[data-section="reviews"]').style.display = 'block';
+  } catch(e) { console.error('Failed to load reviews', e); }
+}
+
 loadSiteData();
 loadUnits();
+loadHero();
+loadPromos();
+loadReviews();
 </script>
 </body>
 </html>

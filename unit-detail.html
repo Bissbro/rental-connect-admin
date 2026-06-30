@@ -108,6 +108,7 @@ body { font-family:'Inter',sans-serif; color:var(--charcoal); background:var(--w
         <span><span class="cal-dot blocked"></span> Booked</span>
       </div>
       <div class="cal-grid" id="cal-grid"></div>
+      <p style="font-size:11px;color:var(--text-muted);text-align:center;margin-top:10px">Tap a date to start. Tap another date to end. Tap the same date to clear.</p>
     </div>
 
     <div class="section-h" id="booking">Book This Unit</div>
@@ -122,8 +123,8 @@ body { font-family:'Inter',sans-serif; color:var(--charcoal); background:var(--w
           <div class="form-group"><label>Guests</label><input type="number" id="b-guests" value="2" min="1" max="10"></div>
         </div>
         <div class="form-row">
-          <div class="form-group"><label>Check-in *</label><input type="date" id="b-checkin"></div>
-          <div class="form-group"><label>Check-out *</label><input type="date" id="b-checkout"></div>
+          <div class="form-group"><label>Check-in *</label><input type="date" id="b-checkin" readonly></div>
+          <div class="form-group"><label>Check-out *</label><input type="date" id="b-checkout" readonly></div>
         </div>
         <div class="form-row">
           <div class="form-group"><label>Special Requests</label><input type="text" id="b-requests" placeholder="Any special requests?"></div>

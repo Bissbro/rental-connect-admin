@@ -66,6 +66,11 @@ body { font-family:'Inter',sans-serif; color:var(--charcoal); background:var(--w
 .cal-day.past { color:#ddd; cursor:not-allowed; }
 .cal-day.empty { visibility:hidden; }
 .cal-day.selected { background:var(--navy); color:white; }
+.date-inputs { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:14px; }
+.date-field { border:1px solid #eee; border-radius:10px; padding:12px; background:var(--gray); }
+.date-field label { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; color:var(--text-muted); display:block; margin-bottom:4px; }
+.date-field input { background:transparent; border:none; font-size:14px; font-weight:600; width:100%; font-family:'Inter',sans-serif; color:var(--navy); cursor:default; }
+.date-field input:focus { outline:none; }
 </style>
 </head>
 <body>
@@ -109,6 +114,10 @@ body { font-family:'Inter',sans-serif; color:var(--charcoal); background:var(--w
       </div>
       <div class="cal-grid" id="cal-grid"></div>
       <p style="font-size:11px;color:var(--text-muted);text-align:center;margin-top:10px">Tap a date to start. Tap another date to end. Tap the same date to clear.</p>
+      <div class="date-inputs">
+        <div class="date-field"><label>CHECK-IN (14:00)</label><input type="text" id="b-checkin" readonly placeholder="Select date" value=""></div>
+        <div class="date-field"><label>CHECK-OUT (12:00)</label><input type="text" id="b-checkout" readonly placeholder="Select date" value=""></div>
+      </div>
     </div>
 
     <div class="section-h" id="booking">Book This Unit</div>
@@ -121,10 +130,6 @@ body { font-family:'Inter',sans-serif; color:var(--charcoal); background:var(--w
         <div class="form-row">
           <div class="form-group"><label>Email</label><input type="email" id="b-email" placeholder="your@email.com"></div>
           <div class="form-group"><label>Guests</label><input type="number" id="b-guests" value="2" min="1" max="10"></div>
-        </div>
-        <div class="form-row">
-          <div class="form-group"><label>Check-in *</label><input type="date" id="b-checkin" readonly></div>
-          <div class="form-group"><label>Check-out *</label><input type="date" id="b-checkout" readonly></div>
         </div>
         <div class="form-row">
           <div class="form-group"><label>Special Requests</label><input type="text" id="b-requests" placeholder="Any special requests?"></div>
@@ -326,13 +331,34 @@ function renderCalendar() {
   grid.innerHTML = html;
 }
 
+function formatDateDisplay(dateStr) {
+  const d = new Date(dateStr + 'T00:00:00');
+  return d.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+}
+
+function setCheckinField(dateStr) {
+  const el = document.getElementById('b-checkin');
+  el.value = formatDateDisplay(dateStr);
+  el.dataset.iso = dateStr;
+}
+function setCheckoutField(dateStr) {
+  const el = document.getElementById('b-checkout');
+  el.value = formatDateDisplay(dateStr);
+  el.dataset.iso = dateStr;
+}
+function clearDateFields() {
+  const ci = document.getElementById('b-checkin');
+  const co = document.getElementById('b-checkout');
+  ci.value = ''; ci.dataset.iso = '';
+  co.value = ''; co.dataset.iso = '';
+}
+
 function selectDate(dateStr) {
   if (dateStr < todayStr) return;
 
   if (startDate === dateStr && !endDate) {
     startDate = null; endDate = null;
-    document.getElementById('b-checkin').value = '';
-    document.getElementById('b-checkout').value = '';
+    clearDateFields();
     document.getElementById('price-summary').style.display = 'none';
     renderCalendar();
     return;
@@ -341,8 +367,8 @@ function selectDate(dateStr) {
   if (!startDate || (startDate && endDate)) {
     startDate = dateStr; endDate = null;
     const nextDay = new Date(dateStr); nextDay.setDate(nextDay.getDate() + 1);
-    document.getElementById('b-checkin').value = dateStr;
-    document.getElementById('b-checkout').value = nextDay.toISOString().split('T')[0];
+    setCheckinField(dateStr);
+    setCheckoutField(nextDay.toISOString().split('T')[0]);
     calcPrice();
     renderCalendar();
     return;
@@ -352,8 +378,8 @@ function selectDate(dateStr) {
     if (dateStr < startDate) {
       startDate = dateStr;
       const nextDay = new Date(dateStr); nextDay.setDate(nextDay.getDate() + 1);
-      document.getElementById('b-checkin').value = dateStr;
-      document.getElementById('b-checkout').value = nextDay.toISOString().split('T')[0];
+      setCheckinField(dateStr);
+      setCheckoutField(nextDay.toISOString().split('T')[0]);
       calcPrice();
     } else {
       let rangeBlocked = false;
@@ -367,15 +393,14 @@ function selectDate(dateStr) {
       if (rangeBlocked) {
         alert('Selected range includes unavailable dates. Please choose different dates.');
         startDate = null; endDate = null;
-        document.getElementById('b-checkin').value = '';
-        document.getElementById('b-checkout').value = '';
+        clearDateFields();
         document.getElementById('price-summary').style.display = 'none';
         renderCalendar();
         return;
       }
       endDate = dateStr;
       const checkOutDate = new Date(endDate); checkOutDate.setDate(checkOutDate.getDate() + 1);
-      document.getElementById('b-checkout').value = checkOutDate.toISOString().split('T')[0];
+      setCheckoutField(checkOutDate.toISOString().split('T')[0]);
       calcPrice();
     }
     renderCalendar();
@@ -383,8 +408,8 @@ function selectDate(dateStr) {
 }
 
 function calcPrice() {
-  const ci = document.getElementById('b-checkin').value;
-  const co = document.getElementById('b-checkout').value;
+  const ci = document.getElementById('b-checkin').dataset.iso;
+  const co = document.getElementById('b-checkout').dataset.iso;
   const price = window.currentUnitPrice || 0;
   if (ci && co && price) {
     const nights = Math.round((new Date(co) - new Date(ci)) / 86400000);
@@ -404,8 +429,8 @@ function calcPrice() {
 async function submitBooking() {
   const name = document.getElementById('b-name').value.trim();
   const phone = document.getElementById('b-phone').value.trim();
-  const checkin = document.getElementById('b-checkin').value;
-  const checkout = document.getElementById('b-checkout').value;
+  const checkin = document.getElementById('b-checkin').dataset.iso;
+  const checkout = document.getElementById('b-checkout').dataset.iso;
   if (!name || !phone || !checkin || !checkout) {
     alert('Please fill in all required fields.');
     return;

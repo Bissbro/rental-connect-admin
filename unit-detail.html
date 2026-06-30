@@ -268,23 +268,24 @@ function prevImage() { currentImageIndex = (currentImageIndex - 1 + galleryImage
 let blockedRanges = [];
 let calMonth = new Date();
 calMonth.setDate(1);
-let selectedCheckin = null;
-let selectedCheckout = null;
+let startDate = null;
+let endDate = null;
+const todayStr = new Date().toISOString().split('T')[0];
 
 async function loadCalendar(unitId) {
   try {
     const r = await fetch(`${API}/api/public/${TENANT_ID}/units/${unitId}/availability`);
     const d = await r.json();
     blockedRanges = (d.blocked_ranges || []).map(rg => ({
-      start: new Date(rg.start).setHours(0,0,0,0),
-      end: new Date(rg.end).setHours(0,0,0,0)
+      start: new Date(rg.start).toISOString().split('T')[0],
+      end: new Date(rg.end).toISOString().split('T')[0]
     }));
     renderCalendar();
   } catch(e) { console.error('Failed to load availability', e); }
 }
 
-function isDateBlocked(dateMs) {
-  return blockedRanges.some(r => dateMs >= r.start && dateMs < r.end);
+function isDateBooked(dateStr) {
+  return blockedRanges.some(r => dateStr >= r.start && dateStr < r.end);
 }
 
 function changeMonth(delta) {
@@ -299,44 +300,85 @@ function renderCalendar() {
   const month = calMonth.getMonth();
   label.textContent = calMonth.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
 
-  const today = new Date(); today.setHours(0,0,0,0);
-  const firstDay = new Date(year, month, 1);
-  const startOffset = firstDay.getDay();
+  const firstDay = new Date(year, month, 1).getDay();
   const daysInMonth = new Date(year, month + 1, 0).getDate();
 
   let html = ['Su','Mo','Tu','We','Th','Fr','Sa'].map(d => `<div class="cal-dow">${d}</div>`).join('');
-  for (let i = 0; i < startOffset; i++) html += `<div class="cal-day empty"></div>`;
+  for (let i = 0; i < firstDay; i++) html += `<div class="cal-day empty"></div>`;
 
-  for (let day = 1; day <= daysInMonth; day++) {
-    const dateObj = new Date(year, month, day);
-    const dateMs = dateObj.setHours(0,0,0,0);
-    const isPast = dateMs < today.getTime();
-    const isBlocked = isDateBlocked(dateMs);
-    const isSelected = (selectedCheckin && dateMs === selectedCheckin) || (selectedCheckout && dateMs === selectedCheckout);
-    const cls = isPast ? 'past' : (isBlocked ? 'blocked' : (isSelected ? 'selected' : ''));
-    const iso = new Date(dateMs).toISOString().split('T')[0];
-    html += `<div class="cal-day ${cls}" ${(!isPast && !isBlocked) ? `onclick="pickDate('${iso}', ${dateMs})"` : ''}>${day}</div>`;
+  for (let d = 1; d <= daysInMonth; d++) {
+    const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const isBooked = isDateBooked(dateStr);
+    const isPast = dateStr < todayStr;
+    let isSelected = false, isInRange = false;
+    if (startDate && endDate) {
+      if (dateStr === startDate || dateStr === endDate) isSelected = true;
+      else if (dateStr > startDate && dateStr < endDate) isInRange = true;
+    } else if (startDate && dateStr === startDate) isSelected = true;
+
+    let cls = isPast ? 'past' : (isBooked ? 'blocked' : '');
+    if (isSelected) cls += ' selected';
+    if (isInRange) cls += ' selected';
+    const clickable = (!isPast && !isBooked);
+    html += `<div class="cal-day ${cls}" ${clickable ? `onclick="selectDate('${dateStr}')"` : ''}>${d}</div>`;
   }
   grid.innerHTML = html;
 }
 
-function pickDate(iso, dateMs) {
-  if (!selectedCheckin || (selectedCheckout)) {
-    selectedCheckin = dateMs;
-    selectedCheckout = null;
-    document.getElementById('b-checkin').value = iso;
+function selectDate(dateStr) {
+  if (dateStr < todayStr) return;
+
+  if (startDate === dateStr && !endDate) {
+    startDate = null; endDate = null;
+    document.getElementById('b-checkin').value = '';
     document.getElementById('b-checkout').value = '';
-  } else if (dateMs > selectedCheckin) {
-    selectedCheckout = dateMs;
-    document.getElementById('b-checkout').value = iso;
-    calcPrice();
-  } else {
-    selectedCheckin = dateMs;
-    selectedCheckout = null;
-    document.getElementById('b-checkin').value = iso;
-    document.getElementById('b-checkout').value = '';
+    document.getElementById('price-summary').style.display = 'none';
+    renderCalendar();
+    return;
   }
-  renderCalendar();
+
+  if (!startDate || (startDate && endDate)) {
+    startDate = dateStr; endDate = null;
+    const nextDay = new Date(dateStr); nextDay.setDate(nextDay.getDate() + 1);
+    document.getElementById('b-checkin').value = dateStr;
+    document.getElementById('b-checkout').value = nextDay.toISOString().split('T')[0];
+    calcPrice();
+    renderCalendar();
+    return;
+  }
+
+  if (startDate && !endDate) {
+    if (dateStr < startDate) {
+      startDate = dateStr;
+      const nextDay = new Date(dateStr); nextDay.setDate(nextDay.getDate() + 1);
+      document.getElementById('b-checkin').value = dateStr;
+      document.getElementById('b-checkout').value = nextDay.toISOString().split('T')[0];
+      calcPrice();
+    } else {
+      let rangeBlocked = false;
+      let checkD = new Date(startDate); checkD.setDate(checkD.getDate() + 1);
+      const endD = new Date(dateStr);
+      while (checkD <= endD) {
+        const ds = checkD.toISOString().split('T')[0];
+        if (isDateBooked(ds)) { rangeBlocked = true; break; }
+        checkD.setDate(checkD.getDate() + 1);
+      }
+      if (rangeBlocked) {
+        alert('Selected range includes unavailable dates. Please choose different dates.');
+        startDate = null; endDate = null;
+        document.getElementById('b-checkin').value = '';
+        document.getElementById('b-checkout').value = '';
+        document.getElementById('price-summary').style.display = 'none';
+        renderCalendar();
+        return;
+      }
+      endDate = dateStr;
+      const checkOutDate = new Date(endDate); checkOutDate.setDate(checkOutDate.getDate() + 1);
+      document.getElementById('b-checkout').value = checkOutDate.toISOString().split('T')[0];
+      calcPrice();
+    }
+    renderCalendar();
+  }
 }
 
 function calcPrice() {

@@ -202,11 +202,10 @@ async function init() {
   if (unitId) {
     document.getElementById('page-heading').textContent = 'Edit Unit';
     try {
-      const r = await fetch(`${API}/api/rental-connect/units`, { headers: hdrs() });
+      const r = await fetch(`${API}/api/rental-connect/units/${unitId}`, { headers: hdrs() });
       const d = await r.json();
-      const u = (d.units || d || []).find(x => String(x.id) === String(unitId));
-      if (!u) throw new Error('Unit not found');
-      populate(u);
+      if (!d.success || !d.unit) throw new Error('Unit not found');
+      populate(d.unit);
     } catch(e) { toast('Failed to load unit', true); }
   } else {
     document.getElementById('page-heading').textContent = 'Add Unit';

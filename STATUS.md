@@ -494,3 +494,27 @@ Hero/Promo/Reviews on Coral site; unit detail full flow; calendar with real bloc
 ### Session lessons
 - Inline python3 heredocs with long exact-match strings get corrupted by mobile terminal paste (multiple silent MISSes) - ALWAYS check APPLIED/MISS output; prefer cat-to-file + sed line-number inserts for anything over ~10 lines
 - bash history expansion ate a heredoc again (echo with <\!-- -->) - set +H or avoid ! entirely
+
+## Session 8 continuation - Guest site migrated to Lightsail
+
+### Guest site now served from Lightsail (NOT GitHub Pages)
+- New folder: ~/rental-connect-guest/ served via Express at api.htmrentals.com/guest/
+- Added app.use('/guest', express.static('/home/bitnami/rental-connect-guest')) at line 794 of server.js
+- Files: unit-detail.html, site-coral.html, customer_site_template.html
+- Coral settings.website updated to https://api.htmrentals.com/guest/site-coral.html
+- Instant deploys: edit in ~/rental-connect-admin/, run ~/sync-guest.sh to push live
+- GitHub Pages still exists as backup but no longer the primary guest site
+
+### Currency mode per unit
+- New column: units.currency_mode ENUM('both','mvr_only','usd_only') DEFAULT 'both'
+- Added to both rc_tenant_2 and rc_tenant_3
+- Unit editor: Currency Toggle dropdown in Basics section
+- Guest page: hides Local/Foreign toggle bar when mvr_only or usd_only, sets correct default currency
+- Back button separated into its own back-bar div (always visible regardless of currency mode)
+
+### Map hybrid implementation complete
+- map_image + map_link fields on units table (both tenant DBs)
+- Unit editor: Upload Map Image button + Google Maps Link field in Location section
+- Guest page render priority: image+link > lat/lng embed > link only > "Location not set"
+- Leaflet picker (Carto Voyager tiles + Esri satellite toggle) for coordinate input
+- Data verified working: map_image and map_link saving and flowing through public API

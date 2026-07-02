@@ -80,6 +80,8 @@ body { font-family:'Inter',sans-serif; color:var(--charcoal); background:var(--w
 .cal-day.empty { visibility:hidden; }
 .cal-day.selected { background:var(--navy); color:white; border-color:var(--navy); font-weight:700; }
 .cal-day.in-range { background:#EAF6F5; border-color:#CBE9E6; color:var(--navy); }
+.cal-day.today { border:2px solid var(--teal); color:var(--teal); font-weight:700; box-shadow:0 0 0 3px rgba(64,181,173,0.25); }
+.cal-day.today.selected { background:var(--navy); color:white; border-color:var(--navy); box-shadow:none; }
 .cal-instruction { font-size:12px; color:var(--muted); text-align:center; margin-top:12px; display:flex; align-items:center; justify-content:center; gap:6px; }
 
 /* Date fields */
@@ -489,8 +491,10 @@ function renderCalendar() {
       if (dateStr === startDate || dateStr === endDate) isSelected = true;
       else if (dateStr > startDate && dateStr < endDate) isInRange = true;
     } else if (startDate && dateStr === startDate) isSelected = true;
+    const isToday = dateStr === todayStr;
     let cls = isPast ? 'past' : '';
     if (isBooked) cls += ' blocked';
+    if (isToday) cls += ' today';
     if (isSelected) cls += ' selected';
     if (isInRange) cls += ' in-range';
     const clickable = (!isPast && !isBooked);

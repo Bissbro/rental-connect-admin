@@ -116,6 +116,15 @@ body { font-family:'Inter',sans-serif; color:var(--charcoal); background:var(--w
   </div>
 
   <div class="section-card">
+    <div class="section-title"><i class="fas fa-map-marker-alt"></i> Location</div>
+    <div class="f-row">
+      <div class="f-group"><label>Latitude</label><input id="u-lat" placeholder="4.2105"></div>
+      <div class="f-group"><label>Longitude</label><input id="u-lng" placeholder="73.5409"></div>
+    </div>
+    <p class="hint">In Google Maps, long-press the building location — the coordinates appear at the top. Copy them here.</p>
+  </div>
+
+  <div class="section-card">
     <div class="section-title"><i class="fas fa-images"></i> Photos</div>
     <div class="gallery-grid" id="gallery-grid"></div>
     <input type="file" id="photo-input" accept="image/*" multiple style="display:none" onchange="uploadPhotos(this)">
@@ -254,6 +263,8 @@ function populate(u) {
   setV('u-offer', u.offer_label);
   setV('u-offer-exp', u.offer_expiry ? String(u.offer_expiry).split('T')[0] : '');
   setV('u-parent', u.parent_unit_id || '');
+  setV('u-lat', u.map_lat);
+  setV('u-lng', u.map_lng);
   setV('u-airbnb', u.airbnb_url);
   setV('u-agoda', u.agoda_url);
   setV('u-booking', u.booking_url);
@@ -374,6 +385,8 @@ async function saveUnit() {
     living_desc: v('u-living') || null,
     balcony_desc: v('u-balcony') || null,
     parent_unit_id: parseInt(v('u-parent')) || null,
+    map_lat: parseFloat(v('u-lat')) || null,
+    map_lng: parseFloat(v('u-lng')) || null,
     featured_image: featuredImage || '',
     gallery_images: gallery,
     amenities: amenities,

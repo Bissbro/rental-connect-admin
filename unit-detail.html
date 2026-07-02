@@ -110,7 +110,10 @@ body { font-family:'Inter',sans-serif; color:var(--charcoal); background:var(--w
 .success-msg p { color:var(--charcoal); font-size:15px; }
 
 /* Map */
-.map-box { background:var(--card); border:1px solid var(--line); border-radius:var(--r); height:220px; display:flex; align-items:center; justify-content:center; color:var(--muted); }
+.map-box { background:var(--card); border:1px solid var(--line); border-radius:var(--r); height:220px; display:flex; align-items:center; justify-content:center; color:var(--muted); position:relative; overflow:hidden; }
+.map-box iframe { position:absolute; inset:0; width:100%; height:100%; border:0; }
+.btn-directions { position:absolute; bottom:14px; left:50%; transform:translateX(-50%); background:white; color:var(--navy); font-weight:700; font-size:14px; padding:11px 22px; border-radius:24px; text-decoration:none; box-shadow:0 3px 12px rgba(10,37,64,0.25); display:flex; align-items:center; gap:8px; z-index:2; }
+.btn-directions i { color:var(--teal); }
 
 /* Sticky price bar (mobile) */
 .price-bar { position:fixed; bottom:0; left:0; right:0; background:white; border-top:2px solid var(--navy); box-shadow:0 -4px 16px rgba(10,37,64,0.12); padding:12px 20px; display:flex; align-items:center; justify-content:space-between; z-index:60; }
@@ -182,8 +185,8 @@ body { font-family:'Inter',sans-serif; color:var(--charcoal); background:var(--w
     <button class="show-more-btn" id="amenities-more-btn" style="display:none" onclick="toggleAmenities()"></button>
 
     <div class="section-h">Location</div>
-    <div class="map-box">
-      <div style="text-align:center"><i class="fas fa-map" style="font-size:32px;margin-bottom:8px;display:block;color:var(--teal)"></i>Map integration</div>
+    <div class="map-box" id="map-box">
+      <div style="text-align:center"><i class="fas fa-map" style="font-size:32px;margin-bottom:8px;display:block;color:var(--teal)"></i>Location not set</div>
     </div>
 
     </div>
@@ -396,6 +399,13 @@ function renderUnit(u, unitId) {
 
   // Adults / Children dropdowns
   populateGuestDropdowns(u);
+
+  if (u.map_lat && u.map_lng) {
+    const lat = u.map_lat, lng = u.map_lng;
+    document.getElementById('map-box').innerHTML = `
+      <iframe loading="lazy" src="https://maps.google.com/maps?q=${lat},${lng}&z=16&output=embed"></iframe>
+      <a class="btn-directions" target="_blank" href="https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}"><i class="fas fa-diamond-turn-right"></i> Get Directions</a>`;
+  }
 
   renderPricing();
   setCurrency(currency);

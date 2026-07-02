@@ -5,18 +5,19 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title id="page-title">Unit Details</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
-:root { --navy:#0A2540; --teal:#40B5AD; --gold:#B8975A; --charcoal:#1C1C1E; --warm-white:#FAFAF8; --muted:#6b7280; --line:#E8E8E4; --card:#FFFFFF; --r:16px; --shadow:0 2px 12px rgba(10,37,64,0.07); }
+:root { --navy:#0A2540; --teal:#40B5AD; --gold:#B8975A; --charcoal:#1C1C1E; --warm-white:#FAFAF8; --muted:#6b7280; --line:#E8E8E4; --card:#FFFFFF; --danger:#E15B5B; --r:16px; --shadow:0 2px 12px rgba(10,37,64,0.07); }
 * { margin:0; padding:0; box-sizing:border-box; }
 html { -webkit-text-size-adjust:100%; }
 body { font-family:'Inter',sans-serif; color:var(--charcoal); background:var(--warm-white); font-size:16px; line-height:1.6; }
 
-/* Topbar */
-.topbar { padding:14px 24px; display:flex; align-items:center; background:white; border-bottom:1px solid var(--line); position:sticky; top:0; z-index:50; }
-.back-link { color:var(--navy); font-size:15px; font-weight:600; text-decoration:none; display:flex; align-items:center; gap:8px; min-height:44px; padding:0 4px; }
-.back-link:active { opacity:0.6; }
+/* Currency toggle bar */
+.curr-bar { background:var(--navy); padding:10px 20px; display:flex; align-items:center; gap:10px; position:sticky; top:0; z-index:70; }
+.curr-tab { display:flex; align-items:center; gap:8px; padding:9px 20px; border-radius:24px; font-size:15px; font-weight:600; color:rgba(255,255,255,0.65); cursor:pointer; border:none; background:transparent; min-height:44px; }
+.curr-tab.active { background:white; color:var(--navy); }
+.curr-back { margin-left:auto; color:white; font-size:18px; background:none; border:none; cursor:pointer; min-width:44px; min-height:44px; }
 
 /* Gallery */
 .gallery-container { position:relative; width:100%; aspect-ratio:4/3; max-height:480px; overflow:hidden; background:var(--line); }
@@ -27,42 +28,59 @@ body { font-family:'Inter',sans-serif; color:var(--charcoal); background:var(--w
 .gallery-nav:active { transform:translateY(-50%) scale(0.94); }
 .gallery-nav.prev { left:16px; } .gallery-nav.next { right:16px; }
 .gallery-counter { position:absolute; bottom:16px; right:16px; background:rgba(10,37,64,0.75); color:white; padding:5px 12px; border-radius:20px; font-size:13px; font-weight:600; z-index:10; }
+.gallery-unit-badge { position:absolute; bottom:16px; left:16px; background:rgba(10,37,64,0.75); color:white; padding:5px 12px; border-radius:20px; font-size:13px; font-weight:700; z-index:10; letter-spacing:0.5px; }
 
 /* Content */
 .content { max-width:1100px; margin:0 auto; padding:24px 20px 110px; }
-.unit-type { font-size:12px; letter-spacing:2px; text-transform:uppercase; color:var(--gold); font-weight:700; margin-bottom:6px; }
-.unit-title { font-family:'Playfair Display',serif; font-size:2rem; color:var(--navy); margin-bottom:16px; line-height:1.2; }
-.unit-specs { display:flex; gap:20px; flex-wrap:wrap; margin-bottom:24px; padding-bottom:24px; border-bottom:1px solid var(--line); }
-.spec-item { display:flex; align-items:center; gap:8px; font-size:15px; color:var(--charcoal); }
-.spec-item i { color:var(--teal); }
-.section-h { font-size:12px; font-weight:800; color:var(--navy); text-transform:uppercase; letter-spacing:2px; margin:32px 0 14px; }
-.unit-desc { font-size:16px; line-height:1.7; color:var(--charcoal); }
+.prop-name { text-align:center; font-size:13px; letter-spacing:3px; text-transform:uppercase; color:var(--teal); font-weight:700; margin-bottom:8px; }
+.unit-title { font-family:'Playfair Display',serif; font-size:2.1rem; color:var(--navy); text-align:center; margin-bottom:20px; line-height:1.2; }
 .offer-badge { background:var(--gold); color:white; font-size:12px; font-weight:700; padding:5px 12px; border-radius:6px; display:inline-block; margin-bottom:12px; }
+.section-h { font-size:12px; font-weight:800; color:var(--navy); text-transform:uppercase; letter-spacing:2px; margin:32px 0 14px; }
+
+/* Specs table */
+.specs-table { border-top:1px solid var(--line); }
+.spec-row { display:flex; align-items:center; gap:14px; padding:14px 4px; border-bottom:1px solid var(--line); font-size:15px; }
+.spec-row i { color:var(--teal); width:22px; text-align:center; font-size:16px; }
+.spec-label { font-size:12px; font-weight:800; letter-spacing:1.5px; text-transform:uppercase; color:var(--navy); width:110px; flex-shrink:0; }
+.spec-value { color:var(--charcoal); }
+.spec-value .sep { color:var(--muted); margin:0 6px; }
+
+/* Description */
+.unit-desc { font-size:16px; line-height:1.7; color:var(--charcoal); }
+.desc-wrap.collapsed .unit-desc { max-height:150px; overflow:hidden; -webkit-mask-image:linear-gradient(180deg,#000 60%,transparent); mask-image:linear-gradient(180deg,#000 60%,transparent); }
+.show-more-btn { display:block; width:100%; background:var(--card); border:1px solid var(--line); border-radius:12px; padding:13px; font-size:15px; font-weight:600; color:var(--navy); cursor:pointer; margin-top:12px; min-height:44px; }
+.show-more-btn:active { background:var(--line); }
 
 /* Amenities */
 .amenities-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:10px; }
 .amenity-pill { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:13px 14px; font-size:14px; color:var(--charcoal); display:flex; align-items:center; gap:10px; }
 .amenity-pill i { color:var(--teal); width:16px; }
+.amenity-pill.hidden-extra { display:none; }
+.amenities-wrap.expanded .amenity-pill.hidden-extra { display:flex; }
 
-/* Calendar */
-.calendar-widget { background:var(--card); border:1px solid var(--line); border-radius:var(--r); padding:20px; box-shadow:var(--shadow); }
+/* Price + booking card */
+.price-card { background:var(--card); border:1px solid var(--line); border-radius:var(--r); padding:24px 20px; box-shadow:var(--shadow); margin-top:32px; }
+.price-headline { font-family:'Playfair Display',serif; font-size:2rem; color:var(--navy); font-weight:700; }
+.price-headline span { font-size:15px; color:var(--muted); font-weight:400; font-family:'Inter',sans-serif; }
+.direct-badge { display:inline-block; background:var(--teal); color:white; font-size:11px; font-weight:800; letter-spacing:1.5px; padding:5px 14px; border-radius:16px; margin:10px 0 18px; text-transform:uppercase; }
+
+/* Calendar (inside price card) */
 .cal-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; }
+.cal-nav-group { display:flex; gap:8px; }
 .cal-nav { background:var(--warm-white); border:1px solid var(--line); width:44px; height:44px; border-radius:50%; cursor:pointer; color:var(--navy); font-size:14px; }
 .cal-nav:active { background:var(--line); }
-.cal-month-label { font-weight:700; color:var(--navy); font-size:16px; }
-.cal-legend { display:flex; gap:18px; font-size:13px; color:var(--muted); margin-bottom:14px; }
-.cal-dot { display:inline-block; width:10px; height:10px; border-radius:50%; margin-right:5px; vertical-align:middle; }
-.cal-dot.available { background:var(--teal); }
-.cal-dot.blocked { background:#D8D8D4; }
+.cal-month-label { font-weight:700; color:var(--navy); font-size:17px; }
 .cal-grid { display:grid; grid-template-columns:repeat(7,1fr); gap:4px; text-align:center; }
 .cal-dow { font-size:12px; color:var(--muted); font-weight:700; padding-bottom:8px; }
-.cal-day { padding:10px 0; font-size:14px; font-weight:500; border-radius:8px; cursor:pointer; min-height:40px; }
+.cal-day { padding:10px 0; font-size:14px; font-weight:500; border-radius:8px; cursor:pointer; min-height:40px; border:1px solid var(--line); background:var(--card); }
 .cal-day:not(.blocked):not(.past):not(.empty):active { background:var(--line); }
-.cal-day.blocked { background:#F1F1EE; color:#B5B5B0; cursor:not-allowed; text-decoration:line-through; }
-.cal-day.past { color:#D0D0CC; cursor:not-allowed; }
+.cal-day.blocked { background:#FBF1F1; color:var(--danger); border-color:#F3DCDC; cursor:not-allowed; text-decoration:line-through; }
+.cal-day.past { color:#D0D0CC; background:var(--warm-white); border-color:var(--line); cursor:not-allowed; }
+.cal-day.past.blocked { color:#E3B8B8; }
 .cal-day.empty { visibility:hidden; }
-.cal-day.selected { background:var(--navy); color:white; font-weight:700; }
-.cal-instruction { font-size:12px; color:var(--muted); text-align:center; margin-top:12px; }
+.cal-day.selected { background:var(--navy); color:white; border-color:var(--navy); font-weight:700; }
+.cal-day.in-range { background:#EAF6F5; border-color:#CBE9E6; color:var(--navy); }
+.cal-instruction { font-size:12px; color:var(--muted); text-align:center; margin-top:12px; display:flex; align-items:center; justify-content:center; gap:6px; }
 
 /* Date fields */
 .date-inputs { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:16px; }
@@ -72,17 +90,18 @@ body { font-family:'Inter',sans-serif; color:var(--charcoal); background:var(--w
 .date-field input:focus { outline:none; }
 
 /* Booking form */
-.booking-card { background:var(--card); border:1px solid var(--line); border-radius:var(--r); padding:24px; box-shadow:var(--shadow); }
 .form-row { display:flex; gap:14px; margin-bottom:16px; flex-wrap:wrap; }
 .form-group { flex:1; min-width:140px; }
 .form-group label { display:block; font-size:13px; font-weight:600; color:var(--navy); margin-bottom:6px; }
-.form-group input { width:100%; padding:12px 14px; border:1px solid var(--line); border-radius:10px; font-size:16px; font-family:inherit; color:var(--charcoal); min-height:44px; }
-.form-group input:focus { outline:none; border-color:var(--teal); box-shadow:0 0 0 3px rgba(64,181,173,0.15); }
+.form-group input, .form-group select { width:100%; padding:12px 14px; border:1px solid var(--line); border-radius:10px; font-size:16px; font-family:inherit; color:var(--charcoal); min-height:44px; background:var(--card); }
+.form-group input:focus, .form-group select:focus { outline:none; border-color:var(--teal); box-shadow:0 0 0 3px rgba(64,181,173,0.15); }
 .price-summary { background:var(--warm-white); border:1px solid var(--line); border-radius:12px; padding:16px; margin:16px 0; display:none; }
 .price-row { display:flex; justify-content:space-between; font-size:15px; padding:5px 0; color:var(--charcoal); }
 .price-row.total { font-weight:700; color:var(--navy); font-size:17px; border-top:1px solid var(--line); margin-top:8px; padding-top:12px; }
 .btn-submit { width:100%; background:var(--navy); color:white; padding:15px; border:none; border-radius:10px; font-weight:700; font-size:16px; cursor:pointer; margin-top:8px; min-height:48px; }
 .btn-submit:active { background:#12315a; }
+.trust-line { display:flex; align-items:center; justify-content:center; gap:8px; font-size:13px; color:var(--muted); margin-top:14px; }
+.trust-line i { color:var(--teal); }
 .success-msg { display:none; text-align:center; padding:32px 20px; }
 .success-msg i { font-size:44px; color:var(--teal); margin-bottom:14px; display:block; }
 .success-msg h3 { font-family:'Playfair Display',serif; font-size:1.35rem; color:var(--navy); margin-bottom:8px; }
@@ -93,39 +112,39 @@ body { font-family:'Inter',sans-serif; color:var(--charcoal); background:var(--w
 
 /* Sticky price bar (mobile) */
 .price-bar { position:fixed; bottom:0; left:0; right:0; background:white; border-top:1px solid var(--line); box-shadow:0 -2px 12px rgba(10,37,64,0.08); padding:12px 20px; display:flex; align-items:center; justify-content:space-between; z-index:60; }
-.price-bar-amount { font-family:'Playfair Display',serif; font-size:1.3rem; color:var(--navy); font-weight:700; }
+.price-bar-amount { font-family:'Playfair Display',serif; font-size:1.25rem; color:var(--navy); font-weight:700; }
 .price-bar-amount span { font-size:13px; color:var(--muted); font-weight:400; font-family:'Inter',sans-serif; }
 .btn-book-now { background:var(--navy); color:white; padding:13px 28px; border-radius:10px; font-weight:700; font-size:15px; border:none; cursor:pointer; text-decoration:none; min-height:44px; display:flex; align-items:center; }
 .btn-book-now:active { background:#12315a; }
 
 .loading-state, .error-state { text-align:center; padding:80px 20px; color:var(--muted); font-size:16px; }
 
-/* ── Responsive ── */
+/* Responsive */
 .detail-layout { display:block; }
-
 @media (min-width: 768px) {
   .content { max-width:760px; padding:32px 32px 120px; }
   .gallery-container { max-height:440px; }
   .amenities-grid { grid-template-columns:repeat(3,1fr); }
 }
-
 @media (min-width: 1024px) {
   .content { max-width:1100px; padding:40px 40px 60px; }
   .gallery-container { max-width:1100px; margin:0 auto; border-radius:var(--r); max-height:500px; }
-  .detail-layout { display:grid; grid-template-columns:1fr 420px; gap:48px; align-items:start; }
-  .detail-right { position:sticky; top:80px; }
-  .detail-right .section-h:first-child { margin-top:0; }
+  .detail-layout { display:grid; grid-template-columns:1fr 440px; gap:48px; align-items:start; }
+  .detail-right { position:sticky; top:76px; }
+  .price-card { margin-top:0; }
   .price-bar { display:none; }
   .amenities-grid { grid-template-columns:repeat(2,1fr); }
   .map-box { height:300px; }
-  .btn-submit { max-width:100%; }
+  .prop-name, .unit-title { text-align:left; }
 }
 </style>
 </head>
 <body>
 
-<div class="topbar">
-  <a href="javascript:history.back()" class="back-link"><i class="fas fa-arrow-left"></i> Back</a>
+<div class="curr-bar">
+  <button class="curr-tab active" id="tab-local" onclick="setCurrency('MVR')"><i class="fas fa-sailboat"></i> Local</button>
+  <button class="curr-tab" id="tab-foreign" onclick="setCurrency('USD')"><i class="fas fa-plane"></i> Foreign</button>
+  <button class="curr-back" onclick="history.back()"><i class="fas fa-chevron-left"></i></button>
 </div>
 
 <div id="loading" class="loading-state"><i class="fas fa-circle-notch fa-spin"></i> Loading unit...</div>
@@ -138,53 +157,69 @@ body { font-family:'Inter',sans-serif; color:var(--charcoal); background:var(--w
   </div>
 
   <div class="content">
-    <div id="offer-badge"></div>
-    <div class="unit-type" id="unit-type"></div>
+    <div class="prop-name" id="prop-name"></div>
     <h1 class="unit-title" id="unit-title"></h1>
-
-    <div class="unit-specs" id="unit-specs"></div>
+    <div id="offer-badge" style="text-align:center"></div>
 
     <div class="detail-layout">
     <div class="detail-left">
 
-    <div class="section-h">Description</div>
-    <p class="unit-desc" id="unit-description"></p>
+    <div class="specs-table" id="specs-table"></div>
 
-    <div class="section-h">Amenities</div>
-    <div class="amenities-grid" id="amenities-grid"></div>
+    <div class="section-h">Description</div>
+    <div class="desc-wrap" id="desc-wrap">
+      <p class="unit-desc" id="unit-description"></p>
+    </div>
+    <button class="show-more-btn" id="desc-more-btn" style="display:none" onclick="toggleDesc()">Show more</button>
+
+    <div class="section-h">What This Place Offers</div>
+    <div class="amenities-wrap" id="amenities-wrap">
+      <div class="amenities-grid" id="amenities-grid"></div>
+    </div>
+    <button class="show-more-btn" id="amenities-more-btn" style="display:none" onclick="toggleAmenities()"></button>
+
+    <div class="section-h">Location</div>
+    <div class="map-box">
+      <div style="text-align:center"><i class="fas fa-map" style="font-size:32px;margin-bottom:8px;display:block;color:var(--teal)"></i>Map integration</div>
+    </div>
 
     </div>
     <div class="detail-right">
 
-    <div class="section-h">Availability</div>
-    <div class="calendar-widget" id="calendar-widget">
+    <div class="price-card">
+      <div class="price-headline" id="price-headline">—</div>
+      <div class="direct-badge">Direct Booking</div>
+
       <div class="cal-header">
-        <button class="cal-nav" onclick="changeMonth(-1)"><i class="fas fa-chevron-left"></i></button>
         <div class="cal-month-label" id="cal-month-label">—</div>
-        <button class="cal-nav" onclick="changeMonth(1)"><i class="fas fa-chevron-right"></i></button>
-      </div>
-      <div class="cal-legend">
-        <span><span class="cal-dot available"></span> Available</span>
-        <span><span class="cal-dot blocked"></span> Booked</span>
+        <div class="cal-nav-group">
+          <button class="cal-nav" onclick="changeMonth(-1)"><i class="fas fa-chevron-left"></i></button>
+          <button class="cal-nav" onclick="changeMonth(1)"><i class="fas fa-chevron-right"></i></button>
+        </div>
       </div>
       <div class="cal-grid" id="cal-grid"></div>
-      <p class="cal-instruction">Tap a date to start. Tap another date to end. Tap the same date to clear.</p>
+      <p class="cal-instruction"><i class="fas fa-info-circle"></i> Tap a date to start. Tap another date to end. Tap same date to clear.</p>
       <div class="date-inputs">
         <div class="date-field"><label>CHECK-IN (14:00)</label><input type="text" id="b-checkin" readonly placeholder="Select date" value=""></div>
         <div class="date-field"><label>CHECK-OUT (12:00)</label><input type="text" id="b-checkout" readonly placeholder="Select date" value=""></div>
       </div>
-    </div>
 
-    <div class="section-h" id="booking">Book This Unit</div>
-    <div class="booking-card">
-      <div id="booking-form">
+      <div id="booking-form" style="margin-top:20px">
+        <div class="form-row">
+          <div class="form-group"><label>Adults</label><select id="b-adults" onchange="updateChildrenOptions()"></select></div>
+          <div class="form-group"><label>Children</label><select id="b-children"></select></div>
+        </div>
         <div class="form-row">
           <div class="form-group"><label>Full Name *</label><input type="text" id="b-name" placeholder="Your full name"></div>
+        </div>
+        <div class="form-row">
           <div class="form-group"><label>Phone / WhatsApp *</label><input type="text" id="b-phone" placeholder="+960 ..."></div>
+        </div>
+        <div class="form-row" id="nid-row">
+          <div class="form-group"><label>National ID (NID)</label><input type="text" id="b-nid" placeholder="A123456"></div>
         </div>
         <div class="form-row">
           <div class="form-group"><label>Email</label><input type="email" id="b-email" placeholder="your@email.com"></div>
-          <div class="form-group"><label>Guests</label><input type="number" id="b-guests" value="2" min="1" max="10"></div>
         </div>
         <div class="form-row">
           <div class="form-group"><label>Special Requests</label><input type="text" id="b-requests" placeholder="Any special requests?"></div>
@@ -195,132 +230,220 @@ body { font-family:'Inter',sans-serif; color:var(--charcoal); background:var(--w
           <div class="price-row total"><span>Total</span><span id="ps-total">—</span></div>
         </div>
         <button class="btn-submit" onclick="submitBooking()"><i class="fas fa-calendar-check"></i> Request Booking</button>
-        <p style="font-size:12px;color:var(--muted);text-align:center;margin-top:12px">Your booking request will be confirmed within 2 hours via WhatsApp or email.</p>
+        <div class="trust-line"><i class="fas fa-lock"></i> You won't be charged yet</div>
       </div>
       <div class="success-msg" id="success-msg">
         <i class="fas fa-check-circle"></i>
         <h3>Booking Request Sent!</h3>
-        <p>We've received your request and will confirm within 2 hours.<br>Check your WhatsApp or email for updates.</p>
+        <p>We've received your request and will confirm shortly.<br>Check your WhatsApp or email for updates.</p>
       </div>
     </div>
 
     </div>
-    </div>
-
-    <div class="section-h">Location</div>
-    <div class="map-box">
-      <div style="text-align:center"><i class="fas fa-map" style="font-size:32px;margin-bottom:8px;display:block;color:var(--teal)"></i>Map integration</div>
     </div>
   </div>
 
   <div class="price-bar">
     <div class="price-bar-amount" id="price-bar-amount">—</div>
-    <a href="#" class="btn-book-now" id="book-now-btn">Book This Unit</a>
+    <a href="#booking-form" class="btn-book-now">Book This Unit</a>
   </div>
 
 </div>
 
 <script>
-const TENANT_ID = 2; // change per deployment, matches site-coral.html
+const TENANT_ID = 2; // change per deployment
 const API = 'https://api.htmrentals.com';
+
+let unitData = null;
+let currency = 'MVR';
+let galleryImages = [];
+let currentImageIndex = 0;
+let blockedRanges = [];
+let calMonth = new Date();
+calMonth.setDate(1);
+let startDate = null;
+let endDate = null;
+const todayStr = new Date().toISOString().split('T')[0];
 
 const amenityIcons = {
   wifi: 'fa-wifi', 'air condition': 'fa-snowflake', ac: 'fa-snowflake', tv: 'fa-tv',
   kitchen: 'fa-utensils', parking: 'fa-parking', security: 'fa-shield-alt',
   washer: 'fa-tshirt', dryer: 'fa-tshirt', pool: 'fa-water', balcony: 'fa-door-open',
-  breakfast: 'fa-mug-hot', default: 'fa-check-circle'
+  breakfast: 'fa-mug-hot', linen: 'fa-bed', towel: 'fa-scroll', shower: 'fa-shower',
+  default: 'fa-check-circle'
 };
 function iconFor(name) {
   const key = Object.keys(amenityIcons).find(k => name.toLowerCase().includes(k));
   return amenityIcons[key || 'default'];
 }
 
-let galleryImages = [];
-let currentImageIndex = 0;
-
 function getUnitId() {
-  const params = new URLSearchParams(window.location.search);
-  return params.get('id');
+  return new URLSearchParams(window.location.search).get('id');
+}
+
+function unitPrice() {
+  if (!unitData) return 0;
+  return currency === 'MVR'
+    ? (unitData.base_price_mvr ? parseFloat(unitData.base_price_mvr) : 0)
+    : (unitData.base_price_usd ? parseFloat(unitData.base_price_usd) : 0);
+}
+function fmtMoney(amt) {
+  return currency === 'MVR' ? `MVR ${amt.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})}` : `$${amt.toLocaleString()}`;
+}
+
+function setCurrency(c) {
+  currency = c;
+  document.getElementById('tab-local').classList.toggle('active', c === 'MVR');
+  document.getElementById('tab-foreign').classList.toggle('active', c === 'USD');
+  document.getElementById('nid-row').style.display = c === 'MVR' ? 'flex' : 'none';
+  renderPricing();
+  calcPrice();
+}
+
+function renderPricing() {
+  const p = unitPrice();
+  document.getElementById('price-headline').innerHTML = p
+    ? `${fmtMoney(p)}<span> / night</span>` : '<span>Price on request</span>';
+  document.getElementById('price-bar-amount').innerHTML = p
+    ? `${fmtMoney(p)}<span> / night</span>` : '<span>Price on request</span>';
 }
 
 async function loadUnit() {
   const unitId = getUnitId();
-  if (!unitId) {
-    document.getElementById('loading').style.display = 'none';
-    document.getElementById('error').style.display = 'block';
-    return;
-  }
+  if (!unitId) { showError(); return; }
   try {
     const r = await fetch(`${API}/api/public/${TENANT_ID}/units/${unitId}`);
     const d = await r.json();
     if (!d.success) throw new Error('not found');
+    unitData = d.unit;
     renderUnit(d.unit, unitId);
-  } catch(e) {
-    document.getElementById('loading').style.display = 'none';
-    document.getElementById('error').style.display = 'block';
-  }
+    loadPropertyName();
+    loadCalendar(unitId);
+  } catch(e) { showError(); }
+}
+function showError() {
+  document.getElementById('loading').style.display = 'none';
+  document.getElementById('error').style.display = 'block';
+}
+
+async function loadPropertyName() {
+  try {
+    const r = await fetch(`${API}/api/public/${TENANT_ID}/info`);
+    const d = await r.json();
+    const name = (d.settings && d.settings.property_name) || (d.tenant && d.tenant.name) || '';
+    document.getElementById('prop-name').textContent = name;
+  } catch(e) {}
 }
 
 function renderUnit(u, unitId) {
   document.getElementById('loading').style.display = 'none';
   document.getElementById('unit-content').style.display = 'block';
   document.getElementById('page-title').textContent = u.name;
-  document.getElementById('unit-type').textContent = u.unit_type_label || 'Apartment';
   document.getElementById('unit-title').textContent = u.name;
 
   if (u.offer_label) {
     document.getElementById('offer-badge').innerHTML = `<span class="offer-badge">${u.offer_label}</span>`;
   }
 
-  document.getElementById('unit-specs').innerHTML = `
-    <div class="spec-item"><i class="fas fa-bed"></i> ${u.bedrooms || 1} Bedroom${(u.bedrooms||1)>1?'s':''}</div>
-    <div class="spec-item"><i class="fas fa-bath"></i> ${u.bathrooms || 1} Bathroom${(u.bathrooms||1)>1?'s':''}</div>
-    <div class="spec-item"><i class="fas fa-users"></i> Up to ${u.max_guests || 2} guests</div>
-    ${u.size_sqft ? `<div class="spec-item"><i class="fas fa-ruler-combined"></i> ${u.size_sqft} sqft</div>` : ''}
-  `;
+  // Specs table
+  const beds = u.beds || 1;
+  const bedTypes = u.bed_types ? `<span class="sep">·</span>${u.bed_types}` : '';
+  let specs = `
+    <div class="spec-row"><i class="fas fa-users"></i><span class="spec-label">Guests</span><span class="spec-value">${u.max_guests || 2} max<span class="sep">·</span>${u.max_adults || u.max_guests || 2} adults<span class="sep">·</span>${u.max_children || 0} children</span></div>
+    <div class="spec-row"><i class="fas fa-door-open"></i><span class="spec-label">Bedroom</span><span class="spec-value">${u.bedrooms || 1}</span></div>
+    <div class="spec-row"><i class="fas fa-bed"></i><span class="spec-label">Beds</span><span class="spec-value">${beds}${bedTypes}</span></div>
+    <div class="spec-row"><i class="fas fa-bath"></i><span class="spec-label">Bathroom</span><span class="spec-value">${u.bathrooms || 1}</span></div>`;
+  if (u.size_sqft) specs += `<div class="spec-row"><i class="fas fa-ruler-combined"></i><span class="spec-label">Size</span><span class="spec-value">${u.size_sqft} sqft</span></div>`;
+  document.getElementById('specs-table').innerHTML = specs;
 
+  // Description with show-more
   const desc = (u.description && u.description !== '[]') ? u.description : 'No description available yet for this unit.';
   document.getElementById('unit-description').textContent = desc;
-
-  const amenities = (u.amenities && u.amenities.length) ? u.amenities : [];
-  const amenitiesGrid = document.getElementById('amenities-grid');
-  if (!amenities.length) {
-    amenitiesGrid.innerHTML = '<p style="color:var(--muted);font-size:13px">No amenities listed yet.</p>';
-  } else {
-    amenitiesGrid.innerHTML = amenities.map(a => `
-      <div class="amenity-pill"><i class="fas ${iconFor(String(a))}"></i> ${a}</div>
-    `).join('');
+  if (desc.length > 260) {
+    document.getElementById('desc-wrap').classList.add('collapsed');
+    document.getElementById('desc-more-btn').style.display = 'block';
   }
 
+  // Amenities with show-all
+  const amenities = (u.amenities && u.amenities.length) ? u.amenities : [];
+  const grid = document.getElementById('amenities-grid');
+  if (!amenities.length) {
+    grid.innerHTML = '<p style="color:var(--muted);font-size:14px">No amenities listed yet.</p>';
+  } else {
+    const VISIBLE = 6;
+    grid.innerHTML = amenities.map((a, i) => `
+      <div class="amenity-pill ${i >= VISIBLE ? 'hidden-extra' : ''}"><i class="fas ${iconFor(String(a))}"></i> ${a}</div>
+    `).join('');
+    if (amenities.length > VISIBLE) {
+      const btn = document.getElementById('amenities-more-btn');
+      btn.style.display = 'block';
+      btn.textContent = `Show all ${amenities.length} amenities`;
+    }
+  }
+
+  // Gallery
   galleryImages = (u.gallery_images && u.gallery_images.length) ? u.gallery_images : (u.featured_image ? [u.featured_image] : []);
-  renderGallery();
+  renderGallery(u);
 
-  const priceUsd = u.base_price_usd ? parseFloat(u.base_price_usd) : null;
-  document.getElementById('price-bar-amount').innerHTML = priceUsd
-    ? `$${priceUsd.toLocaleString()}<span> / night</span>`
-    : `<span>Price on request</span>`;
+  // Adults / Children dropdowns
+  populateGuestDropdowns(u);
 
-  document.getElementById('book-now-btn').href = '#booking';
-  window.currentUnitPrice = priceUsd || 0;
-  window.currentUnitId = unitId;
-  loadCalendar(unitId);
+  renderPricing();
+  setCurrency(currency);
 }
 
-function renderGallery() {
+function toggleDesc() {
+  const wrap = document.getElementById('desc-wrap');
+  const btn = document.getElementById('desc-more-btn');
+  const collapsed = wrap.classList.toggle('collapsed');
+  btn.textContent = collapsed ? 'Show more' : 'Show less';
+}
+function toggleAmenities() {
+  const wrap = document.getElementById('amenities-wrap');
+  const btn = document.getElementById('amenities-more-btn');
+  const expanded = wrap.classList.toggle('expanded');
+  const total = (unitData.amenities || []).length;
+  btn.textContent = expanded ? 'Show less' : `Show all ${total} amenities`;
+}
+
+function populateGuestDropdowns(u) {
+  const maxAdults = u.max_adults || u.max_guests || 2;
+  const adultsSel = document.getElementById('b-adults');
+  adultsSel.innerHTML = '';
+  for (let i = 1; i <= maxAdults; i++) {
+    adultsSel.innerHTML += `<option value="${i}">${i} adult${i>1?'s':''}</option>`;
+  }
+  updateChildrenOptions();
+}
+function updateChildrenOptions() {
+  const u = unitData;
+  const maxTotal = u.max_guests || 2;
+  const maxChildren = u.max_children || 0;
+  const adults = parseInt(document.getElementById('b-adults').value) || 1;
+  const allowed = Math.max(0, Math.min(maxChildren, maxTotal - adults));
+  const sel = document.getElementById('b-children');
+  const current = parseInt(sel.value) || 0;
+  sel.innerHTML = '<option value="0">0 children</option>';
+  for (let i = 1; i <= allowed; i++) {
+    sel.innerHTML += `<option value="${i}">${i} child${i>1?'ren':''}</option>`;
+  }
+  sel.value = current <= allowed ? current : 0;
+}
+
+function renderGallery(u) {
   const container = document.getElementById('gallery-container');
-  const counter = document.getElementById('gallery-counter');
   if (!galleryImages.length) {
     container.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--muted)"><i class="fas fa-image" style="font-size:32px"></i></div>';
     return;
   }
+  const badge = u.unit_number || u.name || '';
   container.innerHTML = galleryImages.map((img, i) => `
     <div class="gallery-slide ${i===0?'active':''}"><img src="${img}" loading="lazy"></div>
   `).join('') + (galleryImages.length > 1 ? `
     <button class="gallery-nav prev" onclick="prevImage()"><i class="fas fa-chevron-left"></i></button>
     <button class="gallery-nav next" onclick="nextImage()"><i class="fas fa-chevron-right"></i></button>
-  ` : '') + `<div class="gallery-counter" id="gallery-counter">1 / ${galleryImages.length}</div>`;
+  ` : '') + `<div class="gallery-unit-badge">${badge}</div><div class="gallery-counter" id="gallery-counter">1 / ${galleryImages.length}</div>`;
 }
-
 function updateGalleryImage() {
   document.querySelectorAll('.gallery-slide').forEach((s, i) => s.classList.toggle('active', i === currentImageIndex));
   const counter = document.getElementById('gallery-counter');
@@ -328,13 +451,6 @@ function updateGalleryImage() {
 }
 function nextImage() { currentImageIndex = (currentImageIndex + 1) % galleryImages.length; updateGalleryImage(); }
 function prevImage() { currentImageIndex = (currentImageIndex - 1 + galleryImages.length) % galleryImages.length; updateGalleryImage(); }
-
-let blockedRanges = [];
-let calMonth = new Date();
-calMonth.setDate(1);
-let startDate = null;
-let endDate = null;
-const todayStr = new Date().toISOString().split('T')[0];
 
 async function loadCalendar(unitId) {
   try {
@@ -347,29 +463,23 @@ async function loadCalendar(unitId) {
     renderCalendar();
   } catch(e) { console.error('Failed to load availability', e); }
 }
-
 function isDateBooked(dateStr) {
   return blockedRanges.some(r => dateStr >= r.start && dateStr < r.end);
 }
-
 function changeMonth(delta) {
   calMonth.setMonth(calMonth.getMonth() + delta);
   renderCalendar();
 }
-
 function renderCalendar() {
   const grid = document.getElementById('cal-grid');
   const label = document.getElementById('cal-month-label');
   const year = calMonth.getFullYear();
   const month = calMonth.getMonth();
   label.textContent = calMonth.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
-
   const firstDay = new Date(year, month, 1).getDay();
   const daysInMonth = new Date(year, month + 1, 0).getDate();
-
   let html = ['Su','Mo','Tu','We','Th','Fr','Sa'].map(d => `<div class="cal-dow">${d}</div>`).join('');
   for (let i = 0; i < firstDay; i++) html += `<div class="cal-day empty"></div>`;
-
   for (let d = 1; d <= daysInMonth; d++) {
     const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
     const isBooked = isDateBooked(dateStr);
@@ -379,10 +489,10 @@ function renderCalendar() {
       if (dateStr === startDate || dateStr === endDate) isSelected = true;
       else if (dateStr > startDate && dateStr < endDate) isInRange = true;
     } else if (startDate && dateStr === startDate) isSelected = true;
-
-    let cls = isPast ? 'past' : (isBooked ? 'blocked' : '');
+    let cls = isPast ? 'past' : '';
+    if (isBooked) cls += ' blocked';
     if (isSelected) cls += ' selected';
-    if (isInRange) cls += ' selected';
+    if (isInRange) cls += ' in-range';
     const clickable = (!isPast && !isBooked);
     html += `<div class="cal-day ${cls}" ${clickable ? `onclick="selectDate('${dateStr}')"` : ''}>${d}</div>`;
   }
@@ -393,7 +503,6 @@ function formatDateDisplay(dateStr) {
   const d = new Date(dateStr + 'T00:00:00');
   return d.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
 }
-
 function setCheckinField(dateStr) {
   const el = document.getElementById('b-checkin');
   el.value = formatDateDisplay(dateStr);
@@ -413,7 +522,6 @@ function clearDateFields() {
 
 function selectDate(dateStr) {
   if (dateStr < todayStr) return;
-
   if (startDate === dateStr && !endDate) {
     startDate = null; endDate = null;
     clearDateFields();
@@ -421,7 +529,6 @@ function selectDate(dateStr) {
     renderCalendar();
     return;
   }
-
   if (!startDate || (startDate && endDate)) {
     startDate = dateStr; endDate = null;
     const nextDay = new Date(dateStr); nextDay.setDate(nextDay.getDate() + 1);
@@ -431,7 +538,6 @@ function selectDate(dateStr) {
     renderCalendar();
     return;
   }
-
   if (startDate && !endDate) {
     if (dateStr < startDate) {
       startDate = dateStr;
@@ -468,16 +574,16 @@ function selectDate(dateStr) {
 function calcPrice() {
   const ci = document.getElementById('b-checkin').dataset.iso;
   const co = document.getElementById('b-checkout').dataset.iso;
-  const price = window.currentUnitPrice || 0;
+  const price = unitPrice();
   if (ci && co && price) {
     const nights = Math.round((new Date(co) - new Date(ci)) / 86400000);
     if (nights > 0) {
       const total = nights * price;
-      document.getElementById('ps-rate').textContent = `$${price.toLocaleString()}/night`;
+      document.getElementById('ps-rate').textContent = `${fmtMoney(price)}/night`;
       document.getElementById('ps-nights').textContent = `${nights} night${nights>1?'s':''}`;
-      document.getElementById('ps-total').textContent = `$${total.toLocaleString()}`;
+      document.getElementById('ps-total').textContent = fmtMoney(total);
       document.getElementById('price-summary').style.display = 'block';
-      return { nights, total, currency: 'USD' };
+      return { nights, total };
     }
   }
   document.getElementById('price-summary').style.display = 'none';
@@ -490,11 +596,16 @@ async function submitBooking() {
   const checkin = document.getElementById('b-checkin').dataset.iso;
   const checkout = document.getElementById('b-checkout').dataset.iso;
   if (!name || !phone || !checkin || !checkout) {
-    alert('Please fill in all required fields.');
+    alert('Please fill in all required fields and select your dates.');
     return;
   }
   const calc = calcPrice();
-  if (!calc) { alert('Please enter valid dates.'); return; }
+  if (!calc) { alert('Please select valid dates.'); return; }
+  const adults = parseInt(document.getElementById('b-adults').value) || 1;
+  const children = parseInt(document.getElementById('b-children').value) || 0;
+  const nid = document.getElementById('b-nid').value.trim();
+  let requests = document.getElementById('b-requests').value;
+  if (currency === 'MVR' && nid) requests = `[NID: ${nid}]${requests ? ' ' + requests : ''}`;
 
   try {
     const r = await fetch(`${API}/api/public/${TENANT_ID}/bookings`, {
@@ -504,14 +615,14 @@ async function submitBooking() {
         guest_name: name,
         guest_phone: phone,
         guest_email: document.getElementById('b-email').value,
-        unit_id: parseInt(window.currentUnitId),
-        number_of_guests: parseInt(document.getElementById('b-guests').value) || 2,
+        unit_id: parseInt(getUnitId()),
+        number_of_guests: adults + children,
         check_in_date: checkin,
         check_out_date: checkout,
         total_nights: calc.nights,
         total_amount: calc.total,
-        currency: calc.currency,
-        special_requests: document.getElementById('b-requests').value,
+        currency: currency,
+        special_requests: requests,
         booking_source: 'Website'
       })
     });
@@ -522,9 +633,6 @@ async function submitBooking() {
     alert('Booking failed. Please contact us directly via WhatsApp.');
   }
 }
-
-document.getElementById('b-checkin').addEventListener('change', calcPrice);
-document.getElementById('b-checkout').addEventListener('change', calcPrice);
 
 loadUnit();
 </script>

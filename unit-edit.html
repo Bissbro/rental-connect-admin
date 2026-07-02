@@ -6,6 +6,8 @@
 <title>Edit Unit</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <style>
 :root { --navy:#0A2540; --teal:#40B5AD; --charcoal:#1C1C1E; --warm-white:#FAFAF8; --muted:#6b7280; --line:#E8E8E4; --card:#FFFFFF; --danger:#E15B5B; --r:14px; --shadow:0 2px 10px rgba(10,37,64,0.06); }
 * { margin:0; padding:0; box-sizing:border-box; }
@@ -117,11 +119,12 @@ body { font-family:'Inter',sans-serif; color:var(--charcoal); background:var(--w
 
   <div class="section-card">
     <div class="section-title"><i class="fas fa-map-marker-alt"></i> Location</div>
+    <div id="pick-map" style="height:280px;border-radius:12px;border:1.5px solid var(--line);margin-bottom:12px;z-index:1"></div>
+    <p class="hint" style="margin-bottom:12px"><i class="fas fa-hand-pointer"></i> Tap the map or drag the pin onto your building. Coordinates fill in automatically.</p>
     <div class="f-row">
-      <div class="f-group"><label>Latitude</label><input id="u-lat" placeholder="4.2105"></div>
-      <div class="f-group"><label>Longitude</label><input id="u-lng" placeholder="73.5409"></div>
+      <div class="f-group"><label>Latitude</label><input id="u-lat" placeholder="—"></div>
+      <div class="f-group"><label>Longitude</label><input id="u-lng" placeholder="—"></div>
     </div>
-    <p class="hint">In Google Maps, long-press the building location — the coordinates appear at the top. Copy them here.</p>
   </div>
 
   <div class="section-card">
@@ -236,6 +239,38 @@ async function init() {
   document.getElementById('loading').style.display = 'none';
   document.getElementById('form-wrap').style.display = 'block';
   renderGallery();
+  initPickMap();
+}
+
+let pickMap = null, pickMarker = null;
+function initPickMap() {
+  const lat = parseFloat(v('u-lat')) || 4.0578;
+  const lng = parseFloat(v('u-lng')) || 73.5710;
+  const hasCoords = !!(parseFloat(v('u-lat')) && parseFloat(v('u-lng')));
+  pickMap = L.map('pick-map').setView([lat, lng], hasCoords ? 17 : 14);
+  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19, attribution: '© OpenStreetMap'
+  }).addTo(pickMap);
+  pickMarker = L.marker([lat, lng], { draggable: true }).addTo(pickMap);
+  pickMarker.on('dragend', () => {
+    const p = pickMarker.getLatLng();
+    setV('u-lat', p.lat.toFixed(7));
+    setV('u-lng', p.lng.toFixed(7));
+  });
+  pickMap.on('click', (e) => {
+    pickMarker.setLatLng(e.latlng);
+    setV('u-lat', e.latlng.lat.toFixed(7));
+    setV('u-lng', e.latlng.lng.toFixed(7));
+  });
+  document.getElementById('u-lat').addEventListener('change', syncMapFromFields);
+  document.getElementById('u-lng').addEventListener('change', syncMapFromFields);
+}
+function syncMapFromFields() {
+  const lat = parseFloat(v('u-lat')), lng = parseFloat(v('u-lng'));
+  if (lat && lng && pickMap) {
+    pickMarker.setLatLng([lat, lng]);
+    pickMap.setView([lat, lng], 17);
+  }
 }
 
 function populate(u) {

@@ -518,3 +518,27 @@ Hero/Promo/Reviews on Coral site; unit detail full flow; calendar with real bloc
 - Guest page render priority: image+link > lat/lng embed > link only > "Location not set"
 - Leaflet picker (Carto Voyager tiles + Esri satellite toggle) for coordinate input
 - Data verified working: map_image and map_link saving and flowing through public API
+
+## Session 8 final batch (Jul 3 early AM)
+
+### Guest site fully migrated to Lightsail
+- ~/rental-connect-guest/ served at api.htmrentals.com/guest/
+- sync-guest.sh script for pushing admin edits to live guest folder
+- No more GitHub Pages dependency for guest sites
+
+### Booking flow split into two pages
+- unit-detail.html: pure information page (gallery, specs, description, amenities, location)
+- book.html: dedicated booking page (unit summary card, calendar, form, trust signals)
+- Book Now in bottom bar links to book.html?id=N
+
+### Currency mode per unit
+- ENUM('both','mvr_only','usd_only') on units table
+- Toggle bar shows/hides tabs based on mode
+- Both pages respect currency_mode
+
+### Known issues to fix next session
+- "Unit not found" briefly flashes on unit-detail before JS loads (error div timing)
+- Price shows "—" on unit-detail bottom bar (JS functions removed with price-card)
+- map render still shows "Loading location..." (map_image/map_link in DB but render logic may need re-check)
+- book.html TENANT_ID hardcoded to 2 - needs to be dynamic per deployment
+- site-coral.html not updated to reflect new book.html flow yet

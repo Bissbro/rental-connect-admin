@@ -71,6 +71,28 @@ body { font-family:'Inter',sans-serif; color:var(--charcoal); background:var(--w
 .date-field label { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; color:var(--text-muted); display:block; margin-bottom:4px; }
 .date-field input { background:transparent; border:none; font-size:14px; font-weight:600; width:100%; font-family:'Inter',sans-serif; color:var(--navy); cursor:default; }
 .date-field input:focus { outline:none; }
+
+/* ── Responsive layout ── */
+.detail-layout { display:block; }
+
+/* Tablet: constrain widths, keep single column */
+@media (min-width: 768px) {
+  .content { max-width:720px; padding:32px 32px 120px; }
+  .gallery-container { max-height:420px; }
+  .amenities-grid { grid-template-columns:repeat(3,1fr); }
+}
+
+/* Desktop: two-column, sticky booking rail, no bottom bar */
+@media (min-width: 1024px) {
+  .content { max-width:1100px; padding:36px 40px 60px; }
+  .gallery-container { max-width:1100px; margin:0 auto; border-radius:16px; max-height:480px; }
+  .detail-layout { display:grid; grid-template-columns:1fr 420px; gap:40px; align-items:start; }
+  .detail-right { position:sticky; top:80px; }
+  .detail-right .section-h:first-child { margin-top:0; }
+  .price-bar { display:none; }
+  .amenities-grid { grid-template-columns:repeat(2,1fr); }
+  .map-box { height:300px; }
+}
 </style>
 </head>
 <body>
@@ -95,11 +117,17 @@ body { font-family:'Inter',sans-serif; color:var(--charcoal); background:var(--w
 
     <div class="unit-specs" id="unit-specs"></div>
 
+    <div class="detail-layout">
+    <div class="detail-left">
+
     <div class="section-h">Description</div>
     <p class="unit-desc" id="unit-description"></p>
 
     <div class="section-h">Amenities</div>
     <div class="amenities-grid" id="amenities-grid"></div>
+
+    </div>
+    <div class="detail-right">
 
     <div class="section-h">Availability</div>
     <div class="calendar-widget" id="calendar-widget">
@@ -147,6 +175,9 @@ body { font-family:'Inter',sans-serif; color:var(--charcoal); background:var(--w
         <h3>Booking Request Sent!</h3>
         <p>We've received your request and will confirm within 2 hours.<br>Check your WhatsApp or email for updates.</p>
       </div>
+    </div>
+
+    </div>
     </div>
 
     <div class="section-h">Location</div>

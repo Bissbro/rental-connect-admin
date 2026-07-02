@@ -542,3 +542,49 @@ Hero/Promo/Reviews on Coral site; unit detail full flow; calendar with real bloc
 - map render still shows "Loading location..." (map_image/map_link in DB but render logic may need re-check)
 - book.html TENANT_ID hardcoded to 2 - needs to be dynamic per deployment
 - site-coral.html not updated to reflect new book.html flow yet
+
+## Session 8 continued (Jul 3) - Guest site fixes + booking flow split
+
+### All fixes applied to ~/rental-connect-guest/ (Lightsail-served, instant deploy)
+- unit-detail.html and book.html are the live guest files
+- sync-guest.sh copies from rental-connect-admin to rental-connect-guest
+- NOTE: rental-connect-admin versions are now OUT OF SYNC with guest versions
+  (many fixes applied directly to rental-connect-guest after the cp)
+  Next session: reverse-sync guest->admin or treat rental-connect-guest as source of truth
+
+### Booking flow split complete
+- unit-detail.html: info only (gallery, specs, desc, amenities, location, map)
+- book.html: dedicated booking page (unit summary, calendar, form)
+- Book Now button in bottom bar links to book.html?id=N&cur=MVR/USD
+- Currency carried via URL param, respected on book page
+
+### currency_mode per unit - fully working
+- unit-detail: hides/shows Local/Foreign tabs via CSS data-mode attribute
+- book.html: respects currency_mode (mvr_only/usd_only overrides URL param, both respects it)
+- Fixed: id="curr-bar" was missing from unit-detail HTML causing mode hiding to fail
+
+### unit-detail fixes
+- "Unit not found" flash fixed (error div explicitly hidden in renderUnit)
+- Price bar "—" fixed (renderPricing guarded against null unitData + missing price-headline)
+- Map rendering fixed (populateGuestDropdowns crashed on missing b-adults/b-children elements)
+- Silent JS errors fixed: renderCalendar guarded for missing cal-grid, setCurrency guarded for missing nid-row, calcPrice call removed from detail page setCurrency
+- renderUnit crash: populateGuestDropdowns referenced removed booking form elements
+- Gallery: removed nav arrows, added touch swipe (50px threshold, left=next, right=prev)
+
+### Amenities + Description - bottom sheet modals (HTM-style)
+- "Show more" on description opens bottom sheet (slides up, 85vh max)
+- "Show all N amenities" opens full amenities sheet
+- Consistent pill styling in sheet matching detail page pills
+- Amenity icon map expanded to 30+ keywords, switched to ordered array for correct priority
+  (longer/more specific strings matched first - fixes washing machine vs washer conflict etc)
+- Sheet close: small borderless X, no circle
+
+### Known issues / open items
+- rental-connect-admin unit-detail.html is stale vs rental-connect-guest version
+  (admin version still has booking form, old icon map, old currency handling)
+- book.html not in rental-connect-admin at all (only in rental-connect-guest)
+- site-coral.html not updated to remove dead booking form JS
+- TENANT_ID hardcoded in both guest files (=2 for Coral)
+- Packages feature (Room Only/BB/HB/FB/AI) discussed but not built yet
+- House rules field discussed but not built yet
+- Checkout flow (instant-confirm + invoice + email) still the biggest open item

@@ -53,7 +53,7 @@ body { font-family:'Inter',sans-serif; color:var(--charcoal); background:var(--w
 
 /* Amenities */
 .amenities-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:10px; }
-.amenity-pill { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:13px 14px; font-size:14px; color:var(--charcoal); display:flex; align-items:center; gap:10px; }
+.amenity-pill { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:10px 14px; font-size:14px; color:var(--charcoal); display:flex; align-items:center; gap:10px; min-height:64px; line-height:1.35; }
 .amenity-pill i { color:var(--teal); width:16px; }
 .amenity-pill.hidden-extra { display:none; }
 .amenities-wrap.expanded .amenity-pill.hidden-extra { display:flex; }
@@ -114,7 +114,7 @@ body { font-family:'Inter',sans-serif; color:var(--charcoal); background:var(--w
 
 /* Sticky price bar (mobile) */
 .price-bar { position:fixed; bottom:0; left:0; right:0; background:white; border-top:2px solid var(--navy); box-shadow:0 -4px 16px rgba(10,37,64,0.12); padding:12px 20px; display:flex; align-items:center; justify-content:space-between; z-index:60; }
-.price-bar-amount { font-family:'Playfair Display',serif; font-size:1.25rem; color:var(--navy); font-weight:700; }
+.price-bar-amount { font-family:'Inter',sans-serif; font-size:1.05rem; color:var(--navy); font-weight:800; white-space:nowrap; }
 .price-bar-amount span { font-size:13px; color:var(--muted); font-weight:400; font-family:'Inter',sans-serif; }
 .btn-book-now { background:var(--navy); color:white; padding:13px 28px; border-radius:10px; font-weight:700; font-size:15px; border:none; cursor:pointer; text-decoration:none; min-height:44px; display:flex; align-items:center; }
 .btn-book-now:active { background:#12315a; }
@@ -291,7 +291,7 @@ function unitPrice() {
     : (unitData.base_price_usd ? parseFloat(unitData.base_price_usd) : 0);
 }
 function fmtMoney(amt) {
-  return currency === 'MVR' ? `MVR ${amt.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})}` : `$${amt.toLocaleString()}`;
+  return currency === 'MVR' ? `MVR ${amt.toLocaleString()}` : `$${amt.toLocaleString()}`;
 }
 
 function setCurrency(c) {
@@ -343,7 +343,7 @@ function renderUnit(u, unitId) {
   document.getElementById('loading').style.display = 'none';
   document.getElementById('unit-content').style.display = 'block';
   document.getElementById('page-title').textContent = u.name;
-  document.getElementById('unit-title').textContent = u.unit_type_label || u.name;
+  document.getElementById('unit-title').textContent = u.unit_type_label || u.unit_type || 'Apartment';
   if (u.building_name) document.getElementById('prop-name').textContent = u.building_name;
 
   if (u.offer_label) {
@@ -441,7 +441,7 @@ function renderGallery(u) {
     container.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--muted)"><i class="fas fa-image" style="font-size:32px"></i></div>';
     return;
   }
-  const badge = u.unit_number || '';
+  const badge = u.unit_number || u.name || '';
   container.innerHTML = galleryImages.map((img, i) => `
     <div class="gallery-slide ${i===0?'active':''}"><img src="${img}" loading="lazy"></div>
   `).join('') + (galleryImages.length > 1 ? `
@@ -508,7 +508,7 @@ function renderCalendar() {
 
 function formatDateDisplay(dateStr) {
   const d = new Date(dateStr + 'T00:00:00');
-  return d.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+  return d.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
 }
 function setCheckinField(dateStr) {
   const el = document.getElementById('b-checkin');

@@ -14,8 +14,8 @@ html { -webkit-text-size-adjust:100%; }
 body { font-family:'Inter',sans-serif; color:var(--charcoal); background:var(--warm-white); font-size:16px; line-height:1.6; }
 
 /* Currency toggle bar */
-.curr-bar { background:var(--navy); padding:10px 20px; display:flex; align-items:center; gap:10px; position:sticky; top:0; z-index:70; }
-.curr-tab { display:flex; align-items:center; gap:8px; padding:9px 20px; border-radius:24px; font-size:15px; font-weight:600; color:rgba(255,255,255,0.65); cursor:pointer; border:none; background:transparent; min-height:44px; }
+.curr-bar { background:var(--navy); padding:6px 16px; display:flex; align-items:center; gap:8px; position:sticky; top:0; z-index:70; }
+.curr-tab { display:flex; align-items:center; gap:7px; padding:7px 16px; border-radius:20px; font-size:14px; font-weight:600; color:rgba(255,255,255,0.65); cursor:pointer; border:none; background:transparent; min-height:38px; }
 .curr-tab.active { background:white; color:var(--navy); }
 .curr-back { margin-left:auto; color:white; font-size:18px; background:none; border:none; cursor:pointer; min-width:44px; min-height:44px; }
 
@@ -31,17 +31,17 @@ body { font-family:'Inter',sans-serif; color:var(--charcoal); background:var(--w
 .gallery-unit-badge { position:absolute; bottom:16px; left:16px; background:rgba(10,37,64,0.75); color:white; padding:5px 12px; border-radius:20px; font-size:13px; font-weight:700; z-index:10; letter-spacing:0.5px; }
 
 /* Content */
-.content { max-width:1100px; margin:0 auto; padding:24px 20px 110px; }
+.content { max-width:1100px; margin:0 auto; padding:16px 20px 110px; }
 .prop-name { text-align:center; font-size:13px; letter-spacing:3px; text-transform:uppercase; color:var(--teal); font-weight:700; margin-bottom:8px; }
-.unit-title { font-family:'Playfair Display',serif; font-size:2.1rem; color:var(--navy); text-align:center; margin-bottom:20px; line-height:1.2; }
+.unit-title { font-family:'Playfair Display',serif; font-size:1.8rem; color:var(--navy); text-align:center; margin-bottom:12px; line-height:1.2; }
 .offer-badge { background:var(--gold); color:white; font-size:12px; font-weight:700; padding:5px 12px; border-radius:6px; display:inline-block; margin-bottom:12px; }
 .section-h { font-size:12px; font-weight:800; color:var(--navy); text-transform:uppercase; letter-spacing:2px; margin:32px 0 14px; }
 
 /* Specs table */
 .specs-table { border-top:1px solid var(--line); }
-.spec-row { display:flex; align-items:center; gap:14px; padding:14px 4px; border-bottom:1px solid var(--line); font-size:15px; }
+.spec-row { display:flex; align-items:center; gap:12px; padding:11px 4px; border-bottom:1px solid var(--line); font-size:15px; }
 .spec-row i { color:var(--teal); width:22px; text-align:center; font-size:16px; }
-.spec-label { font-size:12px; font-weight:800; letter-spacing:1.5px; text-transform:uppercase; color:var(--navy); width:110px; flex-shrink:0; }
+.spec-label { font-size:11px; font-weight:800; letter-spacing:1px; text-transform:uppercase; color:var(--navy); width:92px; flex-shrink:0; }
 .spec-value { color:var(--charcoal); }
 .spec-value .sep { color:var(--muted); margin:0 6px; }
 
@@ -60,7 +60,7 @@ body { font-family:'Inter',sans-serif; color:var(--charcoal); background:var(--w
 
 /* Price + booking card */
 .price-card { background:var(--card); border:1px solid var(--line); border-radius:var(--r); padding:24px 20px; box-shadow:var(--shadow); margin-top:32px; }
-.price-headline { font-family:'Playfair Display',serif; font-size:2rem; color:var(--navy); font-weight:700; }
+.price-headline { display:none; font-family:'Playfair Display',serif; font-size:2rem; color:var(--navy); font-weight:700; }
 .price-headline span { font-size:15px; color:var(--muted); font-weight:400; font-family:'Inter',sans-serif; }
 .direct-badge { display:inline-block; background:var(--teal); color:white; font-size:11px; font-weight:800; letter-spacing:1.5px; padding:5px 14px; border-radius:16px; margin:10px 0 18px; text-transform:uppercase; }
 
@@ -113,7 +113,7 @@ body { font-family:'Inter',sans-serif; color:var(--charcoal); background:var(--w
 .map-box { background:var(--card); border:1px solid var(--line); border-radius:var(--r); height:220px; display:flex; align-items:center; justify-content:center; color:var(--muted); }
 
 /* Sticky price bar (mobile) */
-.price-bar { position:fixed; bottom:0; left:0; right:0; background:white; border-top:1px solid var(--line); box-shadow:0 -2px 12px rgba(10,37,64,0.08); padding:12px 20px; display:flex; align-items:center; justify-content:space-between; z-index:60; }
+.price-bar { position:fixed; bottom:0; left:0; right:0; background:white; border-top:2px solid var(--navy); box-shadow:0 -4px 16px rgba(10,37,64,0.12); padding:12px 20px; display:flex; align-items:center; justify-content:space-between; z-index:60; }
 .price-bar-amount { font-family:'Playfair Display',serif; font-size:1.25rem; color:var(--navy); font-weight:700; }
 .price-bar-amount span { font-size:13px; color:var(--muted); font-weight:400; font-family:'Inter',sans-serif; }
 .btn-book-now { background:var(--navy); color:white; padding:13px 28px; border-radius:10px; font-weight:700; font-size:15px; border:none; cursor:pointer; text-decoration:none; min-height:44px; display:flex; align-items:center; }
@@ -134,6 +134,7 @@ body { font-family:'Inter',sans-serif; color:var(--charcoal); background:var(--w
   .detail-layout { display:grid; grid-template-columns:1fr 440px; gap:48px; align-items:start; }
   .detail-right { position:sticky; top:76px; }
   .price-card { margin-top:0; }
+  .price-headline { display:block; }
   .price-bar { display:none; }
   .amenities-grid { grid-template-columns:repeat(2,1fr); }
   .map-box { height:300px; }
@@ -247,7 +248,7 @@ body { font-family:'Inter',sans-serif; color:var(--charcoal); background:var(--w
 
   <div class="price-bar">
     <div class="price-bar-amount" id="price-bar-amount">—</div>
-    <a href="#booking-form" class="btn-book-now">Book This Unit</a>
+    <a href="#" class="btn-book-now" onclick="document.querySelector('.price-card').scrollIntoView({behavior:'smooth'});return false">Book This Unit</a>
   </div>
 
 </div>
@@ -333,7 +334,8 @@ async function loadPropertyName() {
     const r = await fetch(`${API}/api/public/${TENANT_ID}/info`);
     const d = await r.json();
     const name = (d.settings && d.settings.property_name) || (d.tenant && d.tenant.name) || '';
-    document.getElementById('prop-name').textContent = name;
+    const el = document.getElementById('prop-name');
+    if (!el.textContent) el.textContent = name;
   } catch(e) {}
 }
 
@@ -341,7 +343,8 @@ function renderUnit(u, unitId) {
   document.getElementById('loading').style.display = 'none';
   document.getElementById('unit-content').style.display = 'block';
   document.getElementById('page-title').textContent = u.name;
-  document.getElementById('unit-title').textContent = u.name;
+  document.getElementById('unit-title').textContent = u.unit_type_label || u.name;
+  if (u.building_name) document.getElementById('prop-name').textContent = u.building_name;
 
   if (u.offer_label) {
     document.getElementById('offer-badge').innerHTML = `<span class="offer-badge">${u.offer_label}</span>`;
@@ -438,7 +441,7 @@ function renderGallery(u) {
     container.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--muted)"><i class="fas fa-image" style="font-size:32px"></i></div>';
     return;
   }
-  const badge = u.unit_number || u.name || '';
+  const badge = u.unit_number || '';
   container.innerHTML = galleryImages.map((img, i) => `
     <div class="gallery-slide ${i===0?'active':''}"><img src="${img}" loading="lazy"></div>
   `).join('') + (galleryImages.length > 1 ? `
@@ -587,10 +590,12 @@ function calcPrice() {
       document.getElementById('ps-nights').textContent = `${nights} night${nights>1?'s':''}`;
       document.getElementById('ps-total').textContent = fmtMoney(total);
       document.getElementById('price-summary').style.display = 'block';
+      document.getElementById('price-bar-amount').innerHTML = `${fmtMoney(total)}<span> · ${nights} night${nights>1?'s':''}</span>`;
       return { nights, total };
     }
   }
   document.getElementById('price-summary').style.display = 'none';
+  renderPricing();
   return null;
 }
 

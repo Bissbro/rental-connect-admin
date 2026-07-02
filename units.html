@@ -174,7 +174,7 @@ body { font-family:'Inter',sans-serif; background:var(--gray); color:var(--text)
       <h2>Units</h2>
       <p>Manage your property units</p>
     </div>
-    <button class="btn btn-teal" onclick="openAddModal()"><i class="fas fa-plus"></i> Add Unit</button>
+    <button class="btn btn-teal" onclick="location.href='unit-edit.html'"><i class="fas fa-plus"></i> Add Unit</button>
   </div>
   <div id="units-list"><div style="text-align:center;padding:60px;color:var(--text-muted)"><i class="fas fa-spinner fa-spin" style="font-size:24px"></i></div></div>
 </main>
@@ -388,7 +388,7 @@ function renderCard(u, isChild) {
       <div class="unit-meta">${price?`<span class="unit-price">${price}/night</span>`:''} ${badge}</div>
     </div></div>
     <div class="unit-actions">
-      <button class="action-btn" onclick="editUnit(${u.id})"><i class="fas fa-edit"></i> Edit</button>
+      <button class="action-btn" onclick="location.href='unit-edit.html?id=${u.id}'"><i class="fas fa-edit"></i> Edit</button>
       <button class="action-btn danger" onclick="deleteUnit(${u.id})"><i class="fas fa-trash"></i></button>
     </div>
   </div>`;

@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Edit Unit</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+:root { --navy:#0A2540; --teal:#40B5AD; --charcoal:#1C1C1E; --warm-white:#FAFAF8; --muted:#6b7280; --line:#E8E8E4; --card:#FFFFFF; --danger:#E15B5B; --r:14px; --shadow:0 2px 10px rgba(10,37,64,0.06); }
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:'Inter',sans-serif; color:var(--charcoal); background:var(--warm-white); font-size:16px; line-height:1.55; padding-bottom:90px; }
+.topbar { background:var(--navy); color:white; padding:14px 20px; display:flex; align-items:center; gap:14px; position:sticky; top:0; z-index:80; }
+.topbar a { color:white; font-size:17px; min-width:44px; }
+.topbar h1 { font-size:17px; font-weight:700; }
+.wrap { max-width:760px; margin:0 auto; padding:20px 16px; }
+.section-card { background:var(--card); border:1px solid var(--line); border-radius:var(--r); padding:20px; margin-bottom:18px; box-shadow:var(--shadow); }
+.section-title { font-size:12px; font-weight:800; color:var(--navy); text-transform:uppercase; letter-spacing:1.5px; margin-bottom:16px; display:flex; align-items:center; gap:10px; }
+.section-title i { color:var(--teal); }
+.f-row { display:flex; gap:12px; flex-wrap:wrap; margin-bottom:14px; }
+.f-group { flex:1; min-width:130px; }
+.f-group.full { flex-basis:100%; }
+.f-group label { display:block; font-size:13px; font-weight:600; color:var(--navy); margin-bottom:6px; }
+.f-group input, .f-group select, .f-group textarea { width:100%; padding:12px 13px; border:1.5px solid var(--line); border-radius:10px; font-size:16px; font-family:inherit; color:var(--charcoal); background:var(--card); min-height:46px; }
+.f-group textarea { min-height:110px; resize:vertical; }
+.f-group input:focus, .f-group select:focus, .f-group textarea:focus { outline:none; border-color:var(--teal); box-shadow:0 0 0 3px rgba(64,181,173,0.14); }
+.hint { font-size:12px; color:var(--muted); margin-top:4px; }
+.gallery-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
+.g-item { position:relative; border-radius:10px; overflow:hidden; aspect-ratio:1; border:2.5px solid transparent; background:var(--line); }
+.g-item.featured { border-color:var(--teal); }
+.g-item img { width:100%; height:100%; object-fit:cover; display:block; }
+.g-item .g-actions { position:absolute; inset:auto 0 0 0; background:rgba(10,37,64,0.75); display:flex; }
+.g-item .g-actions button { flex:1; background:none; border:none; color:white; padding:8px 0; font-size:13px; cursor:pointer; }
+.g-item .feat-tag { position:absolute; top:6px; left:6px; background:var(--teal); color:white; font-size:10px; font-weight:800; padding:3px 8px; border-radius:6px; letter-spacing:0.5px; }
+.g-add { aspect-ratio:1; border:2px dashed var(--teal); border-radius:10px; display:flex; flex-direction:column; align-items:center; justify-content:center; cursor:pointer; color:var(--teal); font-size:22px; gap:4px; background:var(--card); }
+.g-add span { font-size:12px; font-weight:600; }
+.amen-grid { display:grid; grid-template-columns:1fr 1fr; gap:9px; }
+.amen-item { display:flex; align-items:center; gap:9px; padding:11px 12px; border:1.5px solid var(--line); border-radius:10px; font-size:14px; cursor:pointer; background:var(--card); min-height:46px; user-select:none; }
+.amen-item.checked { border-color:var(--teal); background:#EFF9F8; font-weight:600; color:var(--navy); }
+.amen-item i { color:var(--teal); width:16px; }
+.amen-custom-row { display:flex; gap:8px; margin-top:10px; }
+.amen-custom-row input { flex:1; }
+.amen-custom-row button { background:var(--navy); color:white; border:none; border-radius:10px; padding:0 18px; font-weight:600; cursor:pointer; }
+.savebar { position:fixed; bottom:0; left:0; right:0; background:white; border-top:2px solid var(--navy); box-shadow:0 -4px 16px rgba(10,37,64,0.12); padding:12px 16px; display:flex; gap:12px; z-index:80; }
+.savebar .status { flex:1; display:flex; align-items:center; font-size:13px; color:var(--muted); }
+.btn { padding:13px 22px; border-radius:10px; font-weight:700; font-size:15px; cursor:pointer; border:none; min-height:48px; }
+.btn-save { background:var(--navy); color:white; flex:1; max-width:280px; margin-left:auto; }
+.btn-save:disabled { opacity:0.5; }
+.toast { position:fixed; top:70px; left:50%; transform:translateX(-50%); background:var(--navy); color:white; padding:12px 22px; border-radius:10px; font-size:14px; font-weight:600; z-index:99; display:none; box-shadow:0 4px 20px rgba(10,37,64,0.3); }
+.toast.error { background:var(--danger); }
+.loading-state { text-align:center; padding:80px 20px; color:var(--muted); }
+@media (min-width:768px) { .amen-grid { grid-template-columns:repeat(3,1fr); } .gallery-grid { grid-template-columns:repeat(4,1fr); } }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <a href="units.html"><i class="fas fa-arrow-left"></i></a>
+  <h1 id="page-heading">Edit Unit</h1>
+</div>
+
+<div id="loading" class="loading-state"><i class="fas fa-circle-notch fa-spin"></i> Loading...</div>
+
+<div class="wrap" id="form-wrap" style="display:none">
+
+  <div class="section-card">
+    <div class="section-title"><i class="fas fa-house"></i> Basics</div>
+    <div class="f-row">
+      <div class="f-group"><label>Unit Name *</label><input id="u-name" placeholder="e.g. A-207"></div>
+      <div class="f-group"><label>Unit Number</label><input id="u-number" placeholder="e.g. A-207"></div>
+    </div>
+    <div class="f-row">
+      <div class="f-group"><label>Room Type</label><input id="u-type-label" placeholder="e.g. One Room Apartment"></div>
+      <div class="f-group"><label>Building</label><input id="u-building" placeholder="e.g. Malas Residence"></div>
+    </div>
+    <div class="f-row">
+      <div class="f-group full"><label>Description</label><textarea id="u-desc" placeholder="Describe the unit for guests..."></textarea></div>
+    </div>
+    <div class="f-row">
+      <div class="f-group"><label>Show on Website</label><select id="u-show"><option value="1">Yes</option><option value="0">No</option></select></div>
+    </div>
+  </div>
+
+  <div class="section-card">
+    <div class="section-title"><i class="fas fa-bed"></i> Rooms & Capacity</div>
+    <div class="f-row">
+      <div class="f-group"><label>Max Guests</label><input type="number" id="u-guests" min="1" value="2"></div>
+      <div class="f-group"><label>Max Adults</label><input type="number" id="u-adults" min="1" value="2"></div>
+      <div class="f-group"><label>Max Children</label><input type="number" id="u-children" min="0" value="0"></div>
+    </div>
+    <div class="f-row">
+      <div class="f-group"><label>Bedrooms</label><input type="number" id="u-bedrooms" min="0" value="1"></div>
+      <div class="f-group"><label>Bathrooms</label><input type="number" id="u-bathrooms" min="0" value="1"></div>
+      <div class="f-group"><label>Beds</label><input type="number" id="u-beds" min="1" value="1"></div>
+    </div>
+    <div class="f-row">
+      <div class="f-group"><label>Bed Types</label><input id="u-bedtypes" placeholder="e.g. 1 double • 1 single"></div>
+      <div class="f-group"><label>Size (sqft)</label><input type="number" id="u-sqft" placeholder="Optional"></div>
+    </div>
+  </div>
+
+  <div class="section-card">
+    <div class="section-title"><i class="fas fa-couch"></i> Spaces</div>
+    <div class="f-row">
+      <div class="f-group"><label>Bedroom</label><select id="u-bedroom-priv"><option value="">—</option><option>Private</option><option>Shared</option></select></div>
+      <div class="f-group"><label>Bathroom</label><select id="u-bathroom-priv"><option value="">—</option><option>Private</option><option>Shared</option></select></div>
+    </div>
+    <div class="f-row">
+      <div class="f-group"><label>Kitchen</label><input id="u-kitchen" placeholder="e.g. Fully Equipped"></div>
+      <div class="f-group"><label>Living</label><input id="u-living" placeholder="e.g. Sofa · Smart TV"></div>
+    </div>
+    <div class="f-row">
+      <div class="f-group"><label>Balcony</label><input id="u-balcony" placeholder="e.g. Coffee Table · Smoking Area"></div>
+    </div>
+  </div>
+
+  <div class="section-card">
+    <div class="section-title"><i class="fas fa-images"></i> Photos</div>
+    <div class="gallery-grid" id="gallery-grid"></div>
+    <input type="file" id="photo-input" accept="image/*" multiple style="display:none" onchange="uploadPhotos(this)">
+    <p class="hint" style="margin-top:10px">Tap a photo to set it as the featured image. First/featured photo is what guests see on the homepage card.</p>
+  </div>
+
+  <div class="section-card">
+    <div class="section-title"><i class="fas fa-star"></i> Amenities</div>
+    <div class="amen-grid" id="amen-grid"></div>
+    <div class="amen-custom-row">
+      <input id="amen-custom" placeholder="Add custom amenity...">
+      <button onclick="addCustomAmenity()">Add</button>
+    </div>
+  </div>
+
+  <div class="section-card">
+    <div class="section-title"><i class="fas fa-tag"></i> Pricing & Offers</div>
+    <div class="f-row">
+      <div class="f-group"><label>Price MVR / night</label><input type="number" id="u-price-mvr" step="0.01" placeholder="850"></div>
+      <div class="f-group"><label>Price USD / night</label><input type="number" id="u-price-usd" step="0.01" placeholder="65"></div>
+    </div>
+    <div class="f-row">
+      <div class="f-group"><label>Offer Label</label><input id="u-offer" placeholder="e.g. 20% Off July"></div>
+      <div class="f-group"><label>Offer Expiry</label><input type="date" id="u-offer-exp"></div>
+    </div>
+  </div>
+
+  <div class="section-card">
+    <div class="section-title"><i class="fas fa-link"></i> OTA Links</div>
+    <div class="f-row">
+      <div class="f-group full"><label>Airbnb URL</label><input id="u-airbnb" placeholder="https://airbnb.com/..."></div>
+    </div>
+    <div class="f-row">
+      <div class="f-group full"><label>Agoda URL</label><input id="u-agoda" placeholder="https://agoda.com/..."></div>
+    </div>
+    <div class="f-row">
+      <div class="f-group full"><label>Booking.com URL</label><input id="u-booking" placeholder="https://booking.com/..."></div>
+    </div>
+    <div class="f-row">
+      <div class="f-group full"><label>Trip.com URL</label><input id="u-trip" placeholder="https://trip.com/..."></div>
+    </div>
+  </div>
+
+</div>
+
+<div class="savebar">
+  <div class="status" id="save-status"></div>
+  <button class="btn btn-save" id="save-btn" onclick="saveUnit()"><i class="fas fa-check"></i> Save Unit</button>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="auth-guard.js"></script>
+<script>
+const API = 'https://api.htmrentals.com';
+const token = localStorage.getItem('rc_token');
+if (!token) location.href = 'index.html';
+
+const unitId = new URLSearchParams(location.search).get('id');
+let gallery = [];
+let featuredImage = '';
+let amenities = [];
+
+const AMENITY_PRESETS = [
+  'Free High-Speed WiFi','Air Conditioning','Fresh Bed Linen','Fresh Towels','Hot Shower',
+  'Widescreen Smart TV','Fully Equipped Kitchen','Washing Machine','Iron & Board','Hair Dryer',
+  'Refrigerator','Microwave','Kettle','Work Desk','Wardrobe','Balcony','Parking','24/7 Security',
+  'Muslim Shower','Daily Housekeeping','First Aid Kit','Smoke Detector'
+];
+
+function hdrs() { return { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }; }
+function toast(msg, isError) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast' + (isError ? ' error' : '');
+  t.style.display = 'block';
+  setTimeout(() => t.style.display = 'none', 3000);
+}
+
+function v(id) { return document.getElementById(id).value.trim(); }
+function setV(id, val) { document.getElementById(id).value = (val === null || val === undefined) ? '' : val; }
+
+async function init() {
+  renderAmenityGrid();
+  if (unitId) {
+    document.getElementById('page-heading').textContent = 'Edit Unit';
+    try {
+      const r = await fetch(`${API}/api/rental-connect/units`, { headers: hdrs() });
+      const d = await r.json();
+      const u = (d.units || d || []).find(x => String(x.id) === String(unitId));
+      if (!u) throw new Error('Unit not found');
+      populate(u);
+    } catch(e) { toast('Failed to load unit', true); }
+  } else {
+    document.getElementById('page-heading').textContent = 'Add Unit';
+  }
+  document.getElementById('loading').style.display = 'none';
+  document.getElementById('form-wrap').style.display = 'block';
+  renderGallery();
+}
+
+function populate(u) {
+  setV('u-name', u.unit_name);
+  setV('u-number', u.unit_number);
+  setV('u-type-label', u.unit_type_label);
+  setV('u-building', u.building_name);
+  setV('u-desc', (u.description && u.description !== '[]') ? u.description : '');
+  setV('u-show', u.show_on_website !== 0 ? '1' : '0');
+  setV('u-guests', u.max_guests || 2);
+  setV('u-adults', u.max_adults || 2);
+  setV('u-children', u.max_children || 0);
+  setV('u-bedrooms', u.bedrooms || 1);
+  setV('u-bathrooms', u.bathrooms || 1);
+  setV('u-beds', u.beds || 1);
+  setV('u-bedtypes', u.bed_types);
+  setV('u-sqft', u.size_sqft);
+  setV('u-bedroom-priv', u.bedroom_privacy || '');
+  setV('u-bathroom-priv', u.bathroom_privacy || '');
+  setV('u-kitchen', u.kitchen_desc);
+  setV('u-living', u.living_desc);
+  setV('u-balcony', u.balcony_desc);
+  setV('u-price-mvr', u.original_price_mvr);
+  setV('u-price-usd', u.original_price_usd);
+  setV('u-offer', u.offer_label);
+  setV('u-offer-exp', u.offer_expiry ? String(u.offer_expiry).split('T')[0] : '');
+  setV('u-airbnb', u.airbnb_url);
+  setV('u-agoda', u.agoda_url);
+  setV('u-booking', u.booking_url);
+  setV('u-trip', u.trip_url);
+
+  try { gallery = typeof u.gallery_images === 'string' ? JSON.parse(u.gallery_images || '[]') : (u.gallery_images || []); }
+  catch(e) { gallery = []; }
+  featuredImage = u.featured_image || (gallery[0] || '');
+
+  let am = [];
+  if (typeof u.amenities === 'string') {
+    try { am = JSON.parse(u.amenities || '[]'); } catch(e) { am = []; }
+  } else if (Array.isArray(u.amenities)) { am = u.amenities; }
+  amenities = am.map(a => String(a).trim()).filter(Boolean);
+  renderAmenityGrid();
+}
+
+function renderAmenityGrid() {
+  const all = [...new Set([...AMENITY_PRESETS, ...amenities])];
+  document.getElementById('amen-grid').innerHTML = all.map(a => `
+    <div class="amen-item ${amenities.includes(a) ? 'checked' : ''}" onclick="toggleAmenity(this)" data-label="${a.replace(/"/g,'&quot;')}">
+      <i class="fas ${amenities.includes(a) ? 'fa-check-circle' : 'fa-circle'}" style="${amenities.includes(a) ? '' : 'color:var(--line)'}"></i> ${a}
+    </div>`).join('');
+}
+function toggleAmenity(el) {
+  const label = el.dataset.label;
+  if (amenities.includes(label)) amenities = amenities.filter(a => a !== label);
+  else amenities.push(label);
+  renderAmenityGrid();
+}
+function addCustomAmenity() {
+  const input = document.getElementById('amen-custom');
+  const val = input.value.trim();
+  if (!val) return;
+  if (!amenities.includes(val)) amenities.push(val);
+  input.value = '';
+  renderAmenityGrid();
+}
+
+function renderGallery() {
+  const grid = document.getElementById('gallery-grid');
+  grid.innerHTML = gallery.map((url, i) => `
+    <div class="g-item ${url === featuredImage ? 'featured' : ''}" onclick="setFeatured('${url}')">
+      ${url === featuredImage ? '<span class="feat-tag">FEATURED</span>' : ''}
+      <img src="${url}">
+      <div class="g-actions"><button onclick="event.stopPropagation();removePhoto(${i})"><i class="fas fa-trash"></i></button></div>
+    </div>`).join('') +
+    `<label class="g-add" for="photo-input"><i class="fas fa-plus"></i><span>Add Photos</span></label>`;
+}
+function setFeatured(url) { featuredImage = url; renderGallery(); }
+function removePhoto(i) {
+  const removed = gallery.splice(i, 1)[0];
+  if (removed === featuredImage) featuredImage = gallery[0] || '';
+  renderGallery();
+}
+
+async function uploadPhotos(input) {
+  const files = Array.from(input.files || []);
+  if (!files.length) return;
+  toast(`Uploading ${files.length} photo${files.length>1?'s':''}...`);
+  for (const f of files) {
+    const fd = new FormData();
+    fd.append('image', f);
+    try {
+      const r = await fetch(`${API}/api/rental-connect/upload-image`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+        body: fd
+      });
+      const d = await r.json();
+      const url = d.url || d.image_url || (d.filename ? `${API}/uploads/${d.filename}` : null);
+      if (url) {
+        gallery.push(url);
+        if (!featuredImage) featuredImage = url;
+      }
+    } catch(e) { toast('Upload failed for ' + f.name, true); }
+  }
+  input.value = '';
+  renderGallery();
+  toast('Photos uploaded');
+}
+
+async function saveUnit() {
+  const name = v('u-name');
+  if (!name) { toast('Unit name is required', true); return; }
+  const btn = document.getElementById('save-btn');
+  btn.disabled = true;
+  document.getElementById('save-status').textContent = 'Saving...';
+
+  const payload = {
+    unit_name: name,
+    unit_number: v('u-number') || null,
+    unit_type_label: v('u-type-label') || null,
+    building_name: v('u-building') || null,
+    description: v('u-desc'),
+    show_on_website: parseInt(v('u-show')),
+    max_guests: parseInt(v('u-guests')) || 2,
+    max_adults: parseInt(v('u-adults')) || 2,
+    max_children: parseInt(v('u-children')) || 0,
+    bedrooms: parseInt(v('u-bedrooms')) || 1,
+    bathrooms: parseInt(v('u-bathrooms')) || 1,
+    beds: parseInt(v('u-beds')) || 1,
+    bed_types: v('u-bedtypes') || null,
+    size_sqft: parseInt(v('u-sqft')) || null,
+    bedroom_privacy: v('u-bedroom-priv') || null,
+    bathroom_privacy: v('u-bathroom-priv') || null,
+    kitchen_desc: v('u-kitchen') || null,
+    living_desc: v('u-living') || null,
+    balcony_desc: v('u-balcony') || null,
+    featured_image: featuredImage || '',
+    gallery_images: gallery,
+    amenities: amenities,
+    original_price_mvr: parseFloat(v('u-price-mvr')) || null,
+    original_price_usd: parseFloat(v('u-price-usd')) || null,
+    offer_label: v('u-offer') || null,
+    offer_expiry: v('u-offer-exp') || null,
+    airbnb_url: v('u-airbnb') || null,
+    agoda_url: v('u-agoda') || null,
+    booking_url: v('u-booking') || null,
+    trip_url: v('u-trip') || null
+  };
+
+  try {
+    const url = unitId ? `${API}/api/rental-connect/units/${unitId}` : `${API}/api/rental-connect/units`;
+    const r = await fetch(url, { method: unitId ? 'PUT' : 'POST', headers: hdrs(), body: JSON.stringify(payload) });
+    const d = await r.json();
+    if (!d.success) throw new Error(d.error || 'Save failed');
+    toast('Unit saved');
+    document.getElementById('save-status').textContent = 'All changes saved';
+    if (!unitId && d.unit_id) {
+      setTimeout(() => location.href = `unit-edit.html?id=${d.unit_id}`, 800);
+    }
+  } catch(e) {
+    toast(e.message || 'Save failed', true);
+    document.getElementById('save-status').textContent = '';
+  }
+  btn.disabled = false;
+}
+
+init();
+</script>
+</body>
+</html>

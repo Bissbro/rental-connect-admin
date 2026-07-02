@@ -428,3 +428,69 @@ Given the infrastructure question, suggested order for next sessions:
 3. Custom domain infrastructure (Nginx, Certbot, Host-header tenant routing, migrate guest sites off GitHub Pages onto the upgraded Lightsail instance) - build only after step 2 is done, since this is the heavier-load feature that justified the upgrade in the first place.
 
 Rationale: don't block the core booking-flow value (item 1) on an infrastructure decision/migration (items 2-3) that doesn't need to happen first - ship the differentiator, then invest in the custom-domain premium feature once there's a solid server foundation under it.
+
+## Session 8 (Jul 2) - Guest-facing booking flow + design system + unit editor rebuild (MAJOR session)
+
+### New public API routes (all resolveTenant + getTenantPool pattern)
+- GET /api/public/:tenantId/hero-images, /promo-banners, /reviews - wired into customer_site_template.html (loadHero/loadPromos/loadReviews; sections hidden when empty, hero keeps static fallback)
+- GET /api/public/:tenantId/units/:unitId - full unit detail (parses amenities/gallery_images JSON server-side)
+- GET /api/public/:tenantId/units/:unitId/availability - narrow public-safe blocked ranges (block_dates ranges + pending/confirmed bookings, no PII)
+
+### CRITICAL FIX - public bookings route was broken in production
+POST /api/public/:tenantId/bookings referenced booking_reference column which does NOT exist on rc_tenant schemas (HTM-only column). Every guest booking failed. Fixed: column removed from INSERT, WEB-XXX ref now folded into special_requests as [Ref: ...]. NOTE: route still inserts booking_status='pending' - instant-confirm checkout flow NOT built yet (biggest open item).
+
+### Homepage template restructure
+- Booking form + map removed from homepage entirely; unit cards now link to unit-detail.html?id=N via "View Details"
+- Dead JS removed (calcPrice/submitBooking/b-unit dropdown)
+
+### unit-detail.html - built from scratch, then fully rebuilt (640 lines, 3-chunk heredoc)
+Final feature set:
+- Sticky Local/Foreign currency toggle bar (MVR/USD) - drives all pricing displays + NID field visibility (NID folded into special_requests as [NID: ...])
+- Specs table (HTM-style rows): Guests/Bedroom/Beds/Bathroom + privacy suffixes + Kitchen/Living/Balcony rows (conditional)
+- Price card: rate headline (desktop only), DIRECT BOOKING badge, calendar, date fields, booking form all in one card
+- Calendar: exact HTM tap logic port (single tap = checkin+auto next-day checkout, second tap extends with booked-range validation, same-tap clears, third tap restarts). States: past=plain gray, future booked=red strikethrough number on white, today=teal outline+glow (today+booked=teal outline red number)
+- Date fields: readonly display boxes under calendar (CHECK-IN 14:00 / CHECK-OUT 12:00), short month format, ISO stored in dataset.iso
+- Adults/Children dropdowns respecting max_adults/max_children/max_guests interplay
+- Amenities "Show all N" collapse (6 visible), description "Show more" collapse, trust line "You won't be charged yet"
+- Bottom sticky bar: navy top border, compact Inter-bold price, switches to total+nights when dates selected, Book This Unit scrolls to calendar
+- Photo badge = unit_number; teal line = building_name (fallback property_name from /info); title = unit_type_label fallback 'Apartment'
+- Map: hybrid render priority - map_image+link > lat/lng Google embed > link-only. Get Directions pill opens map_link or dir API with coords
+- Responsive: mobile single column, tablet constrained, desktop 2-col with sticky right rail (price-bar hidden)
+
+### RC guest design system (agreed, documented in session)
+Navy #0A2540 structure, teal #40B5AD single accent, charcoal-on-white body text (no gray-on-gray), warm white bg, Playfair titles only, Inter 16px+ body, 44px touch targets, 1100px max content, one shadow/radius scale. Applied to unit-detail fully. Homepage template NOT yet restyled to it (open item).
+
+### units schema additions (rc_tenant_2 AND rc_tenant_3 both altered; future tenants inherit via clone)
+bedroom_privacy, bathroom_privacy, kitchen_desc, living_desc, balcony_desc, map_lat, map_lng, map_image, map_link
+
+### unit-edit.html - NEW full-page sectioned editor (replaces buggy modal in units.html)
+- Sections: Basics (incl Parent Unit dropdown - was silently dropped in first version, restored), Rooms & Capacity, Spaces, Location, Photos, Amenities, Pricing & Offers, OTA Links
+- Full-state saves (backend PUT/POST rewritten: no more COALESCE partial updates - root cause of "fields blank on edit" and the amenities='' JSON constraint bug, BOTH FIXED)
+- New backend route GET /api/rental-connect/units/:id (list route returns slim subset, edit page needs full row)
+- Photos: upload via /api/rental-connect/upload-image (returns {success,url}), featured tap-select, left/right reorder arrows (no drag-drop on mobile)
+- Amenities: preset checklist + custom add, stored as real JSON array
+- Location: Leaflet picker, Carto Voyager tiles default (Google-like clean look) + Esri satellite toggle, draggable pin + tap-to-place fills lat/lng; PLUS Google Maps Link field + Map Display Image upload (HTM pattern - image+link takes display priority on guest page)
+- units.html Add/Edit buttons now link to unit-edit.html; old modal code left as dead code (cleanup later)
+
+### Link resolution research (for future reference)
+share.google links resolve to Search pages (no coords). maps.app.goo.gl resolves to place URLs WITHOUT coords when shared from app; page HTML is consent-walled for datacenter IPs (returns Singapore edge coords). Conclusion: server-side link->coords resolution unreliable, hence image+link hybrid. Airbnb uses Google Places autocomplete + draggable pin (needs paid API key - deliberate future decision).
+
+### Known CDN gotcha discovered
+GitHub Pages CDN serves different file versions from different edge nodes for extended periods (server's Singapore edge vs phone's edge showed different commits simultaneously). Cache-bust via query param unreliable; pushing any commit eventually converges. Argument for eventual Lightsail+Nginx tenant site hosting (existing infra decision doc).
+
+### Verified working end-to-end this session
+Hero/Promo/Reviews on Coral site; unit detail full flow; calendar with real blocked dates; MVR/USD toggle; test bookings via curl AND via UI form (success message confirmed); unit editor round-trip save/reload; map data saved to DB and flowing through public API (guest render pending CDN convergence at session end - verify next session).
+
+### OPEN ITEMS (priority order)
+1. CHECKOUT FLOW - the core differentiator, NOT started: instant-confirm booking (currently 'pending'), auto-invoice via generateTenantInvoicePDF, guest confirmation email. Deserves dedicated session.
+2. Verify map renders on guest page (CDN was converging at session end)
+3. Homepage template restyle to design system (unit-detail is the reference)
+4. site-coral.html regenerate from updated template (last regenerated mid-session - hero/promo/reviews included but NOT the later template changes; check diff)
+5. "Getting Here" free-text field per unit (ferry/speedboat info - serves outer islands better than maps)
+6. AI description generator for units (discussed, never existed, DeepSeek widget still in old backlog)
+7. Cleanup: dead modal code in units.html, unused unit_type column, stale .bak files in repo dir
+8. Geolocate-on-open for Leaflet picker (discussed, not built)
+
+### Session lessons
+- Inline python3 heredocs with long exact-match strings get corrupted by mobile terminal paste (multiple silent MISSes) - ALWAYS check APPLIED/MISS output; prefer cat-to-file + sed line-number inserts for anything over ~10 lines
+- bash history expansion ate a heredoc again (echo with <\!-- -->) - set +H or avoid ! entirely

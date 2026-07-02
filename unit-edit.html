@@ -248,9 +248,14 @@ function initPickMap() {
   const lng = parseFloat(v('u-lng')) || 73.5710;
   const hasCoords = !!(parseFloat(v('u-lat')) && parseFloat(v('u-lng')));
   pickMap = L.map('pick-map').setView([lat, lng], hasCoords ? 17 : 14);
-  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    maxZoom: 19, attribution: '© OpenStreetMap'
-  }).addTo(pickMap);
+  const voyager = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+    maxZoom: 19, attribution: '© OpenStreetMap © CARTO', subdomains: 'abcd'
+  });
+  const sat = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+    maxZoom: 19, attribution: '© Esri'
+  });
+  voyager.addTo(pickMap);
+  L.control.layers({ 'Map': voyager, 'Satellite': sat }).addTo(pickMap);
   pickMarker = L.marker([lat, lng], { draggable: true }).addTo(pickMap);
   pickMarker.on('dragend', () => {
     const p = pickMarker.getLatLng();

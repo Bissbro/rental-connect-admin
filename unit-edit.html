@@ -122,6 +122,17 @@ body { font-family:'Inter',sans-serif; color:var(--charcoal); background:var(--w
     <div id="pick-map" style="height:280px;border-radius:12px;border:1.5px solid var(--line);margin-bottom:12px;z-index:1"></div>
     <p class="hint" style="margin-bottom:12px"><i class="fas fa-hand-pointer"></i> Tap the map or drag the pin onto your building. Coordinates fill in automatically.</p>
     <div class="f-row">
+      <div class="f-group full"><label>Google Maps Link (shown to guests)</label><input id="u-maplink" placeholder="https://maps.app.goo.gl/..."></div>
+    </div>
+    <div class="f-row">
+      <div class="f-group full"><label>Map Display Image (optional)</label>
+        <div id="map-img-preview" style="margin-bottom:8px"></div>
+        <input type="file" id="map-img-input" accept="image/*" style="display:none" onchange="uploadMapImage(this)">
+        <button type="button" class="btn" style="background:var(--warm-white);border:1.5px solid var(--line);color:var(--navy)" onclick="document.getElementById('map-img-input').click()"><i class="fas fa-upload"></i> Upload Map Image</button>
+        <p class="hint">A screenshot/styled image of your location. Shown to guests instead of the plain map when set.</p>
+      </div>
+    </div>
+    <div class="f-row">
       <div class="f-group"><label>Latitude</label><input id="u-lat" placeholder="—"></div>
       <div class="f-group"><label>Longitude</label><input id="u-lng" placeholder="—"></div>
     </div>
@@ -188,6 +199,7 @@ if (!token) location.href = 'index.html';
 
 const unitId = new URLSearchParams(location.search).get('id');
 let gallery = [];
+let mapImage = '';
 let featuredImage = '';
 let amenities = [];
 
@@ -305,6 +317,9 @@ function populate(u) {
   setV('u-parent', u.parent_unit_id || '');
   setV('u-lat', u.map_lat);
   setV('u-lng', u.map_lng);
+  setV('u-maplink', u.map_link);
+  mapImage = u.map_image || '';
+  renderMapImagePreview();
   setV('u-airbnb', u.airbnb_url);
   setV('u-agoda', u.agoda_url);
   setV('u-booking', u.booking_url);
@@ -371,6 +386,26 @@ function removePhoto(i) {
   renderGallery();
 }
 
+function renderMapImagePreview() {
+  const el = document.getElementById('map-img-preview');
+  el.innerHTML = mapImage
+    ? `<div style="position:relative;border-radius:10px;overflow:hidden;max-width:340px"><img src="${mapImage}" style="width:100%;display:block"><button onclick="mapImage='';renderMapImagePreview()" style="position:absolute;top:8px;right:8px;background:rgba(10,37,64,0.8);color:white;border:none;border-radius:8px;padding:6px 10px;cursor:pointer"><i class="fas fa-trash"></i></button></div>`
+    : '';
+}
+async function uploadMapImage(input) {
+  const f = (input.files || [])[0];
+  if (!f) return;
+  toast('Uploading map image...');
+  const fd = new FormData();
+  fd.append('image', f);
+  try {
+    const r = await fetch(`${API}/api/rental-connect/upload-image`, { method:'POST', headers:{ Authorization:`Bearer ${token}` }, body: fd });
+    const d = await r.json();
+    if (d.url) { mapImage = d.url; renderMapImagePreview(); toast('Map image uploaded'); }
+  } catch(e) { toast('Upload failed', true); }
+  input.value = '';
+}
+
 async function uploadPhotos(input) {
   const files = Array.from(input.files || []);
   if (!files.length) return;
@@ -427,6 +462,8 @@ async function saveUnit() {
     parent_unit_id: parseInt(v('u-parent')) || null,
     map_lat: parseFloat(v('u-lat')) || null,
     map_lng: parseFloat(v('u-lng')) || null,
+    map_link: v('u-maplink') || null,
+    map_image: mapImage || null,
     featured_image: featuredImage || '',
     gallery_images: gallery,
     amenities: amenities,

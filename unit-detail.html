@@ -8,90 +8,117 @@
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
-:root { --navy:#0A2540; --gold:#B8975A; --teal:#40B5AD; --warm-white:#FAFAF8; --charcoal:#1C1C1E; --text-muted:#6b7280; --gray:#F3F4F1; }
+:root { --navy:#0A2540; --teal:#40B5AD; --gold:#B8975A; --charcoal:#1C1C1E; --warm-white:#FAFAF8; --muted:#6b7280; --line:#E8E8E4; --card:#FFFFFF; --r:16px; --shadow:0 2px 12px rgba(10,37,64,0.07); }
 * { margin:0; padding:0; box-sizing:border-box; }
-body { font-family:'Inter',sans-serif; color:var(--charcoal); background:var(--warm-white); }
-.topbar { padding:16px 24px; display:flex; align-items:center; gap:12px; background:white; box-shadow:0 1px 4px rgba(0,0,0,0.06); position:sticky; top:0; z-index:50; }
-.back-link { color:var(--navy); font-size:14px; font-weight:600; text-decoration:none; display:flex; align-items:center; gap:6px; }
-.gallery-container { position:relative; width:100%; aspect-ratio:4/3; max-height:480px; overflow:hidden; background:var(--gray); }
+html { -webkit-text-size-adjust:100%; }
+body { font-family:'Inter',sans-serif; color:var(--charcoal); background:var(--warm-white); font-size:16px; line-height:1.6; }
+
+/* Topbar */
+.topbar { padding:14px 24px; display:flex; align-items:center; background:white; border-bottom:1px solid var(--line); position:sticky; top:0; z-index:50; }
+.back-link { color:var(--navy); font-size:15px; font-weight:600; text-decoration:none; display:flex; align-items:center; gap:8px; min-height:44px; padding:0 4px; }
+.back-link:active { opacity:0.6; }
+
+/* Gallery */
+.gallery-container { position:relative; width:100%; aspect-ratio:4/3; max-height:480px; overflow:hidden; background:var(--line); }
 .gallery-slide { position:absolute; inset:0; opacity:0; transition:opacity .3s ease; }
 .gallery-slide.active { opacity:1; }
 .gallery-slide img { width:100%; height:100%; object-fit:cover; }
-.gallery-nav { position:absolute; top:50%; transform:translateY(-50%); background:rgba(255,255,255,0.85); border:none; width:36px; height:36px; border-radius:50%; cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:14px; color:var(--navy); z-index:10; }
+.gallery-nav { position:absolute; top:50%; transform:translateY(-50%); background:rgba(255,255,255,0.92); border:none; width:44px; height:44px; border-radius:50%; cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:15px; color:var(--navy); z-index:10; box-shadow:var(--shadow); }
+.gallery-nav:active { transform:translateY(-50%) scale(0.94); }
 .gallery-nav.prev { left:16px; } .gallery-nav.next { right:16px; }
-.gallery-counter { position:absolute; bottom:16px; right:16px; background:rgba(0,0,0,0.6); color:white; padding:4px 12px; border-radius:20px; font-size:12px; font-weight:500; z-index:10; }
-.content { max-width:800px; margin:0 auto; padding:28px 20px 100px; }
+.gallery-counter { position:absolute; bottom:16px; right:16px; background:rgba(10,37,64,0.75); color:white; padding:5px 12px; border-radius:20px; font-size:13px; font-weight:600; z-index:10; }
+
+/* Content */
+.content { max-width:1100px; margin:0 auto; padding:24px 20px 110px; }
 .unit-type { font-size:12px; letter-spacing:2px; text-transform:uppercase; color:var(--gold); font-weight:700; margin-bottom:6px; }
-.unit-title { font-family:'Playfair Display',serif; font-size:2rem; color:var(--navy); margin-bottom:14px; }
-.unit-specs { display:flex; gap:20px; flex-wrap:wrap; margin-bottom:24px; padding-bottom:24px; border-bottom:1px solid #eee; }
-.spec-item { display:flex; align-items:center; gap:8px; font-size:14px; color:var(--text-muted); }
+.unit-title { font-family:'Playfair Display',serif; font-size:2rem; color:var(--navy); margin-bottom:16px; line-height:1.2; }
+.unit-specs { display:flex; gap:20px; flex-wrap:wrap; margin-bottom:24px; padding-bottom:24px; border-bottom:1px solid var(--line); }
+.spec-item { display:flex; align-items:center; gap:8px; font-size:15px; color:var(--charcoal); }
 .spec-item i { color:var(--teal); }
-.section-h { font-size:11px; font-weight:800; color:var(--navy); text-transform:uppercase; letter-spacing:2px; margin-bottom:12px; margin-top:28px; }
-.unit-desc { font-size:15px; line-height:1.7; color:var(--charcoal); }
+.section-h { font-size:12px; font-weight:800; color:var(--navy); text-transform:uppercase; letter-spacing:2px; margin:32px 0 14px; }
+.unit-desc { font-size:16px; line-height:1.7; color:var(--charcoal); }
+.offer-badge { background:var(--gold); color:white; font-size:12px; font-weight:700; padding:5px 12px; border-radius:6px; display:inline-block; margin-bottom:12px; }
+
+/* Amenities */
 .amenities-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:10px; }
-.amenity-pill { background:var(--gray); border-radius:10px; padding:12px 14px; font-size:13px; display:flex; align-items:center; gap:8px; }
+.amenity-pill { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:13px 14px; font-size:14px; color:var(--charcoal); display:flex; align-items:center; gap:10px; }
 .amenity-pill i { color:var(--teal); width:16px; }
-.price-bar { position:fixed; bottom:0; left:0; right:0; background:white; box-shadow:0 -2px 12px rgba(0,0,0,0.08); padding:14px 20px; display:flex; align-items:center; justify-content:space-between; z-index:60; }
-.price-bar-amount { font-family:'Playfair Display',serif; font-size:1.3rem; color:var(--navy); font-weight:700; }
-.price-bar-amount span { font-size:12px; color:var(--text-muted); font-weight:400; }
-.btn-book-now { background:var(--navy); color:white; padding:12px 26px; border-radius:8px; font-weight:600; font-size:14px; border:none; cursor:pointer; text-decoration:none; }
-.offer-badge { background:var(--gold); color:white; font-size:11px; font-weight:700; padding:4px 10px; border-radius:6px; display:inline-block; margin-bottom:10px; }
-.loading-state, .error-state { text-align:center; padding:80px 20px; color:var(--text-muted); }
-.calendar-placeholder { background:var(--gray); border-radius:16px; padding:40px 20px; text-align:center; color:var(--text-muted); }
-.booking-card { background:white; border:1px solid #eee; border-radius:16px; padding:24px; box-shadow:0 2px 12px rgba(0,0,0,0.05); }
-.form-row { display:flex; gap:14px; margin-bottom:14px; flex-wrap:wrap; }
-.form-group { flex:1; min-width:140px; }
-.form-group label { display:block; font-size:12px; font-weight:600; color:var(--navy); margin-bottom:6px; }
-.form-group input { width:100%; padding:10px 12px; border:1px solid #ddd; border-radius:8px; font-size:14px; font-family:inherit; }
-.price-summary { background:var(--gray); border-radius:12px; padding:16px; margin:16px 0; display:none; }
-.price-row { display:flex; justify-content:space-between; font-size:14px; padding:4px 0; }
-.price-row.total { font-weight:700; color:var(--navy); border-top:1px solid #ddd; margin-top:6px; padding-top:10px; }
-.btn-submit { width:100%; background:var(--navy); color:white; padding:14px; border:none; border-radius:8px; font-weight:600; font-size:15px; cursor:pointer; margin-top:6px; }
-.success-msg { display:none; text-align:center; padding:30px 20px; }
-.success-msg i { font-size:42px; color:var(--teal); margin-bottom:14px; display:block; }
-.success-msg h3 { font-family:'Playfair Display',serif; font-size:1.3rem; color:var(--navy); margin-bottom:8px; }
-.map-box { background:var(--gray); border-radius:16px; height:220px; display:flex; align-items:center; justify-content:center; color:var(--text-muted); }
-.calendar-widget { background:white; border:1px solid #eee; border-radius:16px; padding:18px; }
-.cal-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
-.cal-nav { background:var(--gray); border:none; width:32px; height:32px; border-radius:50%; cursor:pointer; color:var(--navy); }
-.cal-month-label { font-weight:700; color:var(--navy); font-size:15px; }
-.cal-legend { display:flex; gap:16px; font-size:12px; color:var(--text-muted); margin-bottom:12px; }
-.cal-dot { display:inline-block; width:10px; height:10px; border-radius:50%; margin-right:4px; vertical-align:middle; }
+
+/* Calendar */
+.calendar-widget { background:var(--card); border:1px solid var(--line); border-radius:var(--r); padding:20px; box-shadow:var(--shadow); }
+.cal-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; }
+.cal-nav { background:var(--warm-white); border:1px solid var(--line); width:44px; height:44px; border-radius:50%; cursor:pointer; color:var(--navy); font-size:14px; }
+.cal-nav:active { background:var(--line); }
+.cal-month-label { font-weight:700; color:var(--navy); font-size:16px; }
+.cal-legend { display:flex; gap:18px; font-size:13px; color:var(--muted); margin-bottom:14px; }
+.cal-dot { display:inline-block; width:10px; height:10px; border-radius:50%; margin-right:5px; vertical-align:middle; }
 .cal-dot.available { background:var(--teal); }
-.cal-dot.blocked { background:#ddd; }
+.cal-dot.blocked { background:#D8D8D4; }
 .cal-grid { display:grid; grid-template-columns:repeat(7,1fr); gap:4px; text-align:center; }
-.cal-dow { font-size:11px; color:var(--text-muted); font-weight:600; padding-bottom:6px; }
-.cal-day { padding:8px 0; font-size:13px; border-radius:6px; cursor:pointer; }
-.cal-day.blocked { background:#f1f1f1; color:#bbb; cursor:not-allowed; text-decoration:line-through; }
-.cal-day.past { color:#ddd; cursor:not-allowed; }
+.cal-dow { font-size:12px; color:var(--muted); font-weight:700; padding-bottom:8px; }
+.cal-day { padding:10px 0; font-size:14px; font-weight:500; border-radius:8px; cursor:pointer; min-height:40px; }
+.cal-day:not(.blocked):not(.past):not(.empty):active { background:var(--line); }
+.cal-day.blocked { background:#F1F1EE; color:#B5B5B0; cursor:not-allowed; text-decoration:line-through; }
+.cal-day.past { color:#D0D0CC; cursor:not-allowed; }
 .cal-day.empty { visibility:hidden; }
-.cal-day.selected { background:var(--navy); color:white; }
-.date-inputs { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:14px; }
-.date-field { border:1px solid #eee; border-radius:10px; padding:12px; background:var(--gray); }
-.date-field label { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; color:var(--text-muted); display:block; margin-bottom:4px; }
-.date-field input { background:transparent; border:none; font-size:14px; font-weight:600; width:100%; font-family:'Inter',sans-serif; color:var(--navy); cursor:default; }
+.cal-day.selected { background:var(--navy); color:white; font-weight:700; }
+.cal-instruction { font-size:12px; color:var(--muted); text-align:center; margin-top:12px; }
+
+/* Date fields */
+.date-inputs { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:16px; }
+.date-field { border:1px solid var(--line); border-radius:12px; padding:12px 14px; background:var(--warm-white); }
+.date-field label { font-size:10px; font-weight:800; text-transform:uppercase; letter-spacing:0.5px; color:var(--muted); display:block; margin-bottom:4px; }
+.date-field input { background:transparent; border:none; font-size:15px; font-weight:600; width:100%; font-family:'Inter',sans-serif; color:var(--navy); cursor:default; }
 .date-field input:focus { outline:none; }
 
-/* ── Responsive layout ── */
+/* Booking form */
+.booking-card { background:var(--card); border:1px solid var(--line); border-radius:var(--r); padding:24px; box-shadow:var(--shadow); }
+.form-row { display:flex; gap:14px; margin-bottom:16px; flex-wrap:wrap; }
+.form-group { flex:1; min-width:140px; }
+.form-group label { display:block; font-size:13px; font-weight:600; color:var(--navy); margin-bottom:6px; }
+.form-group input { width:100%; padding:12px 14px; border:1px solid var(--line); border-radius:10px; font-size:16px; font-family:inherit; color:var(--charcoal); min-height:44px; }
+.form-group input:focus { outline:none; border-color:var(--teal); box-shadow:0 0 0 3px rgba(64,181,173,0.15); }
+.price-summary { background:var(--warm-white); border:1px solid var(--line); border-radius:12px; padding:16px; margin:16px 0; display:none; }
+.price-row { display:flex; justify-content:space-between; font-size:15px; padding:5px 0; color:var(--charcoal); }
+.price-row.total { font-weight:700; color:var(--navy); font-size:17px; border-top:1px solid var(--line); margin-top:8px; padding-top:12px; }
+.btn-submit { width:100%; background:var(--navy); color:white; padding:15px; border:none; border-radius:10px; font-weight:700; font-size:16px; cursor:pointer; margin-top:8px; min-height:48px; }
+.btn-submit:active { background:#12315a; }
+.success-msg { display:none; text-align:center; padding:32px 20px; }
+.success-msg i { font-size:44px; color:var(--teal); margin-bottom:14px; display:block; }
+.success-msg h3 { font-family:'Playfair Display',serif; font-size:1.35rem; color:var(--navy); margin-bottom:8px; }
+.success-msg p { color:var(--charcoal); font-size:15px; }
+
+/* Map */
+.map-box { background:var(--card); border:1px solid var(--line); border-radius:var(--r); height:220px; display:flex; align-items:center; justify-content:center; color:var(--muted); }
+
+/* Sticky price bar (mobile) */
+.price-bar { position:fixed; bottom:0; left:0; right:0; background:white; border-top:1px solid var(--line); box-shadow:0 -2px 12px rgba(10,37,64,0.08); padding:12px 20px; display:flex; align-items:center; justify-content:space-between; z-index:60; }
+.price-bar-amount { font-family:'Playfair Display',serif; font-size:1.3rem; color:var(--navy); font-weight:700; }
+.price-bar-amount span { font-size:13px; color:var(--muted); font-weight:400; font-family:'Inter',sans-serif; }
+.btn-book-now { background:var(--navy); color:white; padding:13px 28px; border-radius:10px; font-weight:700; font-size:15px; border:none; cursor:pointer; text-decoration:none; min-height:44px; display:flex; align-items:center; }
+.btn-book-now:active { background:#12315a; }
+
+.loading-state, .error-state { text-align:center; padding:80px 20px; color:var(--muted); font-size:16px; }
+
+/* ── Responsive ── */
 .detail-layout { display:block; }
 
-/* Tablet: constrain widths, keep single column */
 @media (min-width: 768px) {
-  .content { max-width:720px; padding:32px 32px 120px; }
-  .gallery-container { max-height:420px; }
+  .content { max-width:760px; padding:32px 32px 120px; }
+  .gallery-container { max-height:440px; }
   .amenities-grid { grid-template-columns:repeat(3,1fr); }
 }
 
-/* Desktop: two-column, sticky booking rail, no bottom bar */
 @media (min-width: 1024px) {
-  .content { max-width:1100px; padding:36px 40px 60px; }
-  .gallery-container { max-width:1100px; margin:0 auto; border-radius:16px; max-height:480px; }
-  .detail-layout { display:grid; grid-template-columns:1fr 420px; gap:40px; align-items:start; }
+  .content { max-width:1100px; padding:40px 40px 60px; }
+  .gallery-container { max-width:1100px; margin:0 auto; border-radius:var(--r); max-height:500px; }
+  .detail-layout { display:grid; grid-template-columns:1fr 420px; gap:48px; align-items:start; }
   .detail-right { position:sticky; top:80px; }
   .detail-right .section-h:first-child { margin-top:0; }
   .price-bar { display:none; }
   .amenities-grid { grid-template-columns:repeat(2,1fr); }
   .map-box { height:300px; }
+  .btn-submit { max-width:100%; }
 }
 </style>
 </head>
@@ -141,7 +168,7 @@ body { font-family:'Inter',sans-serif; color:var(--charcoal); background:var(--w
         <span><span class="cal-dot blocked"></span> Booked</span>
       </div>
       <div class="cal-grid" id="cal-grid"></div>
-      <p style="font-size:11px;color:var(--text-muted);text-align:center;margin-top:10px">Tap a date to start. Tap another date to end. Tap the same date to clear.</p>
+      <p class="cal-instruction">Tap a date to start. Tap another date to end. Tap the same date to clear.</p>
       <div class="date-inputs">
         <div class="date-field"><label>CHECK-IN (14:00)</label><input type="text" id="b-checkin" readonly placeholder="Select date" value=""></div>
         <div class="date-field"><label>CHECK-OUT (12:00)</label><input type="text" id="b-checkout" readonly placeholder="Select date" value=""></div>
@@ -168,7 +195,7 @@ body { font-family:'Inter',sans-serif; color:var(--charcoal); background:var(--w
           <div class="price-row total"><span>Total</span><span id="ps-total">—</span></div>
         </div>
         <button class="btn-submit" onclick="submitBooking()"><i class="fas fa-calendar-check"></i> Request Booking</button>
-        <p style="font-size:12px;color:var(--text-muted);text-align:center;margin-top:12px">Your booking request will be confirmed within 2 hours via WhatsApp or email.</p>
+        <p style="font-size:12px;color:var(--muted);text-align:center;margin-top:12px">Your booking request will be confirmed within 2 hours via WhatsApp or email.</p>
       </div>
       <div class="success-msg" id="success-msg">
         <i class="fas fa-check-circle"></i>
@@ -258,7 +285,7 @@ function renderUnit(u, unitId) {
   const amenities = (u.amenities && u.amenities.length) ? u.amenities : [];
   const amenitiesGrid = document.getElementById('amenities-grid');
   if (!amenities.length) {
-    amenitiesGrid.innerHTML = '<p style="color:var(--text-muted);font-size:13px">No amenities listed yet.</p>';
+    amenitiesGrid.innerHTML = '<p style="color:var(--muted);font-size:13px">No amenities listed yet.</p>';
   } else {
     amenitiesGrid.innerHTML = amenities.map(a => `
       <div class="amenity-pill"><i class="fas ${iconFor(String(a))}"></i> ${a}</div>
@@ -283,7 +310,7 @@ function renderGallery() {
   const container = document.getElementById('gallery-container');
   const counter = document.getElementById('gallery-counter');
   if (!galleryImages.length) {
-    container.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--text-muted)"><i class="fas fa-image" style="font-size:32px"></i></div>';
+    container.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--muted)"><i class="fas fa-image" style="font-size:32px"></i></div>';
     return;
   }
   container.innerHTML = galleryImages.map((img, i) => `

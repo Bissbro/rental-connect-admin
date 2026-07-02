@@ -72,15 +72,15 @@ body { font-family:'Inter',sans-serif; color:var(--charcoal); background:var(--w
 .cal-month-label { font-weight:700; color:var(--navy); font-size:17px; }
 .cal-grid { display:grid; grid-template-columns:repeat(7,1fr); gap:4px; text-align:center; }
 .cal-dow { font-size:12px; color:var(--muted); font-weight:700; padding-bottom:8px; }
-.cal-day { padding:10px 0; font-size:14px; font-weight:500; border-radius:8px; cursor:pointer; min-height:40px; border:1px solid var(--line); background:var(--card); }
+.cal-day { padding:10px 0; font-size:14px; font-weight:500; border-radius:8px; cursor:pointer; min-height:40px; border:1.5px solid #DDDDD8; background:var(--card); }
 .cal-day:not(.blocked):not(.past):not(.empty):active { background:var(--line); }
-.cal-day.blocked { background:#FBF1F1; color:var(--danger); border-color:#F3DCDC; cursor:not-allowed; text-decoration:line-through; }
-.cal-day.past { color:#D0D0CC; background:var(--warm-white); border-color:var(--line); cursor:not-allowed; }
-.cal-day.past.blocked { color:#E3B8B8; }
+.cal-day.blocked { background:var(--card); color:var(--danger); cursor:not-allowed; text-decoration:line-through; }
+.cal-day.past, .cal-day.past.blocked { color:#C8C8C4; background:var(--warm-white); border-color:#E4E4E0; cursor:not-allowed; text-decoration:none; }
 .cal-day.empty { visibility:hidden; }
 .cal-day.selected { background:var(--navy); color:white; border-color:var(--navy); font-weight:700; }
 .cal-day.in-range { background:#EAF6F5; border-color:#CBE9E6; color:var(--navy); }
 .cal-day.today { border:2px solid var(--teal); color:var(--teal); font-weight:700; box-shadow:0 0 0 3px rgba(64,181,173,0.25); }
+.cal-day.today.blocked { color:var(--danger); text-decoration:line-through; background:var(--card); }
 .cal-day.today.selected { background:var(--navy); color:white; border-color:var(--navy); box-shadow:none; }
 .cal-instruction { font-size:12px; color:var(--muted); text-align:center; margin-top:12px; display:flex; align-items:center; justify-content:center; gap:6px; }
 

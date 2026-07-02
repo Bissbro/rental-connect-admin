@@ -78,6 +78,7 @@ body { font-family:'Inter',sans-serif; color:var(--charcoal); background:var(--w
     </div>
     <div class="f-row">
       <div class="f-group"><label>Show on Website</label><select id="u-show"><option value="1">Yes</option><option value="0">No</option></select></div>
+      <div class="f-group"><label>Parent Unit</label><select id="u-parent"><option value="">None (standalone)</option></select><p class="hint">For rooms inside a larger apartment</p></div>
     </div>
   </div>
 
@@ -197,8 +198,21 @@ function toast(msg, isError) {
 function v(id) { return document.getElementById(id).value.trim(); }
 function setV(id, val) { document.getElementById(id).value = (val === null || val === undefined) ? '' : val; }
 
+async function loadParentOptions() {
+  try {
+    const r = await fetch(`${API}/api/rental-connect/units`, { headers: hdrs() });
+    const d = await r.json();
+    const sel = document.getElementById('u-parent');
+    (d.units || []).forEach(u => {
+      if (String(u.id) === String(unitId)) return;
+      sel.innerHTML += `<option value="${u.id}">${u.name}${u.unit_number && u.unit_number !== u.name ? ' (' + u.unit_number + ')' : ''}</option>`;
+    });
+  } catch(e) {}
+}
+
 async function init() {
   renderAmenityGrid();
+  await loadParentOptions();
   if (unitId) {
     document.getElementById('page-heading').textContent = 'Edit Unit';
     try {
@@ -239,6 +253,7 @@ function populate(u) {
   setV('u-price-usd', u.original_price_usd);
   setV('u-offer', u.offer_label);
   setV('u-offer-exp', u.offer_expiry ? String(u.offer_expiry).split('T')[0] : '');
+  setV('u-parent', u.parent_unit_id || '');
   setV('u-airbnb', u.airbnb_url);
   setV('u-agoda', u.agoda_url);
   setV('u-booking', u.booking_url);
@@ -284,11 +299,21 @@ function renderGallery() {
     <div class="g-item ${url === featuredImage ? 'featured' : ''}" onclick="setFeatured('${url}')">
       ${url === featuredImage ? '<span class="feat-tag">FEATURED</span>' : ''}
       <img src="${url}">
-      <div class="g-actions"><button onclick="event.stopPropagation();removePhoto(${i})"><i class="fas fa-trash"></i></button></div>
+      <div class="g-actions">
+        <button onclick="event.stopPropagation();movePhoto(${i},-1)" ${i===0?'disabled style="opacity:0.3"':''}><i class="fas fa-chevron-left"></i></button>
+        <button onclick="event.stopPropagation();removePhoto(${i})"><i class="fas fa-trash"></i></button>
+        <button onclick="event.stopPropagation();movePhoto(${i},1)" ${i===gallery.length-1?'disabled style="opacity:0.3"':''}><i class="fas fa-chevron-right"></i></button>
+      </div>
     </div>`).join('') +
     `<label class="g-add" for="photo-input"><i class="fas fa-plus"></i><span>Add Photos</span></label>`;
 }
 function setFeatured(url) { featuredImage = url; renderGallery(); }
+function movePhoto(i, dir) {
+  const j = i + dir;
+  if (j < 0 || j >= gallery.length) return;
+  [gallery[i], gallery[j]] = [gallery[j], gallery[i]];
+  renderGallery();
+}
 function removePhoto(i) {
   const removed = gallery.splice(i, 1)[0];
   if (removed === featuredImage) featuredImage = gallery[0] || '';
@@ -348,6 +373,7 @@ async function saveUnit() {
     kitchen_desc: v('u-kitchen') || null,
     living_desc: v('u-living') || null,
     balcony_desc: v('u-balcony') || null,
+    parent_unit_id: parseInt(v('u-parent')) || null,
     featured_image: featuredImage || '',
     gallery_images: gallery,
     amenities: amenities,

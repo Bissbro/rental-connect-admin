@@ -343,7 +343,7 @@ function renderUnit(u, unitId) {
   document.getElementById('loading').style.display = 'none';
   document.getElementById('unit-content').style.display = 'block';
   document.getElementById('page-title').textContent = u.name;
-  document.getElementById('unit-title').textContent = u.unit_type_label || u.unit_type || 'Apartment';
+  document.getElementById('unit-title').textContent = u.unit_type_label || 'Apartment';
   if (u.building_name) document.getElementById('prop-name').textContent = u.building_name;
 
   if (u.offer_label) {
@@ -353,11 +353,15 @@ function renderUnit(u, unitId) {
   // Specs table
   const beds = u.beds || 1;
   const bedTypes = u.bed_types ? `<span class="sep">·</span>${u.bed_types}` : '';
+  const priv = p => p ? `<span class="sep">·</span>${p}` : '';
   let specs = `
     <div class="spec-row"><i class="fas fa-users"></i><span class="spec-label">Guests</span><span class="spec-value">${u.max_guests || 2} max<span class="sep">·</span>${u.max_adults || u.max_guests || 2} adults<span class="sep">·</span>${u.max_children || 0} children</span></div>
-    <div class="spec-row"><i class="fas fa-door-open"></i><span class="spec-label">Bedroom</span><span class="spec-value">${u.bedrooms || 1}</span></div>
+    <div class="spec-row"><i class="fas fa-door-open"></i><span class="spec-label">Bedroom</span><span class="spec-value">${u.bedrooms || 1}${priv(u.bedroom_privacy)}</span></div>
     <div class="spec-row"><i class="fas fa-bed"></i><span class="spec-label">Beds</span><span class="spec-value">${beds}${bedTypes}</span></div>
-    <div class="spec-row"><i class="fas fa-bath"></i><span class="spec-label">Bathroom</span><span class="spec-value">${u.bathrooms || 1}</span></div>`;
+    <div class="spec-row"><i class="fas fa-bath"></i><span class="spec-label">Bathroom</span><span class="spec-value">${u.bathrooms || 1}${priv(u.bathroom_privacy)}</span></div>`;
+  if (u.kitchen_desc) specs += `<div class="spec-row"><i class="fas fa-utensils"></i><span class="spec-label">Kitchen</span><span class="spec-value">${u.kitchen_desc}</span></div>`;
+  if (u.living_desc) specs += `<div class="spec-row"><i class="fas fa-couch"></i><span class="spec-label">Living</span><span class="spec-value">${u.living_desc}</span></div>`;
+  if (u.balcony_desc) specs += `<div class="spec-row"><i class="fas fa-building"></i><span class="spec-label">Balcony</span><span class="spec-value">${u.balcony_desc}</span></div>`;
   if (u.size_sqft) specs += `<div class="spec-row"><i class="fas fa-ruler-combined"></i><span class="spec-label">Size</span><span class="spec-value">${u.size_sqft} sqft</span></div>`;
   document.getElementById('specs-table').innerHTML = specs;
 

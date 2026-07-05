@@ -588,3 +588,51 @@ Hero/Promo/Reviews on Coral site; unit detail full flow; calendar with real bloc
 - Packages feature (Room Only/BB/HB/FB/AI) discussed but not built yet
 - House rules field discussed but not built yet
 - Checkout flow (instant-confirm + invoice + email) still the biggest open item
+
+## Session 9 (Jul 5) - HTM fixes + RC packages + checkout flow completion
+
+### HTM critical bug fixes
+- FIXED: "Request to Book" was crashing with `b is not defined` at line 1531
+  Root cause: variables `total_amount` and `total_nights` not in destructured body of /api/bookings/create
+  Fix: use `rates[0].nightly_rate` directly instead of referencing undefined `b`
+- FIXED: Invoice not attaching to HTM confirmation email
+  Root cause: slip upload route (/api/bookings/:id/slip) INSERT into invoices used `req.tenant_id`
+  which is undefined on public routes — `tenant_id` column is NOT NULL with default 1
+  Fix: hardcode tenant_id=1 for HTM invoices (line 3887)
+- Both bugs introduced by commit 540f289 ("Auto-create invoices on booking confirmation")
+
+### RC checkout flow completed
+- book.html → redirects to checkout.html with all params in URL (no booking created yet)
+- checkout.html: booking summary, bank accounts (from tenant settings), slip+ID upload, email, confirm
+- Public upload route: POST /api/public/:tenantId/upload
+- Public documents route: POST /api/public/:tenantId/bookings/:bookingId/documents
+- Booking created as confirmed at checkout submit (not at book page)
+- Invoice auto-generated, PDF attached to confirmation email
+- badgeX bug fixed in generateTenantInvoicePDF (was inside wrong scope)
+- PDF footer fixed: split into two clean lines (name+address / email+phone)
+- Payment message updated: "If any concerns we will contact you directly"
+- Booking reference = invoice number (consistent)
+- Email subject includes reference number (prevents Gmail threading)
+
+### RC packages feature built
+- Schema: unit_packages table (id, unit_id, name, description, price_per_person_mvr, price_per_person_usd, is_active, sort_order) on rc_tenant_2 and rc_tenant_3
+- Backend routes: GET/POST public packages, GET/POST/PUT/DELETE admin packages
+- unit-edit.html: Packages section with add/edit/delete rows, saves on unit save
+- unit-detail.html: Package cards (select to highlight, info button opens sheet, bottom bar updates with addon price per night)
+- book.html: Package selector pre-populated from URL param, price recalculates with package addon per adult
+- checkout.html: Shows selected package in booking summary
+- Invoice line item includes package name (e.g. "One Room Apartment — Bed & Breakfast")
+- Calculation: (room_rate + package_price_per_person × adults) × nights = total
+
+### RC guest site (Lightsail-served)
+- Files in ~/rental-connect-guest/ — instant deploy, no GitHub Pages
+- rental-connect-admin versions still need syncing after this session
+
+### OPEN ITEMS
+- HTM: booked dates not crossing out on calendar (reported, not investigated yet)
+- RC: packages UI testing not completed (backend was down during test)
+- RC: rental-connect-admin files out of sync with rental-connect-guest
+- RC: TENANT_ID hardcoded in guest files (=2)
+- RC: site-coral.html needs updating
+- RC: Homepage template restyle to design system
+- RC: House rules field per unit

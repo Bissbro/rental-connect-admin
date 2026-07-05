@@ -636,3 +636,27 @@ Hero/Promo/Reviews on Coral site; unit detail full flow; calendar with real bloc
 - RC: site-coral.html needs updating
 - RC: Homepage template restyle to design system
 - RC: House rules field per unit
+
+## Session 9 continued - Per-tenant subdomain routing
+
+### Architecture implemented
+- resolve endpoint: GET /api/public/resolve/:slug → returns tenant_id + settings
+- Guest files no longer hardcode TENANT_ID=2
+- Each file loads /tenant.js first (silent 404 if not found)
+- Falls back to ?tenant= URL param, then 'coral' default
+- resolveTenantId() called before any API requests
+
+### coral.api.htmrentals.com live
+- DNS: coral.api A record → 13.212.34.47 (Namecheap)
+- SSL: Let's Encrypt cert via certbot (expires 2026-10-03, auto-renews)
+- Apache vhost: /opt/bitnami/apache/conf/vhosts/coral-vhost.conf
+- tenant.js: ~/rental-connect-guest/coral/tenant.js (sets RC_TENANT_SLUG='coral')
+- Coral settings.website updated to https://coral.api.htmrentals.com/site-coral.html
+
+### Adding a new tenant (template)
+1. Create ~/rental-connect-guest/SLUG/tenant.js with RC_TENANT_SLUG='SLUG'
+2. Copy coral-vhost.conf → SLUG-vhost.conf, update ServerName
+3. Add DNS A record: SLUG.api → 13.212.34.47
+4. certbot certonly --webroot -w /home/bitnami/rental-connect-guest -d SLUG.api.htmrentals.com
+5. Add HTTPS block to vhost with new cert paths
+6. sudo apachectl graceful

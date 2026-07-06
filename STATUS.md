@@ -660,3 +660,48 @@ Hero/Promo/Reviews on Coral site; unit detail full flow; calendar with real bloc
 4. certbot certonly --webroot -w /home/bitnami/rental-connect-guest -d SLUG.api.htmrentals.com
 5. Add HTTPS block to vhost with new cert paths
 6. sudo apachectl graceful
+
+## Session 9 final (Jul 6) - Full tenant auto-provisioning pipeline
+
+### Per-tenant subdomain routing complete
+- wildcard DNS: *.api.htmrentals.com → 13.212.34.47 (Namecheap)
+- provision-tenant.sh: creates tenant.js + HTTP vhost + SSL cert + HTTPS vhost + Apache reload
+- Script location: ~/provision-tenant.sh
+- Usage: ~/provision-tenant.sh <slug>
+- Test confirmed working: villa.api.htmrentals.com live in ~60s
+
+### Auto-provisioning wired into RC Master Admin tenant creation
+- When Master Admin creates tenant → provision-tenant.sh runs automatically in background
+- dumpCmd uses sudo mysqldump/mysql (avoids htm_user # password shell issue)
+- GRANT runs via sudo mysql child_process (htm_user can't self-grant)
+- resolve endpoint now accepts status IN ('active','trial') — new tenants resolve correctly
+
+### Dynamic TENANT_ID in all guest files
+- site-coral.html, unit-detail.html, book.html, checkout.html all load /tenant.js first
+- tenant.js sets window.RC_TENANT_SLUG = 'slug'
+- resolveTenantId() fetches /api/public/resolve/:slug on page load
+- Fallback: ?tenant= URL param, then 'coral' default
+- site-coral.html renamed/copied to index.html as the generic tenant homepage
+
+### Active tenants
+- coral (id=2, rc_tenant_2) → coral.api.htmrentals.com ✅
+- hello (id=9, rc_tenant_4) → hello.api.htmrentals.com ✅ (test, schema manually cloned)
+- villa/Sun Dawn (id=11, rc_tenant_6) → villa.api.htmrentals.com ✅ (test, schema manually cloned)
+
+### Known remaining issues
+- Schema clone for new tenants still needs manual run (sudo mysqldump pipe)
+  Root cause: the exec() in Node runs as bitnami user which has sudo, but the async
+  timing means schema may not be ready when provisioning script runs
+  Fix needed: move schema clone INTO provision-tenant.sh (already partially done)
+- rc_tenant_5 dropped (failed test), rc_tenant_4 granted manually
+- rental-connect-admin files need final sync with rental-connect-guest versions
+- HTM: site-coral.html in rental-connect-admin/rental-connect-guest still has old TENANT_ID=2 comment
+  (functionally fixed, just a comment cleanup)
+
+### OPEN ITEMS (priority order)
+1. Move schema clone fully into provision-tenant.sh so it's truly zero-touch
+2. RC admin: unit-edit.html sync to rental-connect-guest version
+3. RC homepage (index.html) restyle to design system
+4. House rules per unit
+5. HTM: booked dates calendar (resolved itself per earlier note)
+6. RC: Packages UI on book page needs price breakdown display improvement

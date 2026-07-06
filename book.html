@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title id="page-title">Book</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+:root { --navy:#0A2540; --teal:#40B5AD; --gold:#B8975A; --charcoal:#1C1C1E; --warm-white:#FAFAF8; --muted:#6b7280; --line:#E8E8E4; --card:#FFFFFF; --danger:#E15B5B; --r:16px; --shadow:0 2px 12px rgba(10,37,64,0.07); }
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:'Inter',sans-serif; color:var(--charcoal); background:var(--warm-white); font-size:16px; padding-bottom:30px; }
+.curr-bar { background:var(--navy); padding:6px 16px; display:flex; align-items:center; gap:8px; position:sticky; top:0; z-index:70; }
+.curr-tab { display:flex; align-items:center; gap:7px; padding:7px 16px; border-radius:20px; font-size:14px; font-weight:600; color:rgba(255,255,255,0.65); cursor:pointer; border:none; background:transparent; min-height:38px; }
+.curr-tab.active { background:white; color:var(--navy); }
+.curr-back { margin-left:auto; color:white; font-size:18px; background:none; border:none; cursor:pointer; min-width:44px; min-height:44px; }
+.wrap { max-width:640px; margin:0 auto; padding:20px 16px; }
+.unit-summary { background:var(--card); border:1px solid var(--line); border-radius:var(--r); display:flex; gap:14px; align-items:center; padding:14px; margin-bottom:20px; box-shadow:var(--shadow); }
+.unit-thumb { width:80px; height:80px; border-radius:10px; object-fit:cover; flex-shrink:0; background:var(--line); }
+.unit-summary-info { flex:1; min-width:0; }
+.unit-summary-name { font-family:'Playfair Display',serif; font-size:1.1rem; color:var(--navy); font-weight:700; }
+.unit-summary-sub { font-size:13px; color:var(--muted); margin-top:2px; }
+.unit-summary-price { font-size:15px; font-weight:800; color:var(--navy); margin-top:4px; white-space:nowrap; }
+.section-h { font-size:12px; font-weight:800; color:var(--navy); text-transform:uppercase; letter-spacing:2px; margin:24px 0 12px; }
+.cal-card { background:var(--card); border:1px solid var(--line); border-radius:var(--r); padding:20px; box-shadow:var(--shadow); }
+.cal-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; }
+.cal-nav-group { display:flex; gap:8px; }
+.cal-nav { background:var(--warm-white); border:1px solid var(--line); width:44px; height:44px; border-radius:50%; cursor:pointer; color:var(--navy); font-size:14px; }
+.cal-month-label { font-weight:700; color:var(--navy); font-size:17px; }
+.cal-grid { display:grid; grid-template-columns:repeat(7,1fr); gap:4px; text-align:center; }
+.cal-dow { font-size:12px; color:var(--muted); font-weight:700; padding-bottom:8px; }
+.cal-day { padding:10px 0; font-size:14px; font-weight:500; border-radius:8px; cursor:pointer; min-height:40px; border:1.5px solid #DDDDD8; background:var(--card); }
+.cal-day.blocked { background:var(--card); color:var(--danger); border-color:#DDDDD8; cursor:not-allowed; text-decoration:line-through; }
+.cal-day.past, .cal-day.past.blocked { color:#C8C8C4; background:var(--warm-white); border-color:#E4E4E0; cursor:not-allowed; text-decoration:none; }
+.cal-day.empty { visibility:hidden; }
+.cal-day.selected { background:var(--navy); color:white; border-color:var(--navy); font-weight:700; }
+.cal-day.in-range { background:#EAF6F5; border-color:#CBE9E6; color:var(--navy); }
+.cal-day.today { border:2px solid var(--teal); color:var(--teal); font-weight:700; box-shadow:0 0 0 3px rgba(64,181,173,0.25); }
+.cal-day.today.blocked { color:var(--danger); text-decoration:line-through; }
+.cal-instruction { font-size:12px; color:var(--muted); text-align:center; margin-top:12px; display:flex; align-items:center; justify-content:center; gap:6px; }
+.date-inputs { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:16px; }
+.date-field { border:1px solid var(--line); border-radius:12px; padding:12px 14px; background:var(--warm-white); }
+.date-field label { font-size:10px; font-weight:800; text-transform:uppercase; letter-spacing:0.5px; color:var(--muted); display:block; margin-bottom:4px; }
+.date-field input { background:transparent; border:none; font-size:15px; font-weight:600; width:100%; font-family:'Inter',sans-serif; color:var(--navy); cursor:default; }
+.date-field input:focus { outline:none; }
+.booking-card { background:var(--card); border:1px solid var(--line); border-radius:var(--r); padding:24px; box-shadow:var(--shadow); }
+.form-row { display:flex; gap:14px; margin-bottom:16px; flex-wrap:wrap; }
+.form-group { flex:1; min-width:140px; }
+.form-group label { display:block; font-size:13px; font-weight:600; color:var(--navy); margin-bottom:6px; }
+.form-group input, .form-group select { width:100%; padding:12px 14px; border:1px solid var(--line); border-radius:10px; font-size:16px; font-family:inherit; color:var(--charcoal); min-height:44px; background:var(--card); }
+.form-group input:focus, .form-group select:focus { outline:none; border-color:var(--teal); box-shadow:0 0 0 3px rgba(64,181,173,0.15); }
+.price-summary { background:var(--warm-white); border:1px solid var(--line); border-radius:12px; padding:16px; margin:16px 0; display:none; }
+.price-row { display:flex; justify-content:space-between; font-size:15px; padding:5px 0; }
+.price-row.total { font-weight:700; color:var(--navy); font-size:17px; border-top:1px solid var(--line); margin-top:8px; padding-top:12px; }
+.btn-submit { width:100%; background:var(--navy); color:white; padding:15px; border:none; border-radius:10px; font-weight:700; font-size:16px; cursor:pointer; margin-top:8px; min-height:48px; }
+.btn-submit:active { background:#12315a; }
+.trust-line { display:flex; align-items:center; justify-content:center; gap:8px; font-size:13px; color:var(--muted); margin-top:14px; }
+.trust-line i { color:var(--teal); }
+.success-msg { display:none; text-align:center; padding:60px 20px; }
+.success-msg i { font-size:52px; color:var(--teal); margin-bottom:16px; display:block; }
+.success-msg h3 { font-family:'Playfair Display',serif; font-size:1.5rem; color:var(--navy); margin-bottom:10px; }
+.success-msg p { color:var(--charcoal); font-size:15px; line-height:1.6; }
+.loading-state { text-align:center; padding:80px 20px; color:var(--muted); }
+</style>
+</head>
+<body>
+<div class="curr-bar" id="curr-bar">
+  <button class="curr-tab active" id="tab-local" onclick="setCurrency('MVR')"><i class="fas fa-sailboat"></i> Local</button>
+  <button class="curr-tab" id="tab-foreign" onclick="setCurrency('USD')"><i class="fas fa-plane"></i> Foreign</button>
+  <button class="curr-back" onclick="history.back()"><i class="fas fa-chevron-left"></i></button>
+</div>
+
+<div id="loading" class="loading-state"><i class="fas fa-circle-notch fa-spin"></i> Loading...</div>
+<div id="main" style="display:none">
+<div class="wrap">
+
+  <div class="unit-summary" id="unit-summary">
+    <img class="unit-thumb" id="unit-thumb" src="">
+    <div class="unit-summary-info">
+      <div class="unit-summary-name" id="unit-summary-name">—</div>
+      <div class="unit-summary-sub" id="unit-summary-sub">—</div>
+      <div class="unit-summary-price" id="unit-summary-price">—</div>
+    </div>
+  </div>
+
+  <div class="section-h">Select Dates</div>
+  <div class="cal-card">
+    <div class="cal-header">
+      <div class="cal-month-label" id="cal-month-label">—</div>
+      <div class="cal-nav-group">
+        <button class="cal-nav" onclick="changeMonth(-1)"><i class="fas fa-chevron-left"></i></button>
+        <button class="cal-nav" onclick="changeMonth(1)"><i class="fas fa-chevron-right"></i></button>
+      </div>
+    </div>
+    <div class="cal-grid" id="cal-grid"></div>
+    <p class="cal-instruction"><i class="fas fa-info-circle"></i> Tap a date to start. Tap another to end. Tap same to clear.</p>
+    <div class="date-inputs">
+      <div class="date-field"><label>CHECK-IN (14:00)</label><input type="text" id="b-checkin" readonly placeholder="Select date"></div>
+      <div class="date-field"><label>CHECK-OUT (12:00)</label><input type="text" id="b-checkout" readonly placeholder="Select date"></div>
+    </div>
+  </div>
+
+  <div class="section-h">Your Details</div>
+  <div class="booking-card">
+    <div id="booking-form">
+      <div class="form-row">
+        <div class="form-group"><label>Adults</label><select id="b-adults" onchange="updateChildrenOptions()"></select></div>
+        <div class="form-group"><label>Children</label><select id="b-children"></select></div>
+      </div>
+      <div class="form-row" id="package-row" style="display:none">
+        <div class="form-group"><label>Meal Package</label><select id="b-package" onchange="calcPrice()"></select></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Full Name *</label><input type="text" id="b-name" placeholder="Your full name"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Phone / WhatsApp *</label><input type="text" id="b-phone" placeholder="+960 ..."></div>
+      </div>
+      <div class="form-row" id="nid-row">
+        <div class="form-group"><label>National ID (NID)</label><input type="text" id="b-nid" placeholder="A123456"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Email</label><input type="email" id="b-email" placeholder="your@email.com"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Special Requests</label><input type="text" id="b-requests" placeholder="Any special requests?"></div>
+      </div>
+      <div class="price-summary" id="price-summary">
+        <div class="price-row"><span>Rate</span><span id="ps-rate">—</span></div>
+        <div class="price-row"><span>Nights</span><span id="ps-nights">—</span></div>
+        <div class="price-row total"><span>Total</span><span id="ps-total">—</span></div>
+      </div>
+      <button class="btn-submit" onclick="submitBooking()"><i class="fas fa-calendar-check"></i> Request Booking</button>
+      <div class="trust-line"><i class="fas fa-lock"></i> You won't be charged yet</div>
+    </div>
+    <div class="success-msg" id="success-msg">
+      <i class="fas fa-check-circle"></i>
+      <h3>Booking Request Sent!</h3>
+      <p>We've received your request and will confirm shortly.<br>Check your WhatsApp or email for updates.</p>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<script src="/tenant.js" onerror="void(0)"></script>
+<script>
+// Resolve tenant from slug (set by tenant.js or URL param)
+const _slug = (window.RC_TENANT_SLUG) || new URLSearchParams(location.search).get('tenant') || 'coral';
+const API = 'https://api.htmrentals.com';
+let TENANT_ID = 0;
+async function resolveTenantId() {
+  try {
+    const r = await fetch(`${API}/api/public/resolve/${_slug}`);
+    const d = await r.json();
+    if (d.success) TENANT_ID = d.tenant_id;
+  } catch(e) { console.error('Failed to resolve tenant', e); }
+}
+
+let unitData = null;
+let packagesData = [];
+const _curParam = new URLSearchParams(location.search).get('cur');
+const _pkgIdParam = new URLSearchParams(location.search).get('pkg_id') || '0';
+const _pkgNameParam = new URLSearchParams(location.search).get('pkg_name') || 'Room Only';
+let currency = (_curParam === 'USD') ? 'USD' : 'MVR';
+let blockedRanges = [];
+let calMonth = new Date(); calMonth.setDate(1);
+let startDate = null, endDate = null;
+const todayStr = new Date().toISOString().split('T')[0];
+
+function getUnitId() { return new URLSearchParams(location.search).get('id'); }
+
+function unitPrice() {
+  if (!unitData) return 0;
+  return currency === 'MVR'
+    ? parseFloat(unitData.base_price_mvr || 0)
+    : parseFloat(unitData.base_price_usd || 0);
+}
+function fmtMoney(amt) {
+  return currency === 'MVR' ? `MVR ${amt.toLocaleString()}` : `$${amt.toLocaleString()}`;
+}
+
+function setCurrency(c) {
+  currency = c;
+  document.getElementById('tab-local').classList.toggle('active', c === 'MVR');
+  document.getElementById('tab-foreign').classList.toggle('active', c === 'USD');
+  document.getElementById('nid-row').style.display = c === 'MVR' ? 'flex' : 'none';
+  updateSummaryPrice();
+  calcPrice();
+}
+
+function updateSummaryPrice() {
+  const p = unitPrice();
+  document.getElementById('unit-summary-price').textContent = p ? `${fmtMoney(p)} / night` : 'Price on request';
+}
+
+async function loadUnit() {
+  if (!TENANT_ID) await resolveTenantId();
+  const uid = getUnitId();
+  if (!uid) { document.getElementById('loading').textContent = 'No unit specified.'; return; }
+  try {
+    const r = await fetch(`${API}/api/public/${TENANT_ID}/units/${uid}`);
+    const d = await r.json();
+    if (!d.success) throw new Error();
+    unitData = d.unit;
+    renderSummary(d.unit);
+    applyMode(d.unit.currency_mode || 'both');
+    await loadPackages(uid);
+    populateGuestDropdowns(d.unit);
+    await loadCalendar(uid);
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('main').style.display = 'block';
+  } catch(e) {
+    document.getElementById('loading').textContent = 'Failed to load unit.';
+  }
+}
+
+function renderSummary(u) {
+  document.getElementById('page-title').textContent = `Book – ${u.name}`;
+  document.getElementById('unit-thumb').src = u.featured_image || '';
+  document.getElementById('unit-summary-name').textContent = u.unit_type_label || u.name;
+  document.getElementById('unit-summary-sub').textContent = [u.building_name, u.unit_number].filter(Boolean).join(' · ');
+  updateSummaryPrice();
+}
+
+function applyMode(mode) {
+  if (mode === 'mvr_only') currency = 'MVR';
+  else if (mode === 'usd_only') currency = 'USD';
+  const currBar = document.getElementById('curr-bar');
+  if (currBar) {
+    document.getElementById('tab-local').style.display = mode === 'usd_only' ? 'none' : 'flex';
+    document.getElementById('tab-foreign').style.display = mode === 'mvr_only' ? 'none' : 'flex';
+  }
+  setCurrency(currency);
+}
+
+function populateGuestDropdowns(u) {
+  const maxAdults = u.max_adults || u.max_guests || 2;
+  const sel = document.getElementById('b-adults');
+  sel.innerHTML = '';
+  for (let i = 1; i <= maxAdults; i++) sel.innerHTML += `<option value="${i}">${i} adult${i>1?'s':''}</option>`;
+  updateChildrenOptions();
+}
+function updateChildrenOptions() {
+  const u = unitData;
+  const maxChildren = u.max_children || 0;
+  const adults = parseInt(document.getElementById('b-adults').value) || 1;
+  const allowed = Math.max(0, Math.min(maxChildren, (u.max_guests||2) - adults));
+  const sel = document.getElementById('b-children');
+  const cur = parseInt(sel.value) || 0;
+  sel.innerHTML = '<option value="0">0 children</option>';
+  for (let i = 1; i <= allowed; i++) sel.innerHTML += `<option value="${i}">${i} child${i>1?'ren':''}</option>`;
+  sel.value = cur <= allowed ? cur : 0;
+}
+
+async function loadCalendar(uid) {
+  try {
+    const r = await fetch(`${API}/api/public/${TENANT_ID}/units/${uid}/availability`);
+    const d = await r.json();
+    blockedRanges = (d.blocked_ranges || []).map(rg => ({
+      start: new Date(rg.start).toISOString().split('T')[0],
+      end: new Date(rg.end).toISOString().split('T')[0]
+    }));
+    renderCalendar();
+  } catch(e) { console.error(e); }
+}
+function isDateBooked(ds) { return blockedRanges.some(r => ds >= r.start && ds < r.end); }
+function changeMonth(d) { calMonth.setMonth(calMonth.getMonth() + d); renderCalendar(); }
+function renderCalendar() {
+  const year = calMonth.getFullYear(), month = calMonth.getMonth();
+  document.getElementById('cal-month-label').textContent = calMonth.toLocaleDateString('en-US',{month:'long',year:'numeric'});
+  const firstDay = new Date(year,month,1).getDay();
+  const days = new Date(year,month+1,0).getDate();
+  let html = ['Su','Mo','Tu','We','Th','Fr','Sa'].map(d=>`<div class="cal-dow">${d}</div>`).join('');
+  for (let i=0;i<firstDay;i++) html+=`<div class="cal-day empty"></div>`;
+  for (let d=1;d<=days;d++) {
+    const ds=`${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const isBooked=isDateBooked(ds), isPast=ds<todayStr, isToday=ds===todayStr;
+    let isSelected=false,isInRange=false;
+    if (startDate&&endDate) { if(ds===startDate||ds===endDate) isSelected=true; else if(ds>startDate&&ds<endDate) isInRange=true; }
+    else if (startDate&&ds===startDate) isSelected=true;
+    let cls=isPast?'past':''; if(isBooked) cls+=' blocked'; if(isToday) cls+=' today'; if(isSelected) cls+=' selected'; if(isInRange) cls+=' in-range';
+    html+=`<div class="cal-day ${cls}" ${(!isPast&&!isBooked)?`onclick="selectDate('${ds}')"` : ''}>${d}</div>`;
+  }
+  document.getElementById('cal-grid').innerHTML = html;
+}
+
+function fmtDateDisplay(ds) { return new Date(ds+'T00:00:00').toLocaleDateString('en-US',{year:'numeric',month:'short',day:'numeric'}); }
+function setCheckin(ds) { const el=document.getElementById('b-checkin'); el.value=fmtDateDisplay(ds); el.dataset.iso=ds; }
+function setCheckout(ds) { const el=document.getElementById('b-checkout'); el.value=fmtDateDisplay(ds); el.dataset.iso=ds; }
+function clearDates() { ['b-checkin','b-checkout'].forEach(id=>{ document.getElementById(id).value=''; document.getElementById(id).dataset.iso=''; }); }
+
+function selectDate(ds) {
+  if (ds < todayStr) return;
+  if (startDate===ds && !endDate) { startDate=null; endDate=null; clearDates(); document.getElementById('price-summary').style.display='none'; renderCalendar(); return; }
+  if (!startDate||(startDate&&endDate)) {
+    startDate=ds; endDate=null;
+    const nd=new Date(ds); nd.setDate(nd.getDate()+1);
+    setCheckin(ds); setCheckout(nd.toISOString().split('T')[0]);
+    calcPrice(); renderCalendar(); return;
+  }
+  if (startDate&&!endDate) {
+    if (ds<startDate) { startDate=ds; const nd=new Date(ds); nd.setDate(nd.getDate()+1); setCheckin(ds); setCheckout(nd.toISOString().split('T')[0]); calcPrice(); }
+    else {
+      let blocked=false; let chk=new Date(startDate); chk.setDate(chk.getDate()+1);
+      while(chk<=new Date(ds)) { if(isDateBooked(chk.toISOString().split('T')[0])){blocked=true;break;} chk.setDate(chk.getDate()+1); }
+      if(blocked){alert('Selected range includes unavailable dates.');startDate=null;endDate=null;clearDates();document.getElementById('price-summary').style.display='none';renderCalendar();return;}
+      endDate=ds; const co=new Date(ds); co.setDate(co.getDate()+1); setCheckout(co.toISOString().split('T')[0]); calcPrice();
+    }
+    renderCalendar();
+  }
+}
+
+async function loadPackages(uid) {
+  try {
+    const r = await fetch(`${API}/api/public/${TENANT_ID}/units/${uid}/packages`);
+    const d = await r.json();
+    packagesData = d.packages || [];
+    const sel = document.getElementById('b-package');
+    const row = document.getElementById('package-row');
+    sel.innerHTML = `<option value="0" data-mvr="0" data-usd="0">Room Only (no meals)</option>`;
+    packagesData.forEach(p => {
+      sel.innerHTML += `<option value="${p.id}" data-mvr="${p.price_per_person_mvr}" data-usd="${p.price_per_person_usd}">${p.name}</option>`;
+    });
+    if (packagesData.length > 0) row.style.display = 'flex';
+    // Pre-select package from URL
+    if (_pkgIdParam !== '0') {
+      const sel = document.getElementById('b-package');
+      for (let i = 0; i < sel.options.length; i++) {
+        if (sel.options[i].value === _pkgIdParam) { sel.selectedIndex = i; break; }
+      }
+    }
+    calcPrice();
+  } catch(e) { console.error('Failed to load packages', e); }
+}
+
+function getPackageAddon() {
+  const sel = document.getElementById('b-package');
+  const opt = sel ? sel.options[sel.selectedIndex] : null;
+  if (!opt) return 0;
+  const adults = parseInt(document.getElementById('b-adults').value) || 1;
+  const perPerson = currency === 'MVR'
+    ? parseFloat(opt.dataset.mvr || 0)
+    : parseFloat(opt.dataset.usd || 0);
+  return perPerson * adults;
+}
+
+function calcPrice() {
+  const ci=document.getElementById('b-checkin').dataset.iso;
+  const co=document.getElementById('b-checkout').dataset.iso;
+  const price=unitPrice();
+  if(ci&&co&&price) {
+    const nights=Math.round((new Date(co)-new Date(ci))/86400000);
+    if(nights>0) {
+      const addon=getPackageAddon();
+      const total=nights*(price+addon);
+      document.getElementById('ps-rate').textContent=`${fmtMoney(price)}/night`;
+      document.getElementById('ps-nights').textContent=`${nights} night${nights>1?'s':''}`;
+      document.getElementById('ps-total').textContent=fmtMoney(total);
+      document.getElementById('price-summary').style.display='block';
+      return {nights,total};
+    }
+  }
+  document.getElementById('price-summary').style.display='none';
+  return null;
+}
+
+async function submitBooking() {
+  const name=document.getElementById('b-name').value.trim();
+  const phone=document.getElementById('b-phone').value.trim();
+  const checkin=document.getElementById('b-checkin').dataset.iso;
+  const checkout=document.getElementById('b-checkout').dataset.iso;
+  if(!name||!phone||!checkin||!checkout){alert('Please fill in all required fields and select your dates.');return;}
+  const calc=calcPrice();
+  if(!calc){alert('Please select valid dates.');return;}
+  const adults=parseInt(document.getElementById('b-adults').value)||1;
+  const children=parseInt(document.getElementById('b-children').value)||0;
+  const nid=document.getElementById('b-nid').value.trim();
+  const requests=document.getElementById('b-requests').value;
+  const email=document.getElementById('b-email').value;
+  // Redirect to checkout page with all params
+  const pkgSel = document.getElementById('b-package');
+  const pkgId = pkgSel ? pkgSel.value : '0';
+  const pkgName = pkgSel ? pkgSel.options[pkgSel.selectedIndex].text : 'Room Only';
+  const p = new URLSearchParams({
+    unit: getUnitId(),
+    name: name,
+    phone: phone,
+    email: email,
+    nid: nid,
+    guests: adults+children,
+    checkin: checkin,
+    checkout: checkout,
+    nights: calc.nights,
+    amount: calc.total,
+    currency: currency,
+    requests: requests,
+    pkg_id: pkgId,
+    pkg_name: pkgName
+  });
+  window.location.href = 'checkout.html?' + p.toString();
+}
+
+loadUnit();
+</script>
+</body>
+</html>

@@ -80,6 +80,7 @@ body { font-family:'Inter',sans-serif; color:var(--charcoal); background:var(--w
     </div>
     <div class="f-row">
       <div class="f-group"><label>Show on Website</label><select id="u-show"><option value="1">Yes</option><option value="0">No</option></select></div>
+      <div class="f-group"><label>Currency Toggle</label><select id="u-currency-mode"><option value="both">Local & Foreign (both)</option><option value="mvr_only">Local only (MVR)</option><option value="usd_only">Foreign only (USD)</option></select><p class="hint">Controls which price toggle guests see</p></div>
       <div class="f-group"><label>Parent Unit</label><select id="u-parent"><option value="">None (standalone)</option></select><p class="hint">For rooms inside a larger apartment</p></div>
     </div>
   </div>
@@ -167,6 +168,13 @@ body { font-family:'Inter',sans-serif; color:var(--charcoal); background:var(--w
   </div>
 
   <div class="section-card">
+    <div class="section-title"><i class="fas fa-utensils"></i> Packages</div>
+    <p class="hint" style="margin-bottom:14px">Add meal packages available for this unit. Room Only is always included at the base rate — add packages for Bed & Breakfast, Half Board, Full Board, All Inclusive etc.</p>
+    <div id="packages-list"></div>
+    <button type="button" class="btn" style="background:var(--warm-white);border:1.5px solid var(--teal);color:var(--teal);width:100%;margin-top:8px" onclick="addPackageRow()"><i class="fas fa-plus"></i> Add Package</button>
+  </div>
+
+  <div class="section-card">
     <div class="section-title"><i class="fas fa-link"></i> OTA Links</div>
     <div class="f-row">
       <div class="f-group full"><label>Airbnb URL</label><input id="u-airbnb" placeholder="https://airbnb.com/..."></div>
@@ -234,11 +242,61 @@ async function loadParentOptions() {
   } catch(e) {}
 }
 
+let existingPackages = [];
+
+function renderPackageRows() {
+  const list = document.getElementById('packages-list');
+  list.innerHTML = existingPackages.map((pkg, i) => `
+    <div class="f-row" style="background:var(--warm-white);border-radius:10px;padding:12px;margin-bottom:10px;border:1px solid var(--line)">
+      <div class="f-group"><label>Package Name</label><input value="${pkg.name||''}" oninput="existingPackages[${i}].name=this.value" placeholder="e.g. Bed & Breakfast"></div>
+      <div class="f-group" style="min-width:90px;max-width:110px"><label>MVR/person</label><input type="number" value="${pkg.price_per_person_mvr||0}" oninput="existingPackages[${i}].price_per_person_mvr=parseFloat(this.value)||0" step="0.01"></div>
+      <div class="f-group" style="min-width:90px;max-width:110px"><label>USD/person</label><input type="number" value="${pkg.price_per_person_usd||0}" oninput="existingPackages[${i}].price_per_person_usd=parseFloat(this.value)||0" step="0.01"></div>
+      <div class="f-group" style="min-width:60px;max-width:60px;display:flex;align-items:flex-end;padding-bottom:2px"><button type="button" onclick="removePackage(${i})" style="background:none;border:none;color:var(--danger);font-size:18px;cursor:pointer;min-height:44px"><i class="fas fa-trash"></i></button></div>
+    </div>
+  `).join('') || '<p class="hint">No packages added yet. Room Only (base rate) is always available.</p>';
+}
+
+function addPackageRow() {
+  existingPackages.push({ name:'', description:'', price_per_person_mvr:0, price_per_person_usd:0, is_active:1, sort_order:existingPackages.length });
+  renderPackageRows();
+}
+
+function removePackage(i) {
+  existingPackages.splice(i, 1);
+  renderPackageRows();
+}
+
+async function loadPackages(unitId) {
+  try {
+    const r = await fetch(`${API}/api/rental-connect/units/${unitId}/packages`, { headers: hdrs() });
+    const d = await r.json();
+    existingPackages = d.packages || [];
+    renderPackageRows();
+  } catch(e) { console.error('Failed to load packages', e); }
+}
+
+async function savePackages(unitId) {
+  // Delete all existing and re-insert (simple approach for small sets)
+  const existing = await fetch(`${API}/api/rental-connect/units/${unitId}/packages`, { headers: hdrs() });
+  const ed = await existing.json();
+  for (const p of (ed.packages || [])) {
+    await fetch(`${API}/api/rental-connect/packages/${p.id}`, { method:'DELETE', headers: hdrs() });
+  }
+  for (const pkg of existingPackages) {
+    if (!pkg.name) continue;
+    await fetch(`${API}/api/rental-connect/units/${unitId}/packages`, {
+      method:'POST', headers: hdrs(),
+      body: JSON.stringify(pkg)
+    });
+  }
+}
+
 async function init() {
   renderAmenityGrid();
   await loadParentOptions();
   if (unitId) {
     document.getElementById('page-heading').textContent = 'Edit Unit';
+    loadPackages(unitId);
     try {
       const r = await fetch(`${API}/api/rental-connect/units/${unitId}`, { headers: hdrs() });
       const d = await r.json();
@@ -315,6 +373,7 @@ function populate(u) {
   setV('u-offer', u.offer_label);
   setV('u-offer-exp', u.offer_expiry ? String(u.offer_expiry).split('T')[0] : '');
   setV('u-parent', u.parent_unit_id || '');
+  setV('u-currency-mode', u.currency_mode || 'both');
   setV('u-lat', u.map_lat);
   setV('u-lng', u.map_lng);
   setV('u-maplink', u.map_link);
@@ -463,6 +522,7 @@ async function saveUnit() {
     map_lat: parseFloat(v('u-lat')) || null,
     map_lng: parseFloat(v('u-lng')) || null,
     map_link: v('u-maplink') || null,
+    currency_mode: v('u-currency-mode') || 'both',
     map_image: mapImage || null,
     featured_image: featuredImage || '',
     gallery_images: gallery,
@@ -482,6 +542,7 @@ async function saveUnit() {
     const r = await fetch(url, { method: unitId ? 'PUT' : 'POST', headers: hdrs(), body: JSON.stringify(payload) });
     const d = await r.json();
     if (!d.success) throw new Error(d.error || 'Save failed');
+    if (unitId || d.unit_id) await savePackages(unitId || d.unit_id);
     toast('Unit saved');
     document.getElementById('save-status').textContent = 'All changes saved';
     if (!unitId && d.unit_id) {

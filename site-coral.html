@@ -309,11 +309,20 @@ footer p span { color: var(--teal); }
   </div>
 </footer>
 
+<script src="/tenant.js" onerror="void(0)"></script>
 <script>
 // ── CONFIG ──────────────────────────────────────────────
-// Set TENANT_ID to your tenant number. This is the only line to change per deployment.
-const TENANT_ID = 2;
+// Resolve tenant dynamically from slug
+const _slug = (window.RC_TENANT_SLUG) || new URLSearchParams(location.search).get('tenant') || 'coral';
 const API = 'https://api.htmrentals.com';
+let TENANT_ID = 0;
+async function resolveTenantId() {
+  try {
+    const r = await fetch(`${API}/api/public/resolve/${_slug}`);
+    const d = await r.json();
+    if (d.success) TENANT_ID = d.tenant_id;
+  } catch(e) { console.error('Failed to resolve tenant', e); }
+}
 // ────────────────────────────────────────────────────────
 
 let unitsData = [];
@@ -330,6 +339,7 @@ function toggleNav() {
 }
 
 async function loadSiteData() {
+  if (!TENANT_ID) await resolveTenantId();
   try {
     // Load public tenant info
     const r = await fetch(`${API}/api/public/${TENANT_ID}/info`);

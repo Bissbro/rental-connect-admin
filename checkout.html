@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Confirm Booking</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+:root { --navy:#0A2540; --teal:#40B5AD; --gold:#B8975A; --charcoal:#1C1C1E; --warm-white:#FAFAF8; --muted:#6b7280; --line:#E8E8E4; --card:#FFFFFF; --danger:#E15B5B; --r:16px; --shadow:0 2px 12px rgba(10,37,64,0.07); }
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:'Inter',sans-serif; color:var(--charcoal); background:var(--warm-white); font-size:16px; padding-bottom:40px; }
+.topbar { background:var(--navy); padding:14px 20px; display:flex; align-items:center; gap:14px; position:sticky; top:0; z-index:50; }
+.back-btn { color:white; font-size:17px; min-width:44px; background:none; border:none; cursor:pointer; }
+.topbar-title { color:white; font-size:17px; font-weight:700; }
+.wrap { max-width:640px; margin:0 auto; padding:20px 16px; }
+.summary-card { background:var(--card); border:1px solid var(--line); border-radius:var(--r); padding:20px; margin-bottom:20px; box-shadow:var(--shadow); }
+.unit-row { display:flex; gap:14px; align-items:center; margin-bottom:16px; padding-bottom:16px; border-bottom:1px solid var(--line); }
+.unit-thumb { width:72px; height:72px; border-radius:10px; object-fit:cover; background:var(--line); flex-shrink:0; }
+.unit-name { font-family:'Playfair Display',serif; font-size:1.1rem; color:var(--navy); font-weight:700; }
+.unit-sub { font-size:13px; color:var(--muted); margin-top:2px; }
+.booking-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+.booking-item { background:var(--warm-white); border-radius:10px; padding:12px; }
+.booking-label { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:1px; color:var(--muted); margin-bottom:4px; }
+.booking-val { font-size:15px; font-weight:700; color:var(--navy); }
+.total-row { display:flex; justify-content:space-between; align-items:center; margin-top:16px; padding-top:16px; border-top:1px solid var(--line); }
+.total-label { font-size:14px; color:var(--muted); }
+.total-amount { font-family:'Playfair Display',serif; font-size:1.5rem; color:var(--navy); font-weight:700; }
+.step-card { background:var(--card); border:1px solid var(--line); border-radius:var(--r); padding:20px; margin-bottom:16px; box-shadow:var(--shadow); }
+.step-header { display:flex; align-items:center; gap:12px; margin-bottom:16px; }
+.step-num { width:28px; height:28px; background:var(--navy); color:white; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:800; flex-shrink:0; }
+.step-title { font-size:16px; font-weight:700; color:var(--navy); }
+.bank-card { border:1.5px solid var(--line); border-radius:12px; padding:14px 16px; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center; cursor:pointer; background:var(--card); }
+.bank-card:active { border-color:var(--teal); background:#EFF9F8; }
+.bank-badge { font-size:10px; font-weight:800; padding:3px 8px; border-radius:20px; display:inline-block; margin-bottom:4px; }
+.badge-bml { background:#003087; color:white; }
+.badge-mib { background:#006B3C; color:white; }
+.bank-name { font-size:11px; color:var(--muted); margin-bottom:3px; }
+.bank-account { font-size:15px; font-weight:800; color:var(--navy); letter-spacing:1px; font-family:monospace; }
+.bank-holder { font-size:11px; color:var(--muted); margin-top:2px; }
+.copy-btn { font-size:12px; font-weight:600; color:var(--teal); white-space:nowrap; }
+.copy-hint { font-size:12px; color:var(--muted); text-align:center; margin-top:8px; }
+.upload-area { display:block; border:2px dashed var(--line); border-radius:12px; padding:20px; text-align:center; cursor:pointer; margin-bottom:12px; background:var(--card); }
+.upload-area.uploaded { border-color:var(--teal); border-style:solid; background:#EFF9F8; }
+.upload-area:active { border-color:var(--teal); }
+.upload-icon { font-size:24px; margin-bottom:8px; }
+.upload-title { font-size:14px; font-weight:600; color:var(--navy); }
+.upload-sub { font-size:12px; color:var(--muted); margin-top:4px; }
+.upload-label-text { font-size:12px; font-weight:700; color:var(--navy); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:8px; display:flex; align-items:center; gap:4px; }
+.req { color:var(--danger); }
+.form-group { margin-bottom:14px; }
+.form-group label { display:block; font-size:13px; font-weight:600; color:var(--navy); margin-bottom:6px; }
+.form-group input { width:100%; padding:12px 14px; border:1px solid var(--line); border-radius:10px; font-size:16px; font-family:inherit; min-height:44px; background:var(--card); }
+.form-group input:focus { outline:none; border-color:var(--teal); box-shadow:0 0 0 3px rgba(64,181,173,0.15); }
+.form-hint { font-size:12px; color:var(--muted); margin-top:6px; }
+.submit-btn { width:100%; background:var(--navy); color:white; padding:16px; border:none; border-radius:12px; font-weight:700; font-size:17px; cursor:pointer; margin-top:8px; min-height:52px; }
+.submit-btn:active { background:#12315a; }
+.submit-btn:disabled { opacity:0.6; cursor:not-allowed; }
+.trust-line { display:flex; align-items:center; justify-content:center; gap:8px; font-size:13px; color:var(--muted); margin-top:12px; }
+.trust-line i { color:var(--teal); }
+.success-screen { display:none; text-align:center; padding:40px 20px; }
+.success-icon { width:72px; height:72px; background:var(--teal); border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 20px; font-size:32px; color:white; }
+.success-title { font-family:'Playfair Display',serif; font-size:1.6rem; color:var(--navy); margin-bottom:8px; }
+.success-sub { color:var(--muted); font-size:15px; margin-bottom:24px; }
+.ref-box { background:var(--warm-white); border:1px solid var(--line); border-radius:12px; padding:16px; margin-bottom:24px; }
+.ref-label { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:1px; color:var(--muted); margin-bottom:4px; }
+.ref-val { font-size:1.2rem; font-weight:800; color:var(--navy); letter-spacing:1px; }
+.back-home-btn { display:inline-block; background:var(--navy); color:white; padding:14px 32px; border-radius:10px; font-weight:700; font-size:15px; text-decoration:none; }
+.loading-overlay { display:none; position:fixed; inset:0; background:rgba(10,37,64,0.6); z-index:9000; align-items:center; justify-content:center; }
+.loading-overlay.active { display:flex; }
+.spinner { width:44px; height:44px; border:4px solid rgba(255,255,255,0.3); border-top-color:white; border-radius:50%; animation:spin 0.8s linear infinite; }
+@keyframes spin { to { transform:rotate(360deg); } }
+</style>
+</head>
+<body>
+<div class="topbar">
+  <button class="back-btn" onclick="history.back()"><i class="fas fa-arrow-left"></i></button>
+  <div class="topbar-title">Confirm Booking</div>
+</div>
+
+<div class="wrap">
+
+  <div class="summary-card" id="summary-card">
+    <div class="unit-row">
+      <img class="unit-thumb" id="sum-thumb" src="">
+      <div>
+        <div class="unit-name" id="sum-name">Loading...</div>
+        <div class="unit-sub" id="sum-sub"></div>
+      </div>
+    </div>
+    <div class="booking-grid">
+      <div class="booking-item"><div class="booking-label">Check In</div><div class="booking-val" id="sum-checkin">—</div></div>
+      <div class="booking-item"><div class="booking-label">Check Out</div><div class="booking-val" id="sum-checkout">—</div></div>
+      <div class="booking-item"><div class="booking-label">Duration</div><div class="booking-val" id="sum-nights">—</div></div>
+      <div class="booking-item"><div class="booking-label">Guests</div><div class="booking-val" id="sum-guests">—</div></div>
+      <div class="booking-item" style="grid-column:span 2"><div class="booking-label">Package</div><div class="booking-val" id="sum-package">—</div></div>
+    </div>
+    <div class="total-row">
+      <div class="total-label">Total Amount</div>
+      <div class="total-amount" id="sum-total">—</div>
+    </div>
+  </div>
+
+  <div id="checkout-form">
+
+    <div class="step-card">
+      <div class="step-header"><div class="step-num">1</div><div class="step-title">Transfer Payment</div></div>
+      <div id="bank-accounts">
+        <div style="text-align:center;padding:20px;color:var(--muted)"><i class="fas fa-circle-notch fa-spin"></i> Loading...</div>
+      </div>
+      <div class="copy-hint"><i class="fas fa-hand-pointer"></i> Tap any account to copy number</div>
+    </div>
+
+    <div class="step-card">
+      <div class="step-header"><div class="step-num">2</div><div class="step-title">Upload Documents</div></div>
+      <div class="upload-label-text">Payment Slip <span class="req">*</span></div>
+      <label for="slip-file" class="upload-area" id="slip-area">
+        <div class="upload-icon"><i class="fas fa-file-arrow-up" style="color:var(--teal)"></i></div>
+        <div class="upload-title">Tap to upload payment slip</div>
+        <div class="upload-sub">Screenshot or photo (JPG, PNG)</div>
+      </label>
+      <input type="file" id="slip-file" accept="image/*" style="display:none" onchange="handleFile(this,'slip-area','slip')">
+      <div class="upload-label-text">ID Card — Front <span class="req">*</span></div>
+      <label for="id-file" class="upload-area" id="id-area">
+        <div class="upload-icon"><i class="fas fa-id-card" style="color:var(--teal)"></i></div>
+        <div class="upload-title">Tap to upload ID card</div>
+        <div class="upload-sub">Photo of ID card front (JPG, PNG)</div>
+      </label>
+      <input type="file" id="id-file" accept="image/*" style="display:none" onchange="handleFile(this,'id-area','id')">
+    </div>
+
+    <div class="step-card">
+      <div class="step-header"><div class="step-num">3</div><div class="step-title">Confirmation Email</div></div>
+      <div class="form-group">
+        <label>Email Address</label>
+        <input type="email" id="co-email" placeholder="your@email.com">
+        <div class="form-hint">Booking confirmation and invoice will be sent here.</div>
+      </div>
+    </div>
+
+    <button class="submit-btn" id="submit-btn" onclick="submitCheckout()"><i class="fas fa-check-circle"></i> Confirm Booking</button>
+    <div class="trust-line"><i class="fas fa-lock"></i> Your information is secure</div>
+  </div>
+
+  <div class="success-screen" id="success-screen">
+    <div class="success-icon"><i class="fas fa-check"></i></div>
+    <div class="success-title">Booking Confirmed!</div>
+    <div class="success-sub">Check your email for the confirmation and invoice.</div>
+    <div class="ref-box">
+      <div class="ref-label">Booking Reference</div>
+      <div class="ref-val" id="success-ref">—</div>
+    </div>
+    <a href="site-coral.html" class="back-home-btn">Back to Home</a>
+  </div>
+
+</div>
+
+<div class="loading-overlay" id="loading-overlay">
+  <div class="spinner"></div>
+</div>
+
+<script src="/tenant.js" onerror="void(0)"></script>
+<script>
+// Resolve tenant from slug (set by tenant.js or URL param)
+const _slug = (window.RC_TENANT_SLUG) || new URLSearchParams(location.search).get('tenant') || 'coral';
+const API = 'https://api.htmrentals.com';
+let TENANT_ID = 0;
+async function resolveTenantId() {
+  try {
+    const r = await fetch(`${API}/api/public/resolve/${_slug}`);
+    const d = await r.json();
+    if (d.success) TENANT_ID = d.tenant_id;
+  } catch(e) { console.error('Failed to resolve tenant', e); }
+}
+const p = new URLSearchParams(location.search);
+
+const unitId = p.get('unit');
+const guestName = p.get('name') || '';
+const guestPhone = p.get('phone') || '';
+const guestEmail = p.get('email') || '';
+const guestNid = p.get('nid') || '';
+const guests = parseInt(p.get('guests')) || 1;
+const checkin = p.get('checkin') || '';
+const checkout = p.get('checkout') || '';
+const nights = parseInt(p.get('nights')) || 1;
+const amount = parseFloat(p.get('amount')) || 0;
+const currency = p.get('currency') || 'MVR';
+const requests = p.get('requests') || '';
+const pkgId = p.get('pkg_id') || '0';
+const pkgName = p.get('pkg_name') || 'Room Only';
+
+let slipFile = null, idFile = null;
+
+function fmtDate(ds) {
+  if (!ds) return '—';
+  return new Date(ds + 'T00:00:00').toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' });
+}
+function fmtMoney(amt, cur) {
+  return cur === 'MVR' ? `MVR ${amt.toLocaleString()}` : `$${amt.toLocaleString()}`;
+}
+
+async function init() {
+  if (!TENANT_ID) await resolveTenantId();
+  // Pre-fill email
+  if (guestEmail) document.getElementById('co-email').value = guestEmail;
+
+  // Fill summary
+  document.getElementById('sum-checkin').textContent = fmtDate(checkin);
+  document.getElementById('sum-checkout').textContent = fmtDate(checkout);
+  document.getElementById('sum-nights').textContent = nights + ' night' + (nights > 1 ? 's' : '');
+  document.getElementById('sum-guests').textContent = guests;
+  document.getElementById('sum-total').textContent = fmtMoney(amount, currency);
+  document.getElementById('sum-package').textContent = pkgName;
+
+  // Load unit info
+  try {
+    const r = await fetch(`${API}/api/public/${TENANT_ID}/units/${unitId}`);
+    const d = await r.json();
+    if (d.success) {
+      const u = d.unit;
+      document.getElementById('sum-name').textContent = u.unit_type_label || u.name;
+      document.getElementById('sum-sub').textContent = [u.building_name, u.unit_number].filter(Boolean).join(' · ');
+      document.getElementById('sum-thumb').src = u.featured_image || '';
+    }
+  } catch(e) {}
+
+  // Load tenant settings for bank accounts
+  try {
+    const r = await fetch(`${API}/api/public/${TENANT_ID}/info`);
+    const d = await r.json();
+    const s = d.settings || {};
+    renderBankAccounts(s, currency);
+  } catch(e) {
+    document.getElementById('bank-accounts').innerHTML = '<p style="color:var(--muted);font-size:14px">Bank details not available. Contact us via WhatsApp.</p>';
+  }
+}
+
+function renderBankAccounts(s, cur) {
+  const mvrAccounts = s.payment_mvr ? s.payment_mvr.split('|') : [];
+  const usdAccounts = s.payment_usd ? s.payment_usd.split('|') : [];
+  const accounts = cur === 'USD' ? usdAccounts : mvrAccounts;
+  const propName = s.property_name || 'Property';
+
+  if (!accounts.length || !accounts[0]) {
+    document.getElementById('bank-accounts').innerHTML = '<p style="color:var(--muted);font-size:14px">Please contact us via WhatsApp for payment details.</p>';
+    return;
+  }
+
+  document.getElementById('bank-accounts').innerHTML = accounts.map((acc, i) => {
+    const parts = acc.trim().split(':');
+    const bankName = parts[0] || 'Bank';
+    const accountNum = parts[1] || acc;
+    const isBML = bankName.toUpperCase().includes('BML');
+    const isMIB = bankName.toUpperCase().includes('MIB');
+    return `<div class="bank-card" onclick="copyAccount('${accountNum}', this)">
+      <div>
+        ${isBML ? '<span class="bank-badge badge-bml">BML</span>' : isMIB ? '<span class="bank-badge badge-mib">MIB</span>' : `<span class="bank-badge" style="background:var(--navy);color:white">${bankName}</span>`}
+        <div class="bank-name">${bankName}</div>
+        <div class="bank-account">${accountNum}</div>
+        <div class="bank-holder">Account Name: ${propName}</div>
+      </div>
+      <div class="copy-btn" id="copy-btn-${i}">Tap to copy</div>
+    </div>`;
+  }).join('');
+}
+
+function copyAccount(num, el) {
+  navigator.clipboard.writeText(num).then(() => {
+    const btn = el.querySelector('.copy-btn');
+    if (btn) { btn.textContent = 'Copied!'; btn.style.color = 'var(--teal)'; setTimeout(() => { btn.textContent = 'Tap to copy'; btn.style.color = ''; }, 2000); }
+  }).catch(() => { alert('Account number: ' + num); });
+}
+
+function handleFile(input, areaId, type) {
+  const file = input.files[0];
+  if (!file) return;
+  const area = document.getElementById(areaId);
+  area.classList.add('uploaded');
+  area.innerHTML = `<div class="upload-icon"><i class="fas fa-circle-check" style="color:var(--teal);font-size:28px"></i></div><div class="upload-title">${file.name.substring(0,30)}${file.name.length>30?'...':''}</div><div class="upload-sub" style="color:var(--teal);font-weight:600">Ready to upload</div>`;
+  if (type === 'slip') slipFile = file;
+  if (type === 'id') idFile = file;
+}
+
+async function uploadFile(file, label) {
+  const fd = new FormData();
+  fd.append('file', file);
+  fd.append('label', label);
+  const r = await fetch(`${API}/api/public/${TENANT_ID}/upload`, { method: 'POST', body: fd });
+  const d = await r.json();
+  return d.url || null;
+}
+
+async function submitCheckout() {
+  if (!slipFile) { alert('Please upload your payment slip.'); return; }
+  if (!idFile) { alert('Please upload your ID card.'); return; }
+  const email = document.getElementById('co-email').value.trim();
+
+  const btn = document.getElementById('submit-btn');
+  btn.disabled = true;
+  document.getElementById('loading-overlay').classList.add('active');
+
+  try {
+    // 1. Create booking
+    let specialReqs = requests;
+    if (guestNid) specialReqs = `[NID: ${guestNid}]${specialReqs ? ' ' + specialReqs : ''}`;
+
+    const bRes = await fetch(`${API}/api/public/${TENANT_ID}/bookings`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        guest_name: guestName,
+        guest_phone: guestPhone,
+        guest_email: email || guestEmail || null,
+        unit_id: parseInt(unitId),
+        number_of_guests: guests,
+        check_in_date: checkin,
+        check_out_date: checkout,
+        total_nights: nights,
+        total_amount: amount,
+        currency: currency,
+        special_requests: specialReqs,
+        package_id: pkgId !== '0' ? parseInt(pkgId) : null,
+        package_name: pkgName !== 'Room Only' ? pkgName : null,
+        booking_source: 'Website'
+      })
+    });
+    const bData = await bRes.json();
+    if (!bData.success) throw new Error(bData.error || 'Booking failed');
+    const bookingId = bData.booking_id;
+    const ref = bData.reference;
+
+    // 2. Upload slip + ID
+    const [slipUrl, idUrl] = await Promise.all([
+      uploadFile(slipFile, 'slip'),
+      uploadFile(idFile, 'id')
+    ]);
+
+    // 3. Attach documents to booking
+    if (slipUrl || idUrl) {
+      await fetch(`${API}/api/public/${TENANT_ID}/bookings/${bookingId}/documents`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ slip_url: slipUrl, id_url: idUrl })
+      }).catch(e => console.error('Doc attach error:', e));
+    }
+
+    // Show success
+    document.getElementById('loading-overlay').classList.remove('active');
+    document.getElementById('checkout-form').style.display = 'none';
+    document.getElementById('summary-card').style.display = 'none';
+    document.getElementById('success-ref').textContent = ref;
+    document.getElementById('success-screen').style.display = 'block';
+
+  } catch(e) {
+    document.getElementById('loading-overlay').classList.remove('active');
+    btn.disabled = false;
+    alert(e.message || 'Booking failed. Please contact us via WhatsApp.');
+  }
+}
+
+init();
+</script>
+</body>
+</html>

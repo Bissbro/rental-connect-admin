@@ -17,6 +17,8 @@ body { font-family:'Inter',sans-serif; color:var(--charcoal); background:var(--w
 .curr-bar { background:var(--navy); padding:6px 16px; display:flex; align-items:center; gap:8px; position:sticky; top:0; z-index:70; }
 .curr-tab { display:flex; align-items:center; gap:7px; padding:7px 16px; border-radius:20px; font-size:14px; font-weight:600; color:rgba(255,255,255,0.65); cursor:pointer; border:none; background:transparent; min-height:38px; }
 .curr-tab.active { background:white; color:var(--navy); }
+.curr-bar[data-mode="mvr_only"] #tab-foreign { display:none; }
+.curr-bar[data-mode="usd_only"] #tab-local { display:none; }
 .curr-back { margin-left:auto; color:white; font-size:18px; background:none; border:none; cursor:pointer; min-width:44px; min-height:44px; }
 
 /* Gallery */
@@ -123,6 +125,26 @@ body { font-family:'Inter',sans-serif; color:var(--charcoal); background:var(--w
 .btn-book-now:active { background:#12315a; }
 
 .loading-state, .error-state { text-align:center; padding:80px 20px; color:var(--muted); font-size:16px; }
+.pkg-grid { display:grid; grid-template-columns:1fr; gap:10px; }
+.pkg-card { border:2px solid var(--line); border-radius:14px; padding:16px; cursor:pointer; background:var(--card); transition:border-color 0.15s; display:flex; align-items:center; justify-content:space-between; gap:12px; }
+.pkg-card.selected { border-color:var(--teal); background:#EFF9F8; }
+.pkg-card:active { border-color:var(--teal); }
+.pkg-left { flex:1; }
+.pkg-name { font-size:15px; font-weight:700; color:var(--navy); margin-bottom:2px; }
+.pkg-price { font-size:13px; color:var(--muted); }
+.pkg-price strong { color:var(--teal); }
+.pkg-info-btn { background:none; border:1.5px solid var(--line); border-radius:50%; width:34px; height:34px; display:flex; align-items:center; justify-content:center; color:var(--muted); cursor:pointer; flex-shrink:0; font-size:14px; }
+.sheet-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:2000; display:none; }
+.sheet-overlay.open { display:block; }
+.sheet { position:fixed; bottom:0; left:0; right:0; background:white; border-radius:24px 24px 0 0; z-index:2001; max-height:85vh; overflow-y:auto; transform:translateY(100%); transition:transform 0.35s cubic-bezier(0.4,0,0.2,1); }
+.sheet.open { transform:translateY(0); }
+.sheet-header { display:flex; align-items:center; justify-content:space-between; padding:16px 20px; border-bottom:1px solid var(--line); position:sticky; top:0; background:white; z-index:1; }
+.sheet-title { font-family:'Playfair Display',serif; font-size:1.1rem; font-weight:700; color:var(--navy); }
+.sheet-close { background:none; border:none; width:32px; height:32px; font-size:14px; color:var(--muted); cursor:pointer; display:flex; align-items:center; justify-content:center; }
+.sheet-body { padding:20px; }
+.amenity-sheet-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.amenity-sheet-item { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:10px 14px; font-size:14px; color:var(--charcoal); display:flex; align-items:center; gap:10px; min-height:56px; line-height:1.35; }
+.amenity-sheet-item i { color:var(--teal); width:16px; }
 
 /* Responsive */
 .detail-layout { display:block; }
@@ -147,7 +169,7 @@ body { font-family:'Inter',sans-serif; color:var(--charcoal); background:var(--w
 </head>
 <body>
 
-<div class="curr-bar">
+<div class="curr-bar" id="curr-bar">
   <button class="curr-tab active" id="tab-local" onclick="setCurrency('MVR')"><i class="fas fa-sailboat"></i> Local</button>
   <button class="curr-tab" id="tab-foreign" onclick="setCurrency('USD')"><i class="fas fa-plane"></i> Foreign</button>
   <button class="curr-back" onclick="history.back()"><i class="fas fa-chevron-left"></i></button>
@@ -176,13 +198,16 @@ body { font-family:'Inter',sans-serif; color:var(--charcoal); background:var(--w
     <div class="desc-wrap" id="desc-wrap">
       <p class="unit-desc" id="unit-description"></p>
     </div>
-    <button class="show-more-btn" id="desc-more-btn" style="display:none" onclick="toggleDesc()">Show more</button>
+    <button class="show-more-btn" id="desc-more-btn" style="display:none" onclick="openDescSheet()">Show more</button>
 
     <div class="section-h">What This Place Offers</div>
     <div class="amenities-wrap" id="amenities-wrap">
       <div class="amenities-grid" id="amenities-grid"></div>
     </div>
-    <button class="show-more-btn" id="amenities-more-btn" style="display:none" onclick="toggleAmenities()"></button>
+    <button class="show-more-btn" id="amenities-more-btn" style="display:none" onclick="openAmenSheet()"></button>
+
+    <div class="section-h" id="packages-section" style="display:none">Choose a Package</div>
+    <div class="pkg-grid" id="pkg-grid" style="margin-bottom:16px"></div>
 
     <div class="section-h">Location</div>
     <div class="map-box" id="map-box">
@@ -190,77 +215,63 @@ body { font-family:'Inter',sans-serif; color:var(--charcoal); background:var(--w
     </div>
 
     </div>
-    <div class="detail-right">
-
-    <div class="price-card">
-      <div class="price-headline" id="price-headline">—</div>
-      <div class="direct-badge">Direct Booking</div>
-
-      <div class="cal-header">
-        <div class="cal-month-label" id="cal-month-label">—</div>
-        <div class="cal-nav-group">
-          <button class="cal-nav" onclick="changeMonth(-1)"><i class="fas fa-chevron-left"></i></button>
-          <button class="cal-nav" onclick="changeMonth(1)"><i class="fas fa-chevron-right"></i></button>
-        </div>
-      </div>
-      <div class="cal-grid" id="cal-grid"></div>
-      <p class="cal-instruction"><i class="fas fa-info-circle"></i> Tap a date to start. Tap another date to end. Tap same date to clear.</p>
-      <div class="date-inputs">
-        <div class="date-field"><label>CHECK-IN (14:00)</label><input type="text" id="b-checkin" readonly placeholder="Select date" value=""></div>
-        <div class="date-field"><label>CHECK-OUT (12:00)</label><input type="text" id="b-checkout" readonly placeholder="Select date" value=""></div>
-      </div>
-
-      <div id="booking-form" style="margin-top:20px">
-        <div class="form-row">
-          <div class="form-group"><label>Adults</label><select id="b-adults" onchange="updateChildrenOptions()"></select></div>
-          <div class="form-group"><label>Children</label><select id="b-children"></select></div>
-        </div>
-        <div class="form-row">
-          <div class="form-group"><label>Full Name *</label><input type="text" id="b-name" placeholder="Your full name"></div>
-        </div>
-        <div class="form-row">
-          <div class="form-group"><label>Phone / WhatsApp *</label><input type="text" id="b-phone" placeholder="+960 ..."></div>
-        </div>
-        <div class="form-row" id="nid-row">
-          <div class="form-group"><label>National ID (NID)</label><input type="text" id="b-nid" placeholder="A123456"></div>
-        </div>
-        <div class="form-row">
-          <div class="form-group"><label>Email</label><input type="email" id="b-email" placeholder="your@email.com"></div>
-        </div>
-        <div class="form-row">
-          <div class="form-group"><label>Special Requests</label><input type="text" id="b-requests" placeholder="Any special requests?"></div>
-        </div>
-        <div class="price-summary" id="price-summary">
-          <div class="price-row"><span>Rate</span><span id="ps-rate">—</span></div>
-          <div class="price-row"><span>Nights</span><span id="ps-nights">—</span></div>
-          <div class="price-row total"><span>Total</span><span id="ps-total">—</span></div>
-        </div>
-        <button class="btn-submit" onclick="submitBooking()"><i class="fas fa-calendar-check"></i> Request Booking</button>
-        <div class="trust-line"><i class="fas fa-lock"></i> You won't be charged yet</div>
-      </div>
-      <div class="success-msg" id="success-msg">
-        <i class="fas fa-check-circle"></i>
-        <h3>Booking Request Sent!</h3>
-        <p>We've received your request and will confirm shortly.<br>Check your WhatsApp or email for updates.</p>
-      </div>
-    </div>
-
-    </div>
-    </div>
-  </div>
-
   <div class="price-bar">
     <div class="price-bar-amount" id="price-bar-amount">—</div>
-    <a href="#" class="btn-book-now" onclick="document.querySelector('.price-card').scrollIntoView({behavior:'smooth'});return false">Book This Unit</a>
+    <a href="book.html?id=8" id="book-now-link" class="btn-book-now">Book Now</a>
   </div>
 
 </div>
 
+<!-- Package info sheet -->
+<div class="sheet-overlay" id="pkg-overlay" onclick="closePkgSheet()"></div>
+<div class="sheet" id="pkg-sheet">
+  <div class="sheet-handle-bar" style="height:4px;width:40px;background:var(--line);border-radius:4px;margin:12px auto 0"></div>
+  <div class="sheet-header">
+    <span class="sheet-title" id="pkg-sheet-title">Package Details</span>
+    <button class="sheet-close" onclick="closePkgSheet()"><i class="fas fa-times"></i></button>
+  </div>
+  <div class="sheet-body" id="pkg-sheet-body"></div>
+</div>
+
+<!-- Description sheet -->
+<div class="sheet-overlay" id="desc-overlay" onclick="closeDescSheet()"></div>
+<div class="sheet" id="desc-sheet">
+  <div class="sheet-header">
+    <span class="sheet-title">Description</span>
+    <button class="sheet-close" onclick="closeDescSheet()"><i class="fas fa-times"></i></button>
+  </div>
+  <div class="sheet-body" id="desc-sheet-body"></div>
+</div>
+
+<!-- Amenities sheet -->
+<div class="sheet-overlay" id="amen-overlay" onclick="closeAmenSheet()"></div>
+<div class="sheet" id="amen-sheet">
+  <div class="sheet-header">
+    <span class="sheet-title">What This Place Offers</span>
+    <button class="sheet-close" onclick="closeAmenSheet()"><i class="fas fa-times"></i></button>
+  </div>
+  <div class="sheet-body">
+    <div class="amenity-sheet-grid" id="amen-sheet-grid"></div>
+  </div>
+</div>
+
+<script src="/tenant.js" onerror="void(0)"></script>
 <script>
-const TENANT_ID = 2; // change per deployment
+// Resolve tenant from slug (set by tenant.js or URL param)
+const _slug = (window.RC_TENANT_SLUG) || new URLSearchParams(location.search).get('tenant') || 'coral';
 const API = 'https://api.htmrentals.com';
+let TENANT_ID = 0;
+async function resolveTenantId() {
+  const r = await fetch(`${API}/api/public/resolve/${_slug}`);
+  const d = await r.json();
+  if (d.success) TENANT_ID = d.tenant_id;
+}
 
 let unitData = null;
+let packagesData = [];
+let selectedPkgId = '0';
+let selectedPkgName = 'Room Only';
+let selectedPkgAddon = 0;
 let currency = 'MVR';
 let galleryImages = [];
 let currentImageIndex = 0;
@@ -271,16 +282,46 @@ let startDate = null;
 let endDate = null;
 const todayStr = new Date().toISOString().split('T')[0];
 
-const amenityIcons = {
-  wifi: 'fa-wifi', 'air condition': 'fa-snowflake', ac: 'fa-snowflake', tv: 'fa-tv',
-  kitchen: 'fa-utensils', parking: 'fa-parking', security: 'fa-shield-alt',
-  washer: 'fa-tshirt', dryer: 'fa-tshirt', pool: 'fa-water', balcony: 'fa-door-open',
-  breakfast: 'fa-mug-hot', linen: 'fa-bed', towel: 'fa-scroll', shower: 'fa-shower',
-  default: 'fa-check-circle'
-};
+const amenityIcons = [
+  ['washing machine', 'fa-rotate'],
+  ['muslim shower', 'fa-shower'],
+  ['hot shower', 'fa-hot-tub-person'],
+  ['shower', 'fa-shower'],
+  ['air condition', 'fa-snowflake'],
+  ['refrigerator', 'fa-temperature-arrow-down'],
+  ['fridge', 'fa-temperature-arrow-down'],
+  ['hair dryer', 'fa-wind'],
+  ['hair', 'fa-wind'],
+  ['iron', 'fa-shirt'],
+  ['washer', 'fa-rotate'],
+  ['laundry', 'fa-rotate'],
+  ['wifi', 'fa-wifi'],
+  ['tv', 'fa-tv'],
+  ['kitchen', 'fa-utensils'],
+  ['microwave', 'fa-bowl-food'],
+  ['kettle', 'fa-mug-hot'],
+  ['breakfast', 'fa-mug-hot'],
+  ['parking', 'fa-square-parking'],
+  ['security', 'fa-shield-halved'],
+  ['pool', 'fa-water'],
+  ['balcony', 'fa-door-open'],
+  ['linen', 'fa-bed'],
+  ['towel', 'fa-scroll'],
+  ['desk', 'fa-laptop'],
+  ['wardrobe', 'fa-shirt'],
+  ['closet', 'fa-shirt'],
+  ['housekeeping', 'fa-broom'],
+  ['cleaning', 'fa-broom'],
+  ['smoke', 'fa-fire-extinguisher'],
+  ['first aid', 'fa-kit-medical'],
+  ['safe', 'fa-lock'],
+  ['elevator', 'fa-elevator'],
+  ['gym', 'fa-dumbbell'],
+];
 function iconFor(name) {
-  const key = Object.keys(amenityIcons).find(k => name.toLowerCase().includes(k));
-  return amenityIcons[key || 'default'];
+  const lower = name.toLowerCase();
+  const match = amenityIcons.find(([k]) => lower.includes(k));
+  return match ? match[1] : 'fa-circle-check';
 }
 
 function getUnitId() {
@@ -297,24 +338,35 @@ function fmtMoney(amt) {
   return currency === 'MVR' ? `MVR ${amt.toLocaleString()}` : `$${amt.toLocaleString()}`;
 }
 
+function updateBookLink() {
+  const _bl=document.getElementById("book-now-link");
+  if(_bl){
+    const _uid=new URLSearchParams(location.search).get("id");
+    if(_uid) _bl.href="book.html?id="+_uid+"&cur="+currency+"&pkg_id="+selectedPkgId+"&pkg_name="+encodeURIComponent(selectedPkgName);
+  }
+}
+
 function setCurrency(c) {
   currency = c;
   document.getElementById('tab-local').classList.toggle('active', c === 'MVR');
   document.getElementById('tab-foreign').classList.toggle('active', c === 'USD');
-  document.getElementById('nid-row').style.display = c === 'MVR' ? 'flex' : 'none';
+  const nidRow = document.getElementById('nid-row'); if(nidRow) nidRow.style.display = c === 'MVR' ? 'flex' : 'none';
   renderPricing();
-  calcPrice();
+  if (packagesData.length) { selectedPkgAddon = 0; selectedPkgId = "0"; selectedPkgName = "Room Only"; renderPackages(); updatePriceBar(); }
+  const _bl = document.getElementById('book-now-link');
+  if (_bl) { const _uid = new URLSearchParams(location.search).get('id'); if(_uid) _bl.href = 'book.html?id=' + _uid + '&cur=' + c; }
 }
 
 function renderPricing() {
+  if (!unitData) return;
   const p = unitPrice();
-  document.getElementById('price-headline').innerHTML = p
-    ? `${fmtMoney(p)}<span> / night</span>` : '<span>Price on request</span>';
+  const ph = document.getElementById('price-headline'); if(ph) ph.innerHTML = p ? `${fmtMoney(p)}<span> / night</span>` : '<span>Price on request</span>';
   document.getElementById('price-bar-amount').innerHTML = p
     ? `${fmtMoney(p)}<span> / night</span>` : '<span>Price on request</span>';
 }
 
 async function loadUnit() {
+  if (!TENANT_ID) await resolveTenantId();
   const unitId = getUnitId();
   if (!unitId) { showError(); return; }
   try {
@@ -325,7 +377,10 @@ async function loadUnit() {
     renderUnit(d.unit, unitId);
     loadPropertyName();
     loadCalendar(unitId);
-  } catch(e) { showError(); }
+  } catch(e) {
+    if (document.getElementById('unit-content').style.display === 'none') showError();
+    console.error('loadUnit error:', e);
+  }
 }
 function showError() {
   document.getElementById('loading').style.display = 'none';
@@ -344,6 +399,7 @@ async function loadPropertyName() {
 
 function renderUnit(u, unitId) {
   document.getElementById('loading').style.display = 'none';
+  document.getElementById('error').style.display = 'none';
   document.getElementById('unit-content').style.display = 'block';
   document.getElementById('page-title').textContent = u.name;
   document.getElementById('unit-title').textContent = u.unit_type_label || 'Apartment';
@@ -396,6 +452,8 @@ function renderUnit(u, unitId) {
   // Gallery
   galleryImages = (u.gallery_images && u.gallery_images.length) ? u.gallery_images : (u.featured_image ? [u.featured_image] : []);
   renderGallery(u);
+  initSwipe(document.getElementById('gallery-container'));
+  loadPackages(unitId);
 
   // Adults / Children dropdowns
   populateGuestDropdowns(u);
@@ -415,27 +473,46 @@ function renderUnit(u, unitId) {
       <a class="btn-directions" target="_blank" href="${dirLink}"><i class="fas fa-diamond-turn-right"></i> Get Directions</a>`;
   }
 
+  const mode = u.currency_mode || 'both';
+  if (mode === 'mvr_only') currency = 'MVR';
+  else if (mode === 'usd_only') currency = 'USD';
   renderPricing();
   setCurrency(currency);
+  const currBar = document.getElementById('curr-bar');
+  if (currBar) currBar.setAttribute('data-mode', mode);
 }
 
-function toggleDesc() {
-  const wrap = document.getElementById('desc-wrap');
-  const btn = document.getElementById('desc-more-btn');
-  const collapsed = wrap.classList.toggle('collapsed');
-  btn.textContent = collapsed ? 'Show more' : 'Show less';
+function openDescSheet() {
+  const desc = document.getElementById('unit-description').textContent;
+  document.getElementById('desc-sheet-body').innerHTML = `<p style="font-size:16px;line-height:1.8;color:var(--charcoal)">${desc}</p>`;
+  document.getElementById('desc-overlay').classList.add('open');
+  document.getElementById('desc-sheet').classList.add('open');
+  document.body.style.overflow = 'hidden';
 }
-function toggleAmenities() {
-  const wrap = document.getElementById('amenities-wrap');
-  const btn = document.getElementById('amenities-more-btn');
-  const expanded = wrap.classList.toggle('expanded');
-  const total = (unitData.amenities || []).length;
-  btn.textContent = expanded ? 'Show less' : `Show all ${total} amenities`;
+function closeDescSheet() {
+  document.getElementById('desc-overlay').classList.remove('open');
+  document.getElementById('desc-sheet').classList.remove('open');
+  document.body.style.overflow = '';
+}
+function openAmenSheet() {
+  const amenities = unitData.amenities || [];
+  document.getElementById('amen-sheet-grid').innerHTML = amenities.map(a =>
+    `<div class="amenity-sheet-item"><i class="fas ${iconFor(String(a))}"></i>${a}</div>`
+  ).join('');
+  document.getElementById('amen-overlay').classList.add('open');
+  document.getElementById('amen-sheet').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeAmenSheet() {
+  document.getElementById('amen-overlay').classList.remove('open');
+  document.getElementById('amen-sheet').classList.remove('open');
+  document.body.style.overflow = '';
 }
 
 function populateGuestDropdowns(u) {
-  const maxAdults = u.max_adults || u.max_guests || 2;
   const adultsSel = document.getElementById('b-adults');
+  if (!adultsSel) return;
+  const maxAdults = u.max_adults || u.max_guests || 2;
   adultsSel.innerHTML = '';
   for (let i = 1; i <= maxAdults; i++) {
     adultsSel.innerHTML += `<option value="${i}">${i} adult${i>1?'s':''}</option>`;
@@ -443,6 +520,7 @@ function populateGuestDropdowns(u) {
   updateChildrenOptions();
 }
 function updateChildrenOptions() {
+  if (!document.getElementById('b-adults')) return;
   const u = unitData;
   const maxTotal = u.max_guests || 2;
   const maxChildren = u.max_children || 0;
@@ -466,11 +544,17 @@ function renderGallery(u) {
   const badge = u.unit_number || u.name || '';
   container.innerHTML = galleryImages.map((img, i) => `
     <div class="gallery-slide ${i===0?'active':''}"><img src="${img}" loading="lazy"></div>
-  `).join('') + (galleryImages.length > 1 ? `
-    <button class="gallery-nav prev" onclick="prevImage()"><i class="fas fa-chevron-left"></i></button>
-    <button class="gallery-nav next" onclick="nextImage()"><i class="fas fa-chevron-right"></i></button>
-  ` : '') + (badge ? `<div class="gallery-unit-badge">${badge}</div>` : '') + `<div class="gallery-counter" id="gallery-counter">1 / ${galleryImages.length}</div>`;
+  `).join('') + (badge ? `<div class="gallery-unit-badge">${badge}</div>` : '') + `<div class="gallery-counter" id="gallery-counter">1 / ${galleryImages.length}</div>`;
 }
+function initSwipe(container) {
+  let startX = 0;
+  container.addEventListener('touchstart', e => { startX = e.touches[0].clientX; }, {passive:true});
+  container.addEventListener('touchend', e => {
+    const diff = startX - e.changedTouches[0].clientX;
+    if (Math.abs(diff) > 50) { if (diff > 0) nextImage(); else prevImage(); }
+  }, {passive:true});
+}
+
 function updateGalleryImage() {
   document.querySelectorAll('.gallery-slide').forEach((s, i) => s.classList.toggle('active', i === currentImageIndex));
   const counter = document.getElementById('gallery-counter');
@@ -478,6 +562,64 @@ function updateGalleryImage() {
 }
 function nextImage() { currentImageIndex = (currentImageIndex + 1) % galleryImages.length; updateGalleryImage(); }
 function prevImage() { currentImageIndex = (currentImageIndex - 1 + galleryImages.length) % galleryImages.length; updateGalleryImage(); }
+
+async function loadPackages(uid) {
+  try {
+    const r = await fetch(`${API}/api/public/${TENANT_ID}/units/${uid}/packages`);
+    const d = await r.json();
+    packagesData = d.packages || [];
+    if (!packagesData.length) return;
+    document.getElementById('packages-section').style.display = 'block';
+    renderPackages();
+  } catch(e) { console.error('Failed to load packages', e); }
+}
+
+function renderPackages() {
+  const grid = document.getElementById('pkg-grid');
+  const allPkgs = [{ id: '0', name: 'Room Only', description: '', price_per_person_mvr: 0, price_per_person_usd: 0 }, ...packagesData];
+  grid.innerHTML = allPkgs.map(pkg => {
+    const price = currency === 'MVR' ? parseFloat(pkg.price_per_person_mvr||0) : parseFloat(pkg.price_per_person_usd||0);
+    const priceLabel = price > 0 ? `+ <strong>${fmtMoney(price)}</strong>/person/night` : (pkg.id === '0' ? 'No meals included' : '<strong>Included</strong> in room rate');
+    const isSelected = String(pkg.id) === String(selectedPkgId);
+    return `<div class="pkg-card ${isSelected ? 'selected' : ''}" onclick="selectPackage('${pkg.id}','${pkg.name.replace(/'/g,"\'")}',${pkg.price_per_person_mvr||0},${pkg.price_per_person_usd||0})">
+      <div class="pkg-left">
+        <div class="pkg-name">${isSelected ? '✓ ' : ''}${pkg.name}</div>
+        <div class="pkg-price">${priceLabel}</div>
+      </div>
+      ${pkg.description ? `<button class="pkg-info-btn" onclick="event.stopPropagation();openPkgSheet('${pkg.name.replace(/'/g,"\'")}','${(pkg.description||'').replace(/'/g,"\'")}')"><i class="fas fa-info"></i></button>` : ''}
+    </div>`;
+  }).join('');
+}
+
+function selectPackage(id, name, mvrAddon, usdAddon) {
+  selectedPkgId = id;
+  selectedPkgName = name;
+  selectedPkgAddon = currency === 'MVR' ? parseFloat(mvrAddon||0) : parseFloat(usdAddon||0);
+  renderPackages();
+  updatePriceBar();
+  updateBookLink();
+}
+
+function updatePriceBar() {
+  const p = unitPrice();
+  if (!p) return;
+  const total = p + selectedPkgAddon;
+  const pkgLabel = selectedPkgId !== '0' ? ` · ${selectedPkgName}` : '';
+  document.getElementById('price-bar-amount').innerHTML = `${fmtMoney(total)}<span>/night${pkgLabel}</span>`;
+}
+
+function openPkgSheet(name, desc) {
+  document.getElementById('pkg-sheet-title').textContent = name;
+  document.getElementById('pkg-sheet-body').innerHTML = `<p style="font-size:15px;line-height:1.7;color:var(--charcoal)">${desc}</p>`;
+  document.getElementById('pkg-overlay').classList.add('open');
+  document.getElementById('pkg-sheet').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closePkgSheet() {
+  document.getElementById('pkg-overlay').classList.remove('open');
+  document.getElementById('pkg-sheet').classList.remove('open');
+  document.body.style.overflow = '';
+}
 
 async function loadCalendar(unitId) {
   try {
@@ -499,6 +641,7 @@ function changeMonth(delta) {
 }
 function renderCalendar() {
   const grid = document.getElementById('cal-grid');
+  if (!grid) return;
   const label = document.getElementById('cal-month-label');
   const year = calMonth.getFullYear();
   const month = calMonth.getMonth();
@@ -666,6 +809,11 @@ async function submitBooking() {
 }
 
 loadUnit();
+const _bl=document.getElementById("book-now-link");
+if(_bl){
+  const _uid=new URLSearchParams(location.search).get("id");
+  if(_uid) _bl.href="book.html?id="+_uid+"&cur="+currency+"&pkg_id="+selectedPkgId+"&pkg_name="+encodeURIComponent(selectedPkgName);
+}
 </script>
 </body>
 </html>

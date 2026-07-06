@@ -258,7 +258,10 @@ body { font-family:'Inter',sans-serif; color:var(--charcoal); background:var(--w
 <script src="/tenant.js" onerror="void(0)"></script>
 <script>
 // Resolve tenant from slug (set by tenant.js or URL param)
-const _slug = (window.RC_TENANT_SLUG) || new URLSearchParams(location.search).get('tenant') || 'coral';
+const _hostname = window.location.hostname;
+const _hostSlug = _hostname.split('.')[0];
+const _validHostSlug = (_hostSlug && _hostSlug !== 'api' && _hostSlug !== 'www') ? _hostSlug : null;
+const _slug = (window.RC_TENANT_SLUG) || _validHostSlug || new URLSearchParams(location.search).get('tenant') || 'coral';
 const API = 'https://api.htmrentals.com';
 let TENANT_ID = 0;
 async function resolveTenantId() {

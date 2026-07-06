@@ -1,6 +1,10 @@
 #!/bin/bash
+# Usage: ./provision-tenant.sh <slug> <db_name>
+# Example: ./provision-tenant.sh coral rc_tenant_2
+
 SLUG=$1
-if [ -z "$SLUG" ]; then echo "Usage: $0 <slug>"; exit 1; fi
+DB_NAME=$2
+if [ -z "$SLUG" ]; then echo "Usage: $0 <slug> [db_name]"; exit 1; fi
 
 DOMAIN="${SLUG}.api.htmrentals.com"
 GUEST_DIR="/home/bitnami/rental-connect-guest"
@@ -13,10 +17,17 @@ mkdir -p "${GUEST_DIR}/${SLUG}"
 echo "window.RC_TENANT_SLUG = '${SLUG}';" > "${GUEST_DIR}/${SLUG}/tenant.js"
 echo "✓ tenant.js created"
 
-# Clone schema from rc_tenant_2
-sudo mysqldump --no-data rc_tenant_2 2>/dev/null | sudo mysql ${SLUG//-/_} 2>/dev/null || true
+# 2. Clone schema + grant privileges (if db_name provided)
+if [ -n "$DB_NAME" ]; then
+  sudo mysqldump --no-data rc_tenant_2 2>/dev/null | sudo mysql "$DB_NAME" 2>/dev/null
+  sudo mysql -e "GRANT ALL PRIVILEGES ON \`${DB_NAME}\`.* TO 'htm_user'@'localhost'; FLUSH PRIVILEGES;" 2>/dev/null
+  echo "✓ Schema cloned + privileges granted for $DB_NAME"
+  # Insert default website setting
+  sudo mysql "$DB_NAME" -e "INSERT IGNORE INTO settings (setting_key, setting_value) VALUES ('website', 'https://${SLUG}.api.htmrentals.com/index.html');" 2>/dev/null
+  echo "✓ Default settings inserted"
+fi
 
-# 2. Write HTTP-only vhost first (needed for certbot challenge)
+# 3. Write HTTP-only vhost
 sudo tee "${VHOST_DIR}/${SLUG}-vhost.conf" > /dev/null << APACHEEOF
 <VirtualHost *:80>
     ServerName ${DOMAIN}
@@ -36,12 +47,12 @@ APACHEEOF
 sudo apachectl graceful
 echo "✓ HTTP vhost active"
 
-# 3. Get SSL cert
+# 4. Get SSL cert
 sudo certbot certonly --webroot -w ${GUEST_DIR} -d ${DOMAIN} --non-interactive --agree-tos --email htmrentalss@gmail.com
 if [ $? -ne 0 ]; then echo "✗ Certbot failed"; exit 1; fi
 echo "✓ SSL cert issued"
 
-# 4. Add HTTPS vhost
+# 5. Add HTTPS vhost
 sudo tee -a "${VHOST_DIR}/${SLUG}-vhost.conf" > /dev/null << APACHEEOF
 
 <VirtualHost *:443>

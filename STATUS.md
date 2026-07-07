@@ -766,3 +766,13 @@ Structure:
 8. Footer
 All content editable via Website tab in admin (no hardcoded text)
 Brand colors applied from settings (algorithmic palette generator)
+
+## PERMANENT RULE
+~/rental-connect-admin/index.html = RC Admin login page (NEVER overwrite with guest homepage)
+~/rental-connect-guest/index.html = Guest-facing homepage template
+These are TWO DIFFERENT files. Never cp guest/index.html to admin/.
+When syncing guest files to admin for git backup, exclude index.html:
+  cp ~/rental-connect-guest/unit-detail.html ~/rental-connect-admin/
+  cp ~/rental-connect-guest/book.html ~/rental-connect-admin/
+  cp ~/rental-connect-guest/checkout.html ~/rental-connect-admin/
+  # DO NOT copy index.html

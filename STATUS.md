@@ -705,3 +705,64 @@ Hero/Promo/Reviews on Coral site; unit detail full flow; calendar with real bloc
 4. House rules per unit
 5. HTM: booked dates calendar (resolved itself per earlier note)
 6. RC: Packages UI on book page needs price breakdown display improvement
+
+## Roadmap Items (captured Jul 7)
+
+### RC Marketplace / AI Booking Agent (HIGH PRIORITY FUTURE FEATURE)
+Concept: RC guest-facing app acts as an AI-powered availability checker and booking agent.
+Guest types natural language query: "Find me a place in Hulhumalé from July 15-20 for 2 adults"
+RC AI parses intent, searches availability across ALL RC tenants, returns matching units.
+Guest taps a result → goes to that tenant's checkout → direct booking, no OTA commission.
+
+Architecture:
+- Claude API parses natural language query (extract dates, guests, location, budget, preferences)
+- New cross-tenant availability search endpoint queries all active tenant DBs simultaneously
+- Unified results UI (marketplace view) with photos, prices, specs
+- Guest taps result → redirects to tenant's checkout page (unit-detail.html?id=N)
+- Tenant gets booking notification as normal
+
+Why this matters:
+- RC becomes a marketplace (Booking.com without the commission)
+- Network effect: more tenants = more inventory = more useful for guests = more tenants
+- Natural language search = lower friction than date pickers, especially mobile
+- Cross-tenant visibility benefits all tenants
+- Positions RC as a destination, not just a property management tool
+
+Data already available: units, availability, pricing, photos, amenities per tenant
+New builds needed: cross-tenant search API, NLP parser, marketplace UI, opt-in system
+
+Tenant opt-in recommended (incentive: "Get discovered by guests searching all Hulhumalé properties")
+
+### PayPal Checkout Integration (MEDIUM PRIORITY)
+- PayPal officially launched in Maldives on June 15 2026 via Ooredoo m-Faisaa partnership
+- Each tenant links their own PayPal Business account (their PayPal email in settings)
+- RC checkout page shows PayPal button → payment goes directly to tenant's account
+- No platform-level PayPal account needed
+- Makes RC viable for foreign guests who won't do bank transfer
+- Build as optional: tenants without PayPal continue with bank transfer flow
+- Manual onboarding: RC team assists tenant with PayPal Business account setup
+
+### Website Tab in RC Admin (NEXT BUILD)
+Dedicated tab for all guest-facing website settings (separate from general Settings):
+- Homepage Content (hero title, subtitle, eyebrow, CTA text)
+- Hero Images (move from current location)
+- Promo Banners (move from current location)
+- Reviews (move from current location)
+- Brand Colors + algorithmic palette generator (no API needed, color theory math)
+- AI Content Generator (Claude API - tenant answers 5 questions, gets homepage copy)
+- Domain settings (future)
+
+### Homepage Redesign (CURRENT PRIORITY)
+Target: looks like a legitimate registered Maldivian tourism business website
+Mobile-first, instant visual impact, units front-and-center
+Structure:
+1. Sticky header: logo + WhatsApp icon + Book Now
+2. Hero: full-screen swipeable images, property name overlay, location badge
+3. Trust strip: rating | Direct Booking | Instant Confirm | Best Rate
+4. Units: horizontal scroll cards on mobile
+5. Why Book Direct: 3 pillars (no fees, instant confirm, WhatsApp support)
+6. Reviews: swipeable cards (dynamic from reviews table)
+7. Location + WhatsApp CTA
+8. Footer
+All content editable via Website tab in admin (no hardcoded text)
+Brand colors applied from settings (algorithmic palette generator)

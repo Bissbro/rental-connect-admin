@@ -776,3 +776,36 @@ When syncing guest files to admin for git backup, exclude index.html:
   cp ~/rental-connect-guest/book.html ~/rental-connect-admin/
   cp ~/rental-connect-guest/checkout.html ~/rental-connect-admin/
   # DO NOT copy index.html
+
+## Session 10 (Jul 12) - RC guest homepage carousel feature + critical nginx SSL bug found across all tenants
+
+### Coral homepage: full-width room carousel with drag-slider bike animation
+Rebuilt the "Choose Your Room" section (`~/rental-connect-guest/index.html`) from a multi-card horizontal scroll into a full-width, single-card-per-view carousel with a custom interactive element:
+- `.unit-card` changed from fixed 280px/320px width to `calc(100% - 48px)` with `margin:0 24px`, giving consistent breathing room on both edges at rest (not just during scroll)
+- Added `scroll-margin-left/right:24px` on `.unit-card` — this was the actual fix for a tricky bug where the margin only appeared correctly *during* a drag (native `scroll-snap-align` ignores margin by default when computing rest position, silently cancelling it once snapping re-engaged)
+- New draggable "bicycle on a road" scroll control: SVG bike with continuously-spinning wheels, dragged left/right along a dashed road bar to move between cards; bidirectionally synced with native swipe on the card itself (dragging the bike scrolls the carousel, swiping the carousel moves the bike)
+- Road restyled from a thin dashed line to a solid light-gray bar (`var(--line)`) with a gold (`var(--gold)`) dashed centerline, to read as an actual road rather than a decoration
+- Removed the "Drag the bike..." hint text once behavior was confirmed intuitive
+- Section copy changed: eyebrow "ACCOMMODATION" → "FIND YOUR SPACE", heading "Choose Your Room" → "Explore the Possibilities"
+- "View All" button restyled from a plain text+arrow link to an outlined pill (no arrow), moved above the eyebrow, everything center-aligned
+- Removed floating WhatsApp button (`.wa-float`) per request
+- Added `scroll-margin-top:60px` to `#units` section so the "Explore Rooms" hero CTA anchor-scrolls to reveal the decorative roof shape instead of cutting straight to the heading
+- Roof shape (hero/units section divider, plain SVG triangle) given a thin gold stroke + small circular "dormer window" with cross muntins near the peak, matching the round windows visible in the hero photo collage
+
+### CRITICAL FIX: nginx serving wrong SSL certificate for every tenant subdomain except api.htmrentals.com
+Discovered while debugging a "connection not private" browser warning on coral.api.htmrentals.com.
+
+Root cause: this server actually runs **nginx in front of Apache** for all public traffic (nginx owns ports 80 and 443; Apache is not bound to any public port and was in fact fully down via systemd at time of investigation — its vhost files, including the per-tenant ones created by `provision-tenant.sh`, are legacy/unused for live traffic). `provision-tenant.sh` only ever created Apache vhosts + certbot certs — it never created a matching nginx server block. nginx's `sites-available/api` was effectively acting as the default TLS server for ANY hostname without a match, silently serving the `api.htmrentals.com` certificate regardless of requested SNI. This affected coral, villa, siyam, beach, beachfront, and hello — all six existing tenant subdomains were serving the wrong cert (only `api.htmrentals.com` itself was correct, since it has an actual matching nginx block).
+
+Fixed:
+- Created dedicated `/etc/nginx/sites-available/<slug>` server blocks (443, correct per-tenant cert paths, proxy_pass to localhost:3000) for coral, villa, siyam, beach, beachfront, hello — symlinked into sites-enabled, `nginx -t` verified, reloaded. All six now correctly present their own certificate (confirmed via `openssl s_client -servername`).
+- Added a `location /.well-known/acme-challenge/ { root /home/bitnami/rental-connect-guest; }` block to nginx's `default` catch-all server (previously missing entirely) — without this, certbot's webroot validation for any brand-new subdomain would fail before a dedicated nginx block even exists for it, since nginx's default root doesn't serve from the guest folder.
+- Patched `provision-tenant.sh` (both copies: `~/provision-tenant.sh` and `~/rental-connect-admin/provision-tenant.sh`) to automatically create the tenant's nginx server block, symlink it, run `nginx -t`, and reload nginx as step 4b — immediately after certbot issues the cert, before the (now-vestigial) Apache HTTPS vhost step. Script exits with an error if `nginx -t` fails, rather than silently leaving a broken/missing block.
+- `htmrentals.com`'s own cert, initially thought expired (certbot's local tracking said May 18 2026), was confirmed via live `openssl s_client` check to actually be valid until Sep 5 2026 — certbot's cached listing was just stale, not reflecting an actual successful renewal. No action needed there.
+
+Note on Apache: Apache is not required for any public-facing traffic on this server anymore (nginx handles port 80/443 directly, proxying to the Node app on :3000). Its vhost files under `/opt/bitnami/apache/conf/vhosts/` are dead weight but harmless — `provision-tenant.sh` still writes/updates them for now, not worth removing given zero risk, but worth knowing they're not what's actually serving guests.
+
+### Known follow-ups
+- The main `htmrentals.com` domain still has a "GitHub-connected" custom domain setting sitting somewhere from an earlier/abandoned setup (per user, unconfirmed exact location) — confirmed inert (DNS points straight at the Lightsail IP, nginx+certbot handle everything), left alone since it's not causing any issue and isn't worth the cleanup time right now.
+- Homepage template restyle to the RC design system (documented Session 8) — the units section got its carousel/copy/roof treatment this session, but the rest of the homepage (hero, promo, reviews, footer) has not been passed through the design-system pass yet.
+- Worth a quick sanity check next session: confirm the nginx fix + provisioning script patch survive a real new-tenant test end-to-end (create via rc-master.html, confirm the new subdomain gets a correct cert with zero manual steps).

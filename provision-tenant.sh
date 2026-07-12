@@ -52,6 +52,29 @@ sudo certbot certonly --webroot -w ${GUEST_DIR} -d ${DOMAIN} --non-interactive -
 if [ $? -ne 0 ]; then echo "✗ Certbot failed"; exit 1; fi
 echo "✓ SSL cert issued"
 
+# 4b. Create nginx server block for this tenant (SSL termination for public traffic)
+sudo tee "/etc/nginx/sites-available/${SLUG}" > /dev/null << NGINXEOF
+server {
+    listen 443 ssl;
+    server_name ${DOMAIN};
+    ssl_certificate /etc/letsencrypt/live/${DOMAIN}/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/${DOMAIN}/privkey.pem;
+
+    location / {
+        proxy_pass http://127.0.0.1:3000;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade \$http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host \$host;
+        proxy_cache_bypass \$http_upgrade;
+    }
+}
+NGINXEOF
+sudo ln -sf "/etc/nginx/sites-available/${SLUG}" "/etc/nginx/sites-enabled/${SLUG}"
+sudo nginx -t && sudo systemctl reload nginx
+if [ $? -ne 0 ]; then echo "✗ nginx config/reload failed - check manually"; exit 1; fi
+echo "✓ nginx SSL vhost active"
+
 # 5. Add HTTPS vhost
 sudo tee -a "${VHOST_DIR}/${SLUG}-vhost.conf" > /dev/null << APACHEEOF
 

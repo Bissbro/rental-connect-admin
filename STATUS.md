@@ -809,3 +809,37 @@ Note on Apache: Apache is not required for any public-facing traffic on this ser
 - The main `htmrentals.com` domain still has a "GitHub-connected" custom domain setting sitting somewhere from an earlier/abandoned setup (per user, unconfirmed exact location) — confirmed inert (DNS points straight at the Lightsail IP, nginx+certbot handle everything), left alone since it's not causing any issue and isn't worth the cleanup time right now.
 - Homepage template restyle to the RC design system (documented Session 8) — the units section got its carousel/copy/roof treatment this session, but the rest of the homepage (hero, promo, reviews, footer) has not been passed through the design-system pass yet.
 - Worth a quick sanity check next session: confirm the nginx fix + provisioning script patch survive a real new-tenant test end-to-end (create via rc-master.html, confirm the new subdomain gets a correct cert with zero manual steps).
+
+## Session 11 (Jul 13) - Experiences section built + carousel refinements + touch/interaction fixes
+
+### Experiences section (new) - excursions and activities showcase
+Added a new "Adventures Await / Life Beyond the Room" section (`#experiences`) below the Units carousel on Coral's homepage:
+- Full-bleed ocean/underwater photo background with a navy gradient overlay (same treatment pattern as the hero), swappable later via admin like other hero images
+- Rounded-rectangle cards (Snorkeling Reef Trip, Dolphin Cruise, Island Hopping, Manta & Whale Shark Cruise) — photo-as-card with title overlaid at the bottom via its own gradient scrim, currently static/hardcoded content (not yet wired to a backend table — see open items)
+- Custom drag-scroll control paired thematically with the room carousel's bicycle: a small teal-hulled dhoni (Maldivian traditional boat silhouette — curved prow, cabin with windows, mast/sail, gold trim) that bobs gently and can be dragged along a wave-line to move between cards, bidirectionally synced with native swipe
+- New JS: `initExpBoat()`, mirroring `initUnitsRoad()`'s structure but independent (own carousel/road/dots elements)
+
+### Boat design iteration (worth noting for future reference)
+Went through several rounds before landing on the final dhoni design: generic sailboat → hand-drawn dhoni attempt (multiple bezier iterations, inconsistent results) → user-provided reference SVG (proper curved prow + deckhouse + mast/sail) → mirrored horizontally to face right + recolored hull to teal (was gold, then navy, settled on teal) with gold trim to match the bike's color language. Lesson: freehand SVG bezier-path authoring without a visual tool is unreliable — matplotlib (already available in the work environment) was used to render quick local previews before pushing changes live, which caught several bad iterations before they reached the user.
+
+### Room carousel (Units section) refinements this session
+- Card size reduced: width from 82% → 66%, image height from 240/260px → 180/200px (mobile/desktop), arch radius scaled proportionally (142px → 114px) to match
+- Removed the accidental whitish gradient overlay (`.unit-card-inner::before`) that was fading the top of each room photo
+- Removed the card's outer `box-shadow` (was creating a soft grey "vignette" glow behind each card against the white section background — user wanted clean white, no glow)
+- Section background explicitly set to pure white (`#FFFFFF`) on `#units` itself, since the site's general off-white (`--off-white: #FAFAF8`) was reading as slightly grey by comparison
+- Added a simple handlebar + rider's arm to the bicycle SVG (fork line from front wheel up to a handlebar bar, plus an arm line connecting the rider's body to the grip) — previously the rider's arms weren't connected to anything
+
+### Road styling (bicycle path) - multiple iterations, settled on hand-drawn grass aesthetic
+Went from a thick grey "asphalt" bar with gold dashed centerline → single green gradient line → final: a proper SVG with a faint wavy baseline plus ~68 individually-generated curved grass blade strokes (grey shades, Bezier-curved for a natural hand-drawn look, unevenly clustered — dense patches, sparse patches, and bare gaps mixed together rather than one uniform rhythm) plus scattered simple daisy/bud flower icons (grey line-art, no fill, matching a hand-drawn reference image the user provided). Generated via a seeded Python script (not hand-authored) so the exact layout is reproducible — script logic lives in this session's history if it needs regenerating with a different look.
+Added a few more flowers by request (middle + near-end of the path) as fixed-position additions on top of the generated set.
+
+**Z-index/layering fix**: the grass SVG was initially rendering *behind* the bicycle; user wanted the opposite (grass in the foreground, bike partially riding "through" it, like tall grass along a path). Fixed via `z-index` (grass:2, bike:1) plus `pointer-events:none` on the grass SVG so it doesn't block the bike's drag interaction.
+
+### Interaction fixes (apply to BOTH the bicycle/road and dhoni/wave controls)
+- **Snap-to-nearest-card on release removed** — both `endDrag()` functions previously animated to the nearest card boundary when the user let go; changed to hold the exact position wherever the finger was released instead (no snap-back), per explicit request applied to both controls
+- **Wheel-spin-while-swiping** — bicycle wheels previously only spun when dragging the bike handle directly; now also spin during native swipe-scroll of the room cards themselves (via the grid's own `scroll` listener, with a 200ms settle-timeout to stop spinning)
+- **Critical touch-action bug found and fixed**: `touch-action:none` had been applied to the entire `.units-road`/`.wave-road` *containers* (not just the bike/boat elements), which blocked vertical page-scrolling entirely whenever a user's touch started anywhere in that area — a real usability bug, not just cosmetic. Fixed by removing `touch-action:none` from the containers and keeping it only on `.units-bike` and `.boat` themselves (the actual small draggable elements), restoring normal page scroll everywhere else while preserving bike/boat drag behavior.
+
+### Known open items
+- Experiences section activity cards (Snorkeling, Dolphin Cruise, etc.) are currently hardcoded static content — not yet backed by a real database table or admin CRUD, unlike Units. If this becomes a real per-tenant feature (matching the "Experience/Activity Provider" tier already scoped in earlier planning notes), it needs its own `activities` table + admin page, same pattern as packages/reviews.
+- Grass/flower SVG layout is a fixed, seeded-random generation baked into the HTML — not dynamic, not regenerated per-tenant. Fine for Coral as a one-off design touch; would need to be turned into a reusable snippet/component if applied to other tenants' sites.

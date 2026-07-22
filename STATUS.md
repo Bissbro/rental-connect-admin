@@ -843,3 +843,34 @@ Added a few more flowers by request (middle + near-end of the path) as fixed-pos
 ### Known open items
 - Experiences section activity cards (Snorkeling, Dolphin Cruise, etc.) are currently hardcoded static content — not yet backed by a real database table or admin CRUD, unlike Units. If this becomes a real per-tenant feature (matching the "Experience/Activity Provider" tier already scoped in earlier planning notes), it needs its own `activities` table + admin page, same pattern as packages/reviews.
 - Grass/flower SVG layout is a fixed, seeded-random generation baked into the HTML — not dynamic, not regenerated per-tenant. Fine for Coral as a one-off design touch; would need to be turned into a reusable snippet/component if applied to other tenants' sites.
+
+## Session 12 (Jul 20) - HTM: unit-creation bug, Telegram booking invoice PDF, guest review system
+
+### Bug fix: "Failed to create unit" on HTM admin
+`POST /api/admin/units` referenced `is_active` and `show_on_website` in its SQL params but never destructured them from `req.body` — `ReferenceError: is_active is not defined` on every save. Fixed by adding both to the destructuring list. Verified fix by successfully creating a new unit (A-118, id=9) afterward.
+
+### Telegram: new booking's invoice PDF now links back to admin (matches minibar's existing pattern)
+Traced the actual working reference pattern first: minibar's Telegram flow (`mb_confirm` handler) doesn't upload a PDF file directly — it generates a signed, short-lived download link via `generatePdfToken(invoiceId)` + `/api/invoice-download/:token` and sends that as a clickable link in the Telegram confirmation message (expires in 2 min). Applied the identical pattern to the `nb_confirm` handler (Telegram's "new booking" admin flow) — its confirmation message now includes the same "📄 Download Invoice" link, right after invoice_items are inserted.
+Side-note: discovered `sendTelegramPhoto` is defined three separate times in server.js but never actually called anywhere — dead/duplicate code, left as-is (not touched this session, flagged for future cleanup).
+
+### Bug fix: new units invisible to Telegram's `/newbooking` unit picker
+`handleBookingCommand` (the `/newbooking` flow) had a hardcoded whitelist `[1,4,5,6,7]` filtering which units show up as selectable — meaning every new unit needs manual code changes to ever appear, a silent trap for future units (this is what caused A-118 to not show up initially). Removed the whitelist entirely; the picker now shows whatever `getUnitRates()` returns (already correctly filtered by `is_active=1 AND show_on_website=1`), matching every other unit picker in the codebase. Confirmed A-118 appears immediately with zero code changes needed going forward.
+
+### New feature: guest-facing review submission page
+Built a full guest review flow end-to-end:
+- New standalone page `~/htm-rentals/leave-review.html` (deployed via git push → GitHub Pages, confirmed `htmrentals.com` is served by GitHub Pages, NOT this Lightsail server — the nginx "backend" vhost found on Lightsail for htmrentals.com is vestigial/unused, same pattern as the dead Apache vhosts found in Session 10-11). Matches HTM's brand system (Navy/Gold/Teal, Playfair Display, Inter).
+- Flow: guest opens `leave-review.html?booking=HTM-XXXXXX` → page calls new public API to look up guest name + unit (prefills form, guest can correct name if needed) → star rating + review text + optional country → submits → saved to `reviews` table with `is_active=0` (pending), shows up in the existing `reviews.html` admin page for approval exactly like today's flow — no admin-side changes needed.
+- New backend routes: `GET /api/public/booking-lookup/:ref` (returns guest_name/unit_label/already_reviewed, no sensitive data), `POST /api/public/reviews` (validates the booking reference server-side, blocks duplicate submissions per booking via a new `booking_id` column added to `reviews`).
+
+### Critical gap found and fixed: `booking_reference` was essentially unused
+Discovered only 1 of 126 existing HTM bookings had a `booking_reference` at all, and even that one was a malformed Agoda-import artifact ("Booking ID: <agoda_id>", not a clean code) — meaning the whole review-link plan had nothing reliable to identify a booking by. Fixed properly:
+- **Backfilled** all 126 existing bookings with a deterministic reference: `CONCAT('HTM-', LPAD(id, 6, '0'))` (e.g. `HTM-000143`) — one-time SQL UPDATE, safe to re-run anytime since it's fully derived from the primary key.
+- **Fixed going forward**: audited every `INSERT INTO bookings` in server.js. Two were RC's (Coral's) own tenant-scoped routes (already have their own `WEB-`/`RC-` reference systems via `req.db`/`tdb` — left untouched, not HTM's concern). The three actual HTM routes (lead-booking route, `/api/admin/bookings` admin-create route, and the Telegram `nb_confirm` flow) each now auto-fill `booking_reference` in the same `HTM-XXXXXX` format immediately after insert if one wasn't already explicitly provided (preserves any future legitimate OTA-supplied reference via `COALESCE(NULLIF(...))`).
+
+### Easiest possible distribution for a non-technical staff member (Usaid)
+Rather than building a separate command/button he'd need to learn, the review link now gets **baked directly into the existing `/today` command's checkout messages** he already uses daily — each checkout notification now includes a ready-to-copy "⭐ Review link (send to guest)" line with the full URL, computed inline from the booking id (no schema/query changes needed). He just long-presses to copy and pastes into WhatsApp — zero new workflow to learn.
+
+### Known follow-ups
+- `sendTelegramPhoto` triple-definition (dead code) not cleaned up this session — low priority, harmless as-is since unused.
+- Separate pre-existing bug noticed in passing: `Telegram webhook error: msg is not defined`, appears to trigger specifically when a Telegram conversation flow (e.g. `/newbooking`) is started and then abandoned/cancelled partway through. Not investigated this session — worth a look next time, though it doesn't block the main flows.
+- Review page doesn't yet have a way for admin to *generate/copy* the link outside of a checkout-day scenario (e.g. for a guest who already checked out days ago) — could add a small button in `bookings.html` admin next to each booking showing/copying its review link, if that turns out to be needed in practice.
